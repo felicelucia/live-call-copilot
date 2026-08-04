@@ -1,82 +1,44 @@
 # 🎧 Live Call Copilot
 
-**Copilota per call e colloqui — nel browser, senza installare nulla, con la tua chiave AI.**
-Ascolta la conversazione, ti suggerisce la risposta in inglese e la traduce in italiano in tempo reale.
+**The open, private, European AI copilot for your calls.**
+It listens to your conversation (interview, meeting, sales…) and suggests what to say in real time — with any model, even 100% locally. In your browser, no install.
 
-> Open-source · Nessuna installazione · Bring-Your-Own-Key (Google Gemini) · La tua chiave e i tuoi dati restano nel tuo browser.
+> Open-core · No-install · Model-agnostic (Gemini · Claude · Mistral 🇪🇺 · OpenAI · DeepSeek · Qwen · Kimi · Groq · Ollama) · Privacy-first · GDPR & EU AI Act minded
 
-![status](https://img.shields.io/badge/status-MVP-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![no%20install](https://img.shields.io/badge/install-none-brightgreen)
-
----
-
-## 🇮🇹 Cos'è
-
-Un unico file HTML che trasforma il tuo browser in un assistente per le call:
-
-- **Trascrizione live** di ciò che dice l'interlocutore (riconoscimento vocale di Chrome).
-- **Risposte suggerite** generate con **Google Gemini** (la tua chiave, gratuita).
-- **Traduzione** della domanda in italiano.
-- **Risposta automatica**: appena l'altro fa una pausa, la risposta compare da sola.
-- **Contesto personale**: incolli CV e ruolo → le risposte sono cucite su di te.
-- **Memoria locale**: chiave e impostazioni salvate solo sul tuo computer.
-
-Perché diverso dalle app "interview copilot" desktop: qui **non installi niente**, si apre da un link, ed è pensato per un uso **trasparente** (assistente linguistico / secondo schermo), non per nascondersi.
-
-## 🚀 Come si usa (2 minuti)
-
-1. Apri `index.html` (o la versione online — vedi sotto).
-2. Crea una chiave Gemini gratuita su **[Google AI Studio](https://aistudio.google.com/apikey)** e incollala.
-3. Premi **"Verifica & carica"** → sceglie da solo un modello valido.
-4. (Opzionale) Incolla CV e posizione nel campo "contesto".
-5. Premi **🎙 Ascolta** (audio della call dagli altoparlanti) oppure scrivi la domanda.
-6. Leggi la risposta suggerita. Attiva **⚡** per la risposta automatica.
-
-## 🌐 Versione online (GitHub Pages)
-
-Abilitando GitHub Pages su questo repo, l'app è raggiungibile da un link pubblico
-(`https://<utente>.github.io/<repo>/`) senza scaricare nulla — ideale per provarla o condividerla.
-
-## 🔒 Privacy
-
-- La chiave API e il contesto restano **nel tuo browser** (memoria locale opzionale).
-- Le richieste vanno **solo** a Google (Gemini) e al riconoscimento vocale di Chrome.
-- Nessun server intermedio, nessun tracciamento.
-
-## 🧩 Come funziona (architettura)
-
-```
-Microfono/altoparlanti → Web Speech API (trascrizione) → Google Gemini (con il tuo contesto) → risposta + traduzione
-```
-
-Tutto lato client, in un singolo file. Nessun backend.
-
-## 🛠️ Limiti onesti
-
-- Il browser **non** può catturare l'audio di sistema in modo silenzioso né nascondersi dalla condivisione schermo (paletti di sicurezza del browser). Per quello serve un'app desktop.
-- Il riconoscimento vocale funziona al meglio su **Google Chrome**.
-- Il piano gratuito di Gemini ha limiti di velocità.
-
-## 🗺️ Roadmap (idee per chi vuole forkare)
-
-- Cattura audio della scheda del browser (tab audio) via `getDisplayMedia`.
-- Supporto ad altri provider (OpenAI, Claude, modelli locali).
-- Modalità "seconda finestra" compatta.
-- Versione SaaS con backend + chiave universale + pagamenti.
-
-## 📄 Licenza
-
-MIT — libero di usare, modificare, forkare e migliorare. Vedi [LICENSE](LICENSE).
-
-## ⚠️ Uso responsabile
-
-Usare suggerimenti AI durante una selezione può violare le regole del datore di lavoro.
-Registrare o inviare a un servizio AI la voce di altri partecipanti richiede il loro consenso (GDPR).
-Questo strumento è pensato per un uso trasparente e consapevole.
+![license](https://img.shields.io/badge/license-AGPL--3.0-green) ![status](https://img.shields.io/badge/status-MVP-blue) ![no%20install](https://img.shields.io/badge/install-none-brightgreen)
 
 ---
 
-## 🇬🇧 In short
+## What it is
+A single HTML file that turns your browser into a real-time call assistant:
 
-A single-file, no-install, browser-based **call & interview copilot**. Live transcription + AI answer
-suggestions (Google Gemini, bring-your-own-key) + Italian translation. Your key and data stay in your browser.
-Open the HTML file, paste your free Gemini key, press listen. MIT licensed — fork and improve freely.
+- **Live transcription** (Chrome speech recognition).
+- **Streamed AI answers** with **the engine you choose** (your key — free with Gemini).
+- **🔒 100% local mode (Ollama)**: no data ever leaves your computer.
+- **Skills**: interview, sales, support, meeting, negotiation, live translation, study, custom.
+- **Multilingual UI** with auto-detect (IT / EN / 中文 / ES).
+- **Auto-answer** + a **floating window** you can dock next to Zoom.
+
+Unlike "interview copilot" apps: **nothing to install**, opens from a link, and it's built for **transparent, private** use.
+
+## Quick start (1 minute)
+1. Open `index.html` (or the online version — GitHub Pages).
+2. Choose **Free with Gemini** (key from [Google AI Studio](https://aistudio.google.com/apikey)), **your own key**, or **🔒 Local** with [Ollama](https://ollama.com/download).
+3. Press **▶ Start**: it listens and suggests on its own.
+
+## Privacy
+Your key and text stay in your browser (or entirely on your PC in local mode). No middle server, no tracking. Local mode = zero data in the cloud.
+
+## Roadmap (the "big" version)
+- **Ready-to-use** paid mode (no key needed — a universal key on our EU backend).
+- **Security tiers** per conversation (cloud · EU-sovereign · local · encrypted / zero-retention).
+- **Multiplayer**: a shared assistant present in the group's discussion.
+- **Enterprise EU**: self-host, EU data residency, GDPR & AI Act compliant.
+
+## License & contributions (open-core)
+This client is released under **GNU AGPL-3.0**: you are free to use, study and modify it, but anyone offering a **modified network service must publish their changes** (guards against closed-SaaS copycats).
+
+The project follows an **open-core** model: the client is open; premium backend modules (sovereign inference, security tiers, multiplayer, billing, compliance) are **proprietary**. Contributions are accepted under a **CLA** (Contributor License Agreement), which lets the project offer commercial/proprietary versions.
+
+## Responsible use
+Using AI suggestions during a hiring process may violate the employer's rules; capturing other people's voices requires their consent (GDPR). This tool is intended for transparent, mindful use.
