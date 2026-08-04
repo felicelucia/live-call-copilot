@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il mio Copilota — assistente per le call</title>
+<style>
+  :root{
+    --bg:#0d1017; --panel:#151a24; --panel2:#1b2230; --border:#28323f;
+    --text:#e9edf4; --muted:#93a0b2; --accent:#5aa9ff; --accent2:#4cc38a;
+    --amber:#e6b862; --danger:#e5735f; --violet:#a78bfa; --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; height:100%;}
+  body{background:radial-gradient(1200px 500px at 80% -10%, #16203010, transparent), var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height:1.5;}
+  .wrap{max-width:1040px; margin:0 auto; padding:20px 16px 70px; display:flex; flex-direction:column; gap:16px;}
+
+  header{display:flex; align-items:center; gap:12px;}
+  .logo{width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,var(--accent),var(--violet)); display:flex; align-items:center; justify-content:center; font-size:1.2rem;}
+  header h1{font-size:1.2rem; margin:0;}
+  header p{margin:2px 0 0; color:var(--muted); font-size:.83rem;}
+  .chips{margin-left:auto; display:flex; gap:6px; flex-wrap:wrap;}
+  .chip{font-size:.7rem; padding:4px 9px; border-radius:20px; border:1px solid var(--border); color:var(--muted); background:var(--panel);}
+  .chip.ok{color:var(--accent2); border-color:rgba(76,195,138,.4);}
+  .chip.off{color:var(--muted);}
+
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px;}
+  .panel h2{margin:0 0 12px; font-size:.9rem; color:var(--accent); font-weight:600;}
+  details.panel{padding:0 18px;}
+  details.panel summary{list-style:none; cursor:pointer; padding:15px 0; font-size:.9rem; color:var(--text); font-weight:600; display:flex; align-items:center; gap:8px;}
+  details.panel summary::-webkit-details-marker{display:none;}
+  details.panel summary .caret{margin-left:auto; color:var(--muted); transition:transform .2s;}
+  details[open].panel summary .caret{transform:rotate(180deg);}
+  .panel-body{padding-bottom:16px;}
+
+  label{display:block; font-size:.78rem; color:var(--muted); margin:10px 0 4px;}
+  input[type=password],input[type=text],select,textarea{
+    width:100%; background:var(--panel2); border:1px solid var(--border); color:var(--text);
+    border-radius:10px; padding:10px 12px; font-size:.9rem; font-family:inherit; outline:none;}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+  textarea{resize:vertical; min-height:80px;}
+  .row{display:flex; gap:12px; flex-wrap:wrap;}
+  .row>div{flex:1; min-width:170px;}
+
+  button{cursor:pointer; border:none; border-radius:10px; font-size:.9rem; font-weight:600; font-family:inherit; padding:10px 15px; transition:filter .15s, background .15s;}
+  button:hover{filter:brightness(1.12);}
+  button:disabled{opacity:.5; cursor:not-allowed;}
+  .btn-primary{background:var(--accent); color:#04121f;}
+  .btn-ghost{background:var(--panel2); color:var(--text); border:1px solid var(--border);}
+  .btn-listen{background:var(--accent2); color:#052015; font-size:1rem; padding:13px 22px;}
+  .btn-listen.on{background:var(--danger); color:#fff; animation:pulse 1.6s infinite;}
+  .btn-toggle{background:var(--panel2); color:var(--muted); border:1px solid var(--border);}
+  .btn-toggle.on{background:rgba(167,139,250,.18); color:var(--violet); border-color:var(--violet);}
+  @keyframes pulse{50%{filter:brightness(1.3);}}
+
+  .checkbox{display:flex; align-items:center; gap:8px; margin-top:12px; font-size:.82rem; color:var(--muted);}
+  .checkbox input{width:auto;}
+
+  .status{font-size:.8rem; color:var(--muted); min-height:1.1em;}
+  .status.ok{color:var(--accent2);} .status.err{color:var(--danger);} .status.work{color:var(--amber);}
+
+  .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  .live-grid{display:grid; grid-template-columns:1fr 1.1fr; gap:16px;}
+  @media(max-width:780px){.live-grid{grid-template-columns:1fr;}}
+  .box{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; display:flex; flex-direction:column; min-height:200px;}
+  .box .head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .box h2{margin:0; font-size:.9rem; color:var(--accent);}
+  .transcript{flex:1; overflow-y:auto; max-height:320px; font-size:.95rem;}
+  .transcript .interim{color:var(--muted); font-style:italic;}
+  .transcript:empty::before{content:"Qui compare in tempo reale ciò che viene detto."; color:var(--muted); font-size:.85rem;}
+  .answer{flex:1; overflow-y:auto; max-height:440px; white-space:pre-wrap; font-size:1.05rem;}
+  .answer:empty::before{content:"La risposta suggerita comparirà qui."; color:var(--muted); font-size:.85rem;}
+  .answer .q{color:var(--amber); font-weight:600;}
+  .answer .a{color:var(--accent2); font-weight:600;}
+  .mini{font-size:.72rem; color:var(--muted); background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:4px 9px; cursor:pointer;}
+
+  code{background:var(--panel2); padding:1px 6px; border-radius:5px; font-size:.82rem;}
+  a{color:var(--accent);}
+  .foot{font-size:.76rem; color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">🎧</div>
+    <div>
+      <h1>Il mio Copilota</h1>
+      <p>Ascolta, ti suggerisce la risposta in inglese e la traduce. Tutto nel tuo browser, con la tua chiave Gemini.</p>
+    </div>
+    <div class="chips">
+      <span class="chip off" id="chipKey">chiave: no</span>
+      <span class="chip off" id="chipAuto">auto: off</span>
+    </div>
+  </header>
+
+  <!-- SETUP (collapsible) -->
+  <details class="panel" id="setupPanel" open>
+    <summary>⚙️ Configurazione <span class="caret">▾</span></summary>
+    <div class="panel-body">
+      <label>Chiave API Google Gemini <span style="color:var(--muted)">— gratuita, la incolli tu</span></label>
+      <div class="row">
+        <div style="flex:3"><input type="password" id="apiKey" placeholder="Incolla la chiave (AIza...)" autocomplete="off"></div>
+        <div style="flex:1; min-width:150px; display:flex; align-items:flex-end"><button class="btn-ghost" id="loadModels" style="width:100%">Verifica & carica</button></div>
+      </div>
+      <div class="status" id="setupStatus"></div>
+
+      <div class="row">
+        <div>
+          <label>Modello</label>
+          <select id="model"><option value="">— carica prima i modelli —</option></select>
+        </div>
+        <div>
+          <label>Lingua di chi parla</label>
+          <select id="lang">
+            <option value="en-US">Inglese (US)</option>
+            <option value="en-GB">Inglese (UK)</option>
+            <option value="it-IT">Italiano</option>
+            <option value="es-ES">Spagnolo</option>
+            <option value="fr-FR">Francese</option>
+            <option value="de-DE">Tedesco</option>
+            <option value="pt-PT">Portoghese</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Il tuo contesto — CV, ruolo, punti di forza <span style="color:var(--muted)">(così le risposte sono su misura per te)</span></label>
+      <textarea id="context" placeholder="Es: Mi chiamo Felice, esperienza in project management nel fotovoltaico. Mi candido come Project Manager. Punti di forza: ... Progetti: ..."></textarea>
+
+      <div class="checkbox">
+        <input type="checkbox" id="remember" checked>
+        <label for="remember" style="margin:0">Ricorda tutto su questo computer (comodo — la chiave resta salvata solo qui sul tuo PC). <a href="#" id="forget">Dimentica ora</a></label>
+      </div>
+    </div>
+  </details>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="btn-listen" id="listenBtn">🎙 Ascolta</button>
+    <button class="btn-toggle" id="autoBtn">⚡ Risposta automatica</button>
+    <button class="btn-primary" id="suggestBtn" disabled>💡 Suggerisci ora</button>
+    <button class="btn-ghost" id="clearBtn">🗑 Pulisci</button>
+    <span class="status" id="liveStatus" style="margin-left:4px"></span>
+  </div>
+
+  <!-- LIVE -->
+  <div class="live-grid">
+    <div class="box">
+      <div class="head"><h2>📝 Ascolto in tempo reale</h2></div>
+      <div class="transcript" id="transcript"></div>
+      <div style="margin-top:10px">
+        <input type="text" id="manualQ" placeholder="Oppure scrivi/incolla la domanda e premi Invio…">
+      </div>
+    </div>
+    <div class="box">
+      <div class="head"><h2>💬 Risposta suggerita</h2><button class="mini" id="copyBtn">Copia</button></div>
+      <div class="answer" id="answer"></div>
+    </div>
+  </div>
+
+  <details class="panel">
+    <summary>ℹ️ Come usarlo <span class="caret">▾</span></summary>
+    <div class="panel-body foot">
+      <b>Per far sentire l'altra persona:</b> tieni l'audio della call dagli <b>altoparlanti</b> (non con le cuffie), così il microfono lo capta. Oppure scrivi tu la domanda.<br><br>
+      <b>Risposta automatica:</b> attiva "⚡" e premi "Ascolta": quando l'altro fa una pausa, la risposta compare da sola. Senza "⚡", premi "Suggerisci ora" quando vuoi.<br><br>
+      <b>Privacy:</b> chiave e testo restano nel tuo browser; le richieste vanno solo a Google (Gemini) e al riconoscimento vocale di Chrome. Se attivi "Ricorda", i dati sono salvati solo su questo computer.<br><br>
+      <b>Nota etica:</b> usare suggerimenti AI durante una selezione può violare le regole dell'azienda; captare la voce altrui richiede il loro consenso (GDPR). Usalo con testa.
+    </div>
+  </details>
+
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const apiKeyEl=$('apiKey'), modelEl=$('model'), langEl=$('lang'), ctxEl=$('context'), rememberEl=$('remember');
+  const setupStatus=$('setupStatus'), liveStatus=$('liveStatus');
+  const transcriptEl=$('transcript'), answerEl=$('answer'), manualQ=$('manualQ');
+  const listenBtn=$('listenBtn'), autoBtn=$('autoBtn'), suggestBtn=$('suggestBtn'), clearBtn=$('clearBtn'), copyBtn=$('copyBtn'), loadBtn=$('loadModels');
+  const chipKey=$('chipKey'), chipAuto=$('chipAuto');
+
+  const API='https://generativelanguage.googleapis.com/v1beta/';
+  let finalText='', recognizing=false, recognition=null, autoMode=false, busy=false;
+  let pauseTimer=null, lastLen=0, lastAnswer='';
+
+  // ---- storage (safe: never breaks if unavailable) ----
+  const store={ get(k){try{return localStorage.getItem(k);}catch(_){return null;}},
+                set(k,v){try{localStorage.setItem(k,v);}catch(_){}},
+                del(k){try{localStorage.removeItem(k);}catch(_){}} };
+  const KEYS=['ic_key','ic_ctx','ic_lang','ic_model','ic_remember'];
+  function saveSettings(){
+    if(!rememberEl.checked){ KEYS.forEach(store.del); store.set('ic_remember','0'); return; }
+    store.set('ic_remember','1');
+    store.set('ic_key',apiKeyEl.value.trim());
+    store.set('ic_ctx',ctxEl.value);
+    store.set('ic_lang',langEl.value);
+    store.set('ic_model',modelEl.value);
+  }
+  function setStatus(el,msg,cls){ el.textContent=msg; el.className='status '+(cls||''); }
+  function updChips(){
+    chipKey.textContent='chiave: '+(apiKeyEl.value.trim()?'sì':'no'); chipKey.className='chip '+(apiKeyEl.value.trim()?'ok':'off');
+    chipAuto.textContent='auto: '+(autoMode?'on':'off'); chipAuto.className='chip '+(autoMode?'ok':'off');
+  }
+
+  // ---- load models (robust to model changes over time) ----
+  async function loadModels(auto){
+    const key=apiKeyEl.value.trim();
+    if(!key){ if(!auto) setStatus(setupStatus,'Inserisci prima la chiave API.','err'); return; }
+    setStatus(setupStatus,'Verifico la chiave e carico i modelli…','work');
+    try{
+      const r=await fetch(API+'models?key='+encodeURIComponent(key));
+      const data=await r.json();
+      if(!r.ok) throw new Error((data.error&&data.error.message)||('HTTP '+r.status));
+      const models=(data.models||[])
+        .filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
+        .filter(m=>/gemini/i.test(m.name) && !/embedding|aqa|imagen/i.test(m.name));
+      if(!models.length) throw new Error('Nessun modello di testo su questa chiave.');
+      modelEl.innerHTML='';
+      models.forEach(m=>{ const o=document.createElement('option'); o.value=m.name;
+        o.textContent=m.displayName||m.name.replace('models/',''); modelEl.appendChild(o); });
+      const saved=store.get('ic_model');
+      const opts=[...modelEl.options];
+      const pick = (saved && opts.find(o=>o.value===saved)) ||
+                   opts.find(o=>/flash/i.test(o.value)&&/latest/i.test(o.value)) ||
+                   opts.find(o=>/flash-lite/i.test(o.value)&&!/2\.5|2\.0|1\.5/i.test(o.value)) ||
+                   opts.find(o=>/flash/i.test(o.value)&&!/2\.5|2\.0|1\.5/i.test(o.value)) ||
+                   opts.find(o=>/flash/i.test(o.value)) || opts[0];
+      if(pick) modelEl.value=pick.value;
+      saveSettings();
+      setStatus(setupStatus,'✔ Chiave valida — '+models.length+' modelli. Sei pronta.','ok');
+    }catch(e){ setStatus(setupStatus,'Errore: '+e.message,'err'); }
+  }
+  loadBtn.addEventListener('click',()=>loadModels(false));
+
+  // ---- speech recognition ----
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  function startRec(){
+    if(!SR){ setStatus(liveStatus,'Riconoscimento vocale non supportato: usa Chrome o scrivi la domanda.','err'); return; }
+    recognition=new SR(); recognition.lang=langEl.value; recognition.continuous=true; recognition.interimResults=true;
+    recognition.onresult=e=>{
+      let interim='';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const t=e.results[i][0].transcript;
+        if(e.results[i].isFinal){ finalText+=t+' '; } else { interim+=t; }
+      }
+      render(interim);
+      if(autoMode) scheduleAuto();
+    };
+    recognition.onerror=e=>{ setStatus(liveStatus,'Microfono: '+e.error,'err'); };
+    recognition.onend=()=>{ if(recognizing){ try{recognition.start();}catch(_){}} };
+    try{ recognition.start(); recognizing=true; listenBtn.classList.add('on'); listenBtn.textContent='⏸ Stop'; setStatus(liveStatus,'In ascolto…','ok'); }catch(_){}
+  }
+  function stopRec(){ recognizing=false; if(recognition) recognition.stop(); if(pauseTimer) clearTimeout(pauseTimer);
+    listenBtn.classList.remove('on'); listenBtn.textContent='🎙 Ascolta'; setStatus(liveStatus,'Fermato.'); }
+  function render(interim){ transcriptEl.innerHTML=finalText+'<span class="interim">'+(interim||'')+'</span>'; transcriptEl.scrollTop=transcriptEl.scrollHeight; }
+  listenBtn.addEventListener('click',()=> recognizing?stopRec():startRec());
+
+  // auto-suggest on pause
+  function scheduleAuto(){
+    if(pauseTimer) clearTimeout(pauseTimer);
+    pauseTimer=setTimeout(()=>{
+      const grown = finalText.length - lastLen;
+      if(!busy && grown>18){ lastLen=finalText.length; suggest(); }
+    }, 1200);
+  }
+  autoBtn.addEventListener('click',()=>{ autoMode=!autoMode; autoBtn.classList.toggle('on',autoMode); updChips();
+    setStatus(liveStatus, autoMode?'Risposta automatica attiva.':'Risposta automatica disattivata.', autoMode?'ok':''); });
+
+  clearBtn.addEventListener('click',()=>{ finalText=''; lastLen=0; render(''); answerEl.innerHTML=''; lastAnswer=''; });
+
+  // ---- Gemini call with auto-fallback ----
+  function buildSystem(){
+    return "Sei il copilota di una persona durante una call/colloquio di lavoro. "
+      +"Contesto sulla persona (usalo per personalizzare, in prima persona):\n"+(ctxEl.value.trim()||'(nessun contesto)')
+      +"\n\nRicevi la trascrizione di ciò che ha detto l'interlocutore. Individua l'ULTIMA domanda e:\n"
+      +"1) Riporta la domanda tradotta in italiano.\n"
+      +"2) Scrivi una risposta pronta da dire ad alta voce, in inglese naturale e parlato, in prima persona, concisa (4-7 frasi), sicura ma non arrogante, coerente col contesto.\n"
+      +"Se non c'è una vera domanda, scrivi comunque un breve spunto utile.\n"
+      +"Formato ESATTO:\nDOMANDA (IT): <...>\nRISPOSTA (EN): <...>";
+  }
+  // streaming: la risposta si scrive man mano che arriva (effetto live)
+  async function streamModel(model,key,system,q,onDelta){
+    let res;
+    try{
+      res=await fetch(API+model+':streamGenerateContent?alt=sse&key='+encodeURIComponent(key),{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ systemInstruction:{parts:[{text:system}]},
+          contents:[{role:'user',parts:[{text:'Trascrizione:\n'+q}]}],
+          generationConfig:{temperature:0.6,maxOutputTokens:700} })
+      });
+    }catch(e){ return {ok:false,error:e.message,retry:false}; }
+    if(!res.ok){ let msg='HTTP '+res.status; try{const d=await res.json(); msg=(d.error&&d.error.message)||msg;}catch(_){}
+      const retry=res.status===404||/no longer available|not found|not supported|deprecated|update your code/i.test(msg);
+      return {ok:false,error:msg,retry}; }
+    const reader=res.body.getReader(), dec=new TextDecoder(); let buf='', full='';
+    try{
+      while(true){
+        const {done,value}=await reader.read(); if(done) break;
+        buf+=dec.decode(value,{stream:true});
+        let idx;
+        while((idx=buf.indexOf('\n'))>=0){
+          const line=buf.slice(0,idx).trim(); buf=buf.slice(idx+1);
+          if(!line.startsWith('data:')) continue;
+          const payload=line.slice(5).trim(); if(!payload||payload==='[DONE]') continue;
+          try{ const j=JSON.parse(payload);
+            const parts=(((j.candidates||[])[0]||{}).content||{}).parts||[];
+            const t=parts.map(p=>p.text||'').join('');
+            if(t){ full+=t; onDelta(full); }
+          }catch(_){}
+        }
+      }
+    }catch(e){ if(!full) return {ok:false,error:e.message,retry:false}; }
+    return {ok:true,text:full||'(nessuna risposta)'};
+  }
+  async function suggest(questionText){
+    const key=apiKeyEl.value.trim();
+    if(!key){ setStatus(liveStatus,'Manca la chiave API.','err'); return; }
+    if(!modelEl.value){ setStatus(liveStatus,'Carica prima i modelli.','err'); return; }
+    const q=(questionText||finalText).trim().slice(-1800);
+    if(!q){ setStatus(liveStatus,'Non c\'è ancora una domanda.','err'); return; }
+    busy=true; suggestBtn.disabled=true;
+    const system=buildSystem();
+    const cands=[modelEl.value,...[...modelEl.options].map(o=>o.value).filter(v=>v&&v!==modelEl.value)];
+    let done=false;
+    for(let i=0;i<cands.length;i++){
+      const m=cands[i];
+      setStatus(liveStatus, i===0?'Sto pensando…':'Provo un altro modello ('+m.replace('models/','')+')…','work');
+      const res=await streamModel(m,key,system,q,renderAnswer);
+      if(res.ok){ renderAnswer(res.text); modelEl.value=m; saveSettings();
+        setStatus(liveStatus,'Pronta ✔ — '+m.replace('models/',''),'ok'); done=true; break; }
+      if(!res.retry){ setStatus(liveStatus,'Errore: '+res.error,'err'); done=true; break; }
+    }
+    if(!done) setStatus(liveStatus,'Nessun modello disponibile. Ricarica i modelli o crea una nuova chiave.','err');
+    busy=false; suggestBtn.disabled=false;
+  }
+  function renderAnswer(text){
+    lastAnswer=text;
+    const safe=text.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    answerEl.innerHTML=safe.replace(/(DOMANDA \(IT\):)/,'<span class="q">$1</span>').replace(/(RISPOSTA \(EN\):)/,'<span class="a">$1</span>');
+    answerEl.scrollTop=0;
+  }
+  suggestBtn.addEventListener('click',()=>suggest());
+  manualQ.addEventListener('keydown',e=>{ if(e.key==='Enter'&&manualQ.value.trim()){ suggest(manualQ.value.trim()); manualQ.value=''; } });
+  copyBtn.addEventListener('click',()=>{ if(!lastAnswer) return; try{ navigator.clipboard.writeText(lastAnswer); copyBtn.textContent='Copiato ✔'; setTimeout(()=>copyBtn.textContent='Copia',1500);}catch(_){} });
+
+  // ---- persist on change ----
+  [apiKeyEl,ctxEl,langEl,modelEl].forEach(el=>el.addEventListener('change',()=>{ saveSettings(); updChips(); }));
+  apiKeyEl.addEventListener('input',()=>{ suggestBtn.disabled=!apiKeyEl.value.trim(); updChips(); });
+  rememberEl.addEventListener('change',saveSettings);
+  $('forget').addEventListener('click',e=>{ e.preventDefault(); KEYS.forEach(store.del); apiKeyEl.value=''; ctxEl.value=''; updChips(); setStatus(setupStatus,'Dati dimenticati da questo computer.','ok'); });
+
+  // ---- init: restore saved settings ----
+  (function init(){
+    if(store.get('ic_remember')==='0') rememberEl.checked=false;
+    const k=store.get('ic_key'), c=store.get('ic_ctx'), l=store.get('ic_lang');
+    if(k) apiKeyEl.value=k; if(c) ctxEl.value=c; if(l) langEl.value=l;
+    suggestBtn.disabled=!apiKeyEl.value.trim(); updChips();
+    if(apiKeyEl.value.trim()){ loadModels(true); $('setupPanel').open=false; } // già configurata: parti pronta
+  })();
+})();
+</script>
+</body>
+</html>
