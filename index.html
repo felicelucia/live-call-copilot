@@ -3,361 +3,631 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Il mio Copilota — assistente per le call</title>
+<title>Live Call Copilot — il tuo assistente per le videochiamate</title>
+<meta name="theme-color" content="#ff7a59">
+<meta name="description" content="The open, private AI copilot for your calls — it listens and suggests what to say, in real time.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Copilot">
 <style>
   :root{
-    --bg:#0d1017; --panel:#151a24; --panel2:#1b2230; --border:#28323f;
-    --text:#e9edf4; --muted:#93a0b2; --accent:#5aa9ff; --accent2:#4cc38a;
-    --amber:#e6b862; --danger:#e5735f; --violet:#a78bfa; --radius:14px;
+    --bg:#fbf7f2; --card:#ffffff; --soft:#fff3ec; --soft2:#eefaf4;
+    --ink:#2c2521; --muted:#948a80; --line:#efe6db;
+    --accent:#ff7a59; --accent-d:#e85d3a; --teal:#12b886; --amber:#f2a900; --violet:#8b7be8;
+    --r:18px; --sh:0 8px 30px rgba(60,40,25,.08);
   }
   *{box-sizing:border-box;}
-  html,body{margin:0; height:100%;}
-  body{background:radial-gradient(1200px 500px at 80% -10%, #16203010, transparent), var(--bg); color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height:1.5;}
-  .wrap{max-width:1040px; margin:0 auto; padding:20px 16px 70px; display:flex; flex-direction:column; gap:16px;}
+  html,body{margin:0;}
+  body{background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif; line-height:1.55;}
+  .wrap{max-width:960px; margin:0 auto; padding:18px 18px 70px; display:flex; flex-direction:column; gap:18px;}
 
-  header{display:flex; align-items:center; gap:12px;}
-  .logo{width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,var(--accent),var(--violet)); display:flex; align-items:center; justify-content:center; font-size:1.2rem;}
-  header h1{font-size:1.2rem; margin:0;}
-  header p{margin:2px 0 0; color:var(--muted); font-size:.83rem;}
-  .chips{margin-left:auto; display:flex; gap:6px; flex-wrap:wrap;}
-  .chip{font-size:.7rem; padding:4px 9px; border-radius:20px; border:1px solid var(--border); color:var(--muted); background:var(--panel);}
-  .chip.ok{color:var(--accent2); border-color:rgba(76,195,138,.4);}
-  .chip.off{color:var(--muted);}
+  /* header */
+  .top{display:flex; align-items:center; gap:12px;}
+  .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--amber));display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 6px 18px rgba(255,122,89,.35);}
+  .top .name{font-weight:800; font-size:1.1rem;}
+  .langswitch{margin-left:auto; display:flex; gap:3px; background:#fff; border:1px solid var(--line); border-radius:22px; padding:3px; box-shadow:var(--sh);}
+  .langswitch button{background:none;border:none;color:var(--muted);font-size:.8rem;padding:6px 12px;border-radius:18px;cursor:pointer;font-family:inherit;}
+  .langswitch button.on{background:var(--accent);color:#fff;font-weight:700;}
 
-  .panel{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px;}
-  .panel h2{margin:0 0 12px; font-size:.9rem; color:var(--accent); font-weight:600;}
-  details.panel{padding:0 18px;}
-  details.panel summary{list-style:none; cursor:pointer; padding:15px 0; font-size:.9rem; color:var(--text); font-weight:600; display:flex; align-items:center; gap:8px;}
-  details.panel summary::-webkit-details-marker{display:none;}
-  details.panel summary .caret{margin-left:auto; color:var(--muted); transition:transform .2s;}
-  details[open].panel summary .caret{transform:rotate(180deg);}
-  .panel-body{padding-bottom:16px;}
+  /* hero */
+  .hero{background:linear-gradient(160deg,var(--soft),#fff 70%);border:1px solid var(--line);border-radius:var(--r);padding:26px 26px 22px;box-shadow:var(--sh);text-align:center;}
+  .hero h1{margin:0 0 8px;font-size:1.7rem;font-weight:800;letter-spacing:-.3px;}
+  .hero p{margin:0 auto;max-width:560px;color:#6b625a;font-size:1.02rem;}
+  .steps{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+  .step{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:40px;padding:8px 16px;font-size:.86rem;font-weight:600;box-shadow:0 3px 10px rgba(60,40,25,.05);}
+  .step .n{width:22px;height:22px;border-radius:50%;background:var(--soft2);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;}
 
-  label{display:block; font-size:.78rem; color:var(--muted); margin:10px 0 4px;}
-  input[type=password],input[type=text],select,textarea{
-    width:100%; background:var(--panel2); border:1px solid var(--border); color:var(--text);
-    border-radius:10px; padding:10px 12px; font-size:.9rem; font-family:inherit; outline:none;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--sh);}
+  .card h2{margin:0 0 4px;font-size:1.05rem;font-weight:800;}
+  .card .sub{color:var(--muted);font-size:.85rem;margin:0 0 14px;}
+
+  label{display:block;font-size:.8rem;color:#6b625a;font-weight:600;margin:11px 0 5px;}
+  input,select,textarea{width:100%;background:#fff;border:1.5px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 13px;font-size:.92rem;font-family:inherit;outline:none;transition:border-color .15s;}
   input:focus,select:focus,textarea:focus{border-color:var(--accent);}
-  textarea{resize:vertical; min-height:80px;}
-  .row{display:flex; gap:12px; flex-wrap:wrap;}
-  .row>div{flex:1; min-width:170px;}
+  textarea{resize:vertical;min-height:70px;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;}
+  .row>div{flex:1;min-width:150px;}
 
-  button{cursor:pointer; border:none; border-radius:10px; font-size:.9rem; font-weight:600; font-family:inherit; padding:10px 15px; transition:filter .15s, background .15s;}
-  button:hover{filter:brightness(1.12);}
-  button:disabled{opacity:.5; cursor:not-allowed;}
-  .btn-primary{background:var(--accent); color:#04121f;}
-  .btn-ghost{background:var(--panel2); color:var(--text); border:1px solid var(--border);}
-  .btn-listen{background:var(--accent2); color:#052015; font-size:1rem; padding:13px 22px;}
-  .btn-listen.on{background:var(--danger); color:#fff; animation:pulse 1.6s infinite;}
-  .btn-toggle{background:var(--panel2); color:var(--muted); border:1px solid var(--border);}
-  .btn-toggle.on{background:rgba(167,139,250,.18); color:var(--violet); border-color:var(--violet);}
-  @keyframes pulse{50%{filter:brightness(1.3);}}
+  button.btn{cursor:pointer;border:none;border-radius:13px;font-size:.95rem;font-weight:700;font-family:inherit;padding:12px 18px;transition:transform .05s,box-shadow .15s,filter .15s;}
+  button.btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(255,122,89,.32);}
+  .btn-primary:hover{filter:brightness(1.05);}
+  .btn-soft{background:var(--soft);color:var(--accent-d);border:1.5px solid #ffd9cb;}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  .btn-listen{background:var(--teal);color:#fff;font-size:1.05rem;padding:15px 30px;box-shadow:0 8px 20px rgba(18,184,134,.32);}
+  .btn-listen.on{background:var(--accent-d);animation:pulse 1.5s infinite;}
+  .btn-toggle{background:#fff;color:var(--muted);border:1.5px solid var(--line);}
+  .btn-toggle.on{background:var(--soft2);color:var(--teal);border-color:#b8ecd8;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  @keyframes pulse{50%{filter:brightness(1.12);}}
 
-  .checkbox{display:flex; align-items:center; gap:8px; margin-top:12px; font-size:.82rem; color:var(--muted);}
+  /* choice cards for onboarding */
+  .choices{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:900px){.choices{grid-template-columns:1fr 1fr;}}
+  @media(max-width:640px){.choices{grid-template-columns:1fr;}}
+  .choice.pro{border-color:#ddd6fa;}
+  .choice.pro:hover{border-color:var(--violet);}
+  .choice.pro.sel{border-color:var(--violet);background:#f4f1ff;}
+  .badge.vio{background:var(--violet);}
+  .choice{border:2px solid var(--line);border-radius:14px;padding:15px 16px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s;}
+  .choice:hover{border-color:#ffcdbc;}
+  .choice.sel{border-color:var(--accent);background:var(--soft);}
+  .choice .t{font-weight:800;font-size:.98rem;display:flex;align-items:center;gap:8px;}
+  .choice .d{color:var(--muted);font-size:.82rem;margin-top:4px;}
+  .badge{font-size:.68rem;font-weight:800;background:var(--teal);color:#fff;border-radius:20px;padding:2px 8px;}
+
+  .status{font-size:.82rem;color:var(--muted);min-height:1.05em;margin-top:8px;}
+  .status.ok{color:var(--teal);} .status.err{color:var(--accent-d);} .status.work{color:var(--amber);}
+  .hintlink{font-size:.78rem;color:var(--accent-d);text-decoration:none;font-weight:600;}
+  .checkbox{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.82rem;color:var(--muted);}
   .checkbox input{width:auto;}
 
-  .status{font-size:.8rem; color:var(--muted); min-height:1.1em;}
-  .status.ok{color:var(--accent2);} .status.err{color:var(--danger);} .status.work{color:var(--amber);}
+  details.adv{margin-top:14px;border-top:1px dashed var(--line);padding-top:6px;}
+  details.adv>summary{list-style:none;cursor:pointer;padding:10px 0;font-size:.85rem;color:var(--muted);font-weight:600;}
+  details.adv>summary::-webkit-details-marker{display:none;}
 
-  .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-  .live-grid{display:grid; grid-template-columns:1fr 1.1fr; gap:16px;}
-  @media(max-width:780px){.live-grid{grid-template-columns:1fr;}}
-  .box{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; display:flex; flex-direction:column; min-height:200px;}
-  .box .head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
-  .box h2{margin:0; font-size:.9rem; color:var(--accent);}
-  .transcript{flex:1; overflow-y:auto; max-height:320px; font-size:.95rem;}
-  .transcript .interim{color:var(--muted); font-style:italic;}
-  .transcript:empty::before{content:"Qui compare in tempo reale ciò che viene detto."; color:var(--muted); font-size:.85rem;}
-  .answer{flex:1; overflow-y:auto; max-height:440px; white-space:pre-wrap; font-size:1.05rem;}
-  .answer:empty::before{content:"La risposta suggerita comparirà qui."; color:var(--muted); font-size:.85rem;}
-  .answer .q{color:var(--amber); font-weight:600;}
-  .answer .a{color:var(--accent2); font-weight:600;}
-  .mini{font-size:.72rem; color:var(--muted); background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:4px 9px; cursor:pointer;}
-
-  code{background:var(--panel2); padding:1px 6px; border-radius:5px; font-size:.82rem;}
-  a{color:var(--accent);}
-  .foot{font-size:.76rem; color:var(--muted);}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;}
+  .live-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:14px;}
+  @media(max-width:820px){.live-grid{grid-template-columns:1fr;}}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;min-height:200px;box-shadow:var(--sh);}
+  .box .bh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+  .box .bh h3{margin:0;font-size:.9rem;font-weight:800;}
+  .dot{width:9px;height:9px;border-radius:50%;background:#d9cec3;display:inline-block;margin-right:7px;}
+  .dot.live{background:var(--accent-d);box-shadow:0 0 8px var(--accent-d);animation:pulse 1.4s infinite;}
+  .transcript{flex:1;overflow-y:auto;max-height:280px;font-size:.95rem;color:#4a423b;}
+  .transcript .interim{color:var(--muted);font-style:italic;}
+  .transcript:empty::before{content:attr(data-ph);color:#b8ab9e;font-size:.85rem;}
+  .answer{flex:1;overflow-y:auto;max-height:440px;white-space:pre-wrap;font-size:1.06rem;color:#3a332e;}
+  .answer:empty::before{content:attr(data-ph);color:#b8ab9e;font-size:.85rem;}
+  .answer b{color:var(--teal);}
+  .mini{font-size:.74rem;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:9px;padding:5px 10px;cursor:pointer;}
+  a{color:var(--accent-d);}
+  .foot{font-size:.78rem;color:var(--muted);}
+  .paidnote{background:var(--soft2);border:1px solid #cdeede;border-radius:12px;padding:11px 14px;font-size:.82rem;color:#2f7a5e;margin-top:12px;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header>
+  <div class="top">
     <div class="logo">🎧</div>
-    <div>
-      <h1>Il mio Copilota</h1>
-      <p>Ascolta, ti suggerisce la risposta in inglese e la traduce. Tutto nel tuo browser, con la tua chiave Gemini.</p>
+    <div class="name">Live Call Copilot</div>
+    <div class="langswitch" id="langswitch">
+      <button data-lang="it" class="on">IT</button>
+      <button data-lang="en">EN</button>
+      <button data-lang="zh">中文</button>
+      <button data-lang="es">ES</button>
     </div>
-    <div class="chips">
-      <span class="chip off" id="chipKey">chiave: no</span>
-      <span class="chip off" id="chipAuto">auto: off</span>
-    </div>
-  </header>
+  </div>
 
-  <!-- SETUP (collapsible) -->
-  <details class="panel" id="setupPanel" open>
-    <summary>⚙️ Configurazione <span class="caret">▾</span></summary>
-    <div class="panel-body">
-      <label>Chiave API Google Gemini <span style="color:var(--muted)">— gratuita, la incolli tu</span></label>
-      <div class="row">
-        <div style="flex:3"><input type="password" id="apiKey" placeholder="Incolla la chiave (AIza...)" autocomplete="off"></div>
-        <div style="flex:1; min-width:150px; display:flex; align-items:flex-end"><button class="btn-ghost" id="loadModels" style="width:100%">Verifica & carica</button></div>
+  <!-- HERO -->
+  <div class="hero">
+    <h1 data-i18n="heroH"></h1>
+    <p data-i18n="heroP"></p>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><span data-i18n="s1"></span></div>
+      <div class="step"><span class="n">2</span><span data-i18n="s2"></span></div>
+      <div class="step"><span class="n">3</span><span data-i18n="s3"></span></div>
+    </div>
+  </div>
+
+  <!-- LIVE (front and center) -->
+  <div class="controls">
+    <button class="btn btn-listen" id="listenBtn"><span data-i18n="listen"></span></button>
+    <button class="btn btn-toggle on" id="autoBtn"><span data-i18n="auto"></span></button>
+    <button class="btn btn-primary" id="suggestBtn" disabled data-i18n="suggest"></button>
+    <button class="btn btn-ghost" id="floatBtn" data-i18n="float"></button>
+    <button class="btn btn-ghost" id="clearBtn" data-i18n="clear"></button>
+    <button class="btn btn-soft" id="installBtn" style="display:none" data-i18n="install"></button>
+  </div>
+  <div class="status" id="liveStatus" style="text-align:center"></div>
+
+  <div class="live-grid" id="liveHome">
+    <div class="box">
+      <div class="bh"><h3><span class="dot" id="recDot"></span><span data-i18n="listening"></span></h3></div>
+      <div class="transcript" id="transcript" data-ph="—"></div>
+      <div style="margin-top:9px"><input type="text" id="manualQ" data-i18n-ph="manualph"></div>
+    </div>
+    <div class="box" id="answerBox">
+      <div class="bh"><h3>💬 <span data-i18n="answer"></span></h3><button class="mini" id="copyBtn" data-i18n="copy"></button></div>
+      <div class="answer" id="answer" data-ph="—"></div>
+    </div>
+  </div>
+
+  <!-- SETUP: friendly, guided, below -->
+  <div class="card" id="setupCard">
+    <h2 data-i18n="startH"></h2>
+    <p class="sub" data-i18n="startSub"></p>
+
+    <div class="choices">
+      <div class="choice sel" id="choiceFree">
+        <div class="t">🆓 <span data-i18n="freeT"></span> <span class="badge" data-i18n="reco"></span></div>
+        <div class="d" data-i18n="freeD"></div>
       </div>
-      <div class="status" id="setupStatus"></div>
+      <div class="choice" id="choiceOwn">
+        <div class="t">🔑 <span data-i18n="ownT"></span></div>
+        <div class="d" data-i18n="ownD"></div>
+      </div>
+      <div class="choice" id="choiceLocal">
+        <div class="t">🔒 <span data-i18n="localT"></span></div>
+        <div class="d" data-i18n="localD"></div>
+      </div>
+      <div class="choice pro" id="choicePro">
+        <div class="t">⭐ <span data-i18n="proT"></span> <span class="badge vio" data-i18n="proBadge"></span></div>
+        <div class="d" data-i18n="proD"></div>
+      </div>
+    </div>
 
+    <!-- Account / piano Pro (nostro cloud) -->
+    <div id="proWrap" style="display:none">
+      <div id="proLoggedOut">
+        <div class="row">
+          <div><label data-i18n="acEmailL"></label><input type="email" id="acEmail" autocomplete="email" placeholder="nome@email.it"></div>
+          <div><label data-i18n="acPassL"></label><input type="password" id="acPass" autocomplete="current-password" placeholder="········"></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div><button class="btn btn-primary" id="loginBtn" style="width:100%" data-i18n="acLogin"></button></div>
+          <div><button class="btn btn-ghost" id="signupBtn" style="width:100%" data-i18n="acSignup"></button></div>
+        </div>
+      </div>
+      <div id="proLoggedIn" style="display:none">
+        <div class="paidnote" id="proPlanNote"></div>
+        <div class="row" id="proUpgradeRow" style="display:none;margin-top:8px">
+          <div><button class="btn btn-primary" id="upgradeBtn" style="width:100%" data-i18n="acUpgrade"></button></div>
+          <div><button class="btn btn-soft" id="syncBtn" style="width:100%" data-i18n="acSync"></button></div>
+        </div>
+        <div style="margin-top:8px">
+          <label data-i18n="proModelL"></label>
+          <select id="proModel"></select>
+        </div>
+        <div style="margin-top:10px"><button class="btn btn-ghost" id="logoutBtn" data-i18n="acLogout"></button></div>
+      </div>
+      <div class="status" id="acStatus"></div>
+    </div>
+    <div class="paidnote" id="localNote" style="display:none;background:#fff7ec;border-color:#f2dcb0;color:#8a6d2f" data-i18n="localNote"></div>
+
+    <div id="ownWrap" style="display:none">
+      <label data-i18n="engine"></label>
+      <select id="provider"></select>
+    </div>
+
+    <label id="keyLabel"><span data-i18n="apikey"></span> <a class="hintlink" id="keyLink" target="_blank" data-i18n="getkey"></a></label>
+    <div class="row" id="keyRow">
+      <div style="flex:3"><input type="password" id="apiKey" placeholder="AIza..." autocomplete="off"></div>
+      <div style="flex:1;min-width:150px;display:flex;align-items:flex-end"><button class="btn btn-soft" id="verifyBtn" style="width:100%" data-i18n="verify"></button></div>
+    </div>
+    <div class="status" id="setupStatus"></div>
+
+    <div class="row" style="margin-top:6px">
+      <div>
+        <label data-i18n="mode"></label>
+        <select id="mode"></select>
+      </div>
+      <div>
+        <label data-i18n="answerlang"></label>
+        <select id="ansLang">
+          <option value="English">English</option>
+          <option value="Italiano">Italiano</option>
+          <option value="中文">中文</option>
+          <option value="Español">Español</option>
+          <option value="same">= speaker</option>
+        </select>
+      </div>
+    </div>
+
+    <label data-i18n="context"></label>
+    <textarea id="context" data-i18n-ph="ctxph"></textarea>
+
+    <details class="adv">
+      <summary data-i18n="adv"></summary>
       <div class="row">
         <div>
-          <label>Modello</label>
-          <select id="model"><option value="">— carica prima i modelli —</option></select>
+          <label data-i18n="model"></label>
+          <input id="model" list="modelList" placeholder="model"><datalist id="modelList"></datalist>
         </div>
         <div>
-          <label>Lingua di chi parla</label>
+          <label data-i18n="heard"></label>
           <select id="lang">
-            <option value="en-US">Inglese (US)</option>
-            <option value="en-GB">Inglese (UK)</option>
-            <option value="it-IT">Italiano</option>
-            <option value="es-ES">Spagnolo</option>
-            <option value="fr-FR">Francese</option>
-            <option value="de-DE">Tedesco</option>
-            <option value="pt-PT">Portoghese</option>
+            <option value="en-US">English (US)</option><option value="en-GB">English (UK)</option>
+            <option value="it-IT">Italiano</option><option value="es-ES">Español</option>
+            <option value="zh-CN">中文</option><option value="fr-FR">Français</option>
+            <option value="de-DE">Deutsch</option><option value="pt-PT">Português</option>
           </select>
         </div>
       </div>
-
-      <label>Il tuo contesto — CV, ruolo, punti di forza <span style="color:var(--muted)">(così le risposte sono su misura per te)</span></label>
-      <textarea id="context" placeholder="Es: Mi chiamo Felice, esperienza in project management nel fotovoltaico. Mi candido come Project Manager. Punti di forza: ... Progetti: ..."></textarea>
-
+      <div id="baseWrap" style="display:none;margin-top:8px">
+        <label data-i18n="baseurl"></label>
+        <input id="baseUrl" placeholder="https://...">
+      </div>
       <div class="checkbox">
         <input type="checkbox" id="remember" checked>
-        <label for="remember" style="margin:0">Ricorda tutto su questo computer (comodo — la chiave resta salvata solo qui sul tuo PC). <a href="#" id="forget">Dimentica ora</a></label>
+        <label for="remember" style="margin:0" data-i18n="remember"></label>
+        <a href="#" id="forget" class="hintlink" data-i18n="forget"></a>
       </div>
-    </div>
-  </details>
+    </details>
 
-  <!-- CONTROLS -->
-  <div class="controls">
-    <button class="btn-listen" id="listenBtn">🎙 Ascolta</button>
-    <button class="btn-toggle" id="autoBtn">⚡ Risposta automatica</button>
-    <button class="btn-primary" id="suggestBtn" disabled>💡 Suggerisci ora</button>
-    <button class="btn-ghost" id="clearBtn">🗑 Pulisci</button>
-    <span class="status" id="liveStatus" style="margin-left:4px"></span>
+    <div class="paidnote" data-i18n="paid"></div>
   </div>
 
-  <!-- LIVE -->
-  <div class="live-grid">
-    <div class="box">
-      <div class="head"><h2>📝 Ascolto in tempo reale</h2></div>
-      <div class="transcript" id="transcript"></div>
-      <div style="margin-top:10px">
-        <input type="text" id="manualQ" placeholder="Oppure scrivi/incolla la domanda e premi Invio…">
-      </div>
-    </div>
-    <div class="box">
-      <div class="head"><h2>💬 Risposta suggerita</h2><button class="mini" id="copyBtn">Copia</button></div>
-      <div class="answer" id="answer"></div>
-    </div>
-  </div>
-
-  <details class="panel">
-    <summary>ℹ️ Come usarlo <span class="caret">▾</span></summary>
-    <div class="panel-body foot">
-      <b>Per far sentire l'altra persona:</b> tieni l'audio della call dagli <b>altoparlanti</b> (non con le cuffie), così il microfono lo capta. Oppure scrivi tu la domanda.<br><br>
-      <b>Risposta automatica:</b> attiva "⚡" e premi "Ascolta": quando l'altro fa una pausa, la risposta compare da sola. Senza "⚡", premi "Suggerisci ora" quando vuoi.<br><br>
-      <b>Privacy:</b> chiave e testo restano nel tuo browser; le richieste vanno solo a Google (Gemini) e al riconoscimento vocale di Chrome. Se attivi "Ricorda", i dati sono salvati solo su questo computer.<br><br>
-      <b>Nota etica:</b> usare suggerimenti AI durante una selezione può violare le regole dell'azienda; captare la voce altrui richiede il loro consenso (GDPR). Usalo con testa.
-    </div>
+  <details class="card">
+    <summary style="cursor:pointer;font-weight:800;list-style:none" data-i18n="howto"></summary>
+    <div class="foot" id="howtoBody" style="margin-top:10px"></div>
   </details>
 
 </div>
 
 <script>
+/* ═══ URL del backend (piano Pro) — cambia SOLO questa riga col deploy ═══ */
+const BACKEND_URL='http://127.0.0.1:8787';
+
 (function(){
   const $=id=>document.getElementById(id);
-  const apiKeyEl=$('apiKey'), modelEl=$('model'), langEl=$('lang'), ctxEl=$('context'), rememberEl=$('remember');
-  const setupStatus=$('setupStatus'), liveStatus=$('liveStatus');
-  const transcriptEl=$('transcript'), answerEl=$('answer'), manualQ=$('manualQ');
-  const listenBtn=$('listenBtn'), autoBtn=$('autoBtn'), suggestBtn=$('suggestBtn'), clearBtn=$('clearBtn'), copyBtn=$('copyBtn'), loadBtn=$('loadModels');
-  const chipKey=$('chipKey'), chipAuto=$('chipAuto');
-
-  const API='https://generativelanguage.googleapis.com/v1beta/';
-  let finalText='', recognizing=false, recognition=null, autoMode=false, busy=false;
-  let pauseTimer=null, lastLen=0, lastAnswer='';
-
-  // ---- storage (safe: never breaks if unavailable) ----
-  const store={ get(k){try{return localStorage.getItem(k);}catch(_){return null;}},
-                set(k,v){try{localStorage.setItem(k,v);}catch(_){}},
-                del(k){try{localStorage.removeItem(k);}catch(_){}} };
-  const KEYS=['ic_key','ic_ctx','ic_lang','ic_model','ic_remember'];
-  function saveSettings(){
-    if(!rememberEl.checked){ KEYS.forEach(store.del); store.set('ic_remember','0'); return; }
-    store.set('ic_remember','1');
-    store.set('ic_key',apiKeyEl.value.trim());
-    store.set('ic_ctx',ctxEl.value);
-    store.set('ic_lang',langEl.value);
-    store.set('ic_model',modelEl.value);
+  const T={
+    it:{heroH:"Il tuo assistente per le videochiamate",heroP:"Ascolta la conversazione (colloquio, riunione, vendita…) e ti suggerisce cosa rispondere, in tempo reale. Con la tua chiave AI gratuita, tutto dentro il browser.",s1:"Scegli come funziona",s2:"Premi Ascolta",s3:"Leggi la risposta",
+      startH:"Per iniziare",startSub:"Scegli un'opzione: è questione di un minuto.",freeT:"Gratis con Google Gemini",reco:"consigliato",freeD:"Crei una chiave gratuita in 1 minuto, nessuna carta. Perfetto per provare.",ownT:"Ho già una chiave / altro motore",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… con la tua chiave.",localT:"100% locale (privato)",localD:"Gira tutto sul tuo PC con Ollama. Nessun dato esce. Zero costi.",localNote:"🔒 Modalità locale: apri questo file sul tuo computer (non online) e avvia Ollama sul PC con OLLAMA_ORIGINS=* . Poi premi Verifica per caricare i modelli. Nessuna conversazione lascia il tuo computer.",
+      engine:"Motore AI",apikey:"Chiave API",getkey:"— come ottenerla",verify:"Verifica",model:"Modello",baseurl:"URL endpoint (OpenAI-compatible)",heard:"Lingua di chi parla",answerlang:"Rispondi in",mode:"Tipo di conversazione",context:"Parlami di te (facoltativo) — CV, ruolo, prodotto",ctxph:"Es: Sono Felice, Project Manager fotovoltaico. Mi candido come… Punti di forza:…",remember:"Ricorda tutto su questo computer",forget:"Dimentica",adv:"⚙️ Impostazioni avanzate",
+      listen:"▶ Avvia (ascolta e rispondi)",stop:"⏸ Ferma",auto:"⚡ Risposta automatica",suggest:"💡 Suggerisci ora",float:"🗔 Finestra flottante",clear:"🗑 Pulisci",install:"⬇ Installa app",installed:"App installata ✔",listening:"Cosa sto sentendo",answer:"Cosa puoi rispondere",copy:"Copia",copied:"Copiato ✔",howto:"❔ Come si usa (leggi qui)",manualph:"Oppure scrivi la domanda e premi Invio…",
+      paid:"💡 In arrivo: una modalità \"pronta all'uso\" a pagamento, senza chiave API — paghi un piccolo abbonamento e usi subito il modello più potente. Per ora si usa la tua chiave (gratis con Gemini).",
+      thinking:"Sto pensando…",ready:"Pronto ✔",onair:"Ti sto ascoltando…",stopped:"Fermato.",autoOn:"Risposta automatica attiva.",autoOff:"Risposta automatica disattivata.",nokey:"Inserisci prima la chiave.",noq:"Non ho ancora sentito una domanda.",valid:"✔ Chiave ok",
+      proT:"Pro (nostro cloud)",proBadge:"nessuna chiave",proD:"Accedi e usa i migliori modelli senza configurare nulla: la chiave la mettiamo noi. €9/mese.",
+      acEmailL:"Email",acPassL:"Password (min 8 caratteri)",acLogin:"Accedi",acSignup:"Registrati",acLogout:"Esci",acUpgrade:"Passa a Pro (€9/mese)",acSync:"Ho pagato — aggiorna",proModelL:"Modello (dal nostro cloud)",
+      acNeedLogin:"Accedi (o registrati) per usare la modalità Pro.",acNeedFields:"Inserisci email e password.",acWorking:"Un attimo…",acHello:"Ciao",acPlan:"piano",acRpm:"richieste/min",acFree:"Sei sul piano Free: per usare i modelli senza chiave serve Pro.",acPaid:"Si apre Stripe in un'altra scheda. Dopo il pagamento torna qui e premi \"Ho pagato — aggiorna\".",acBackendDown:"Backend non raggiungibile: controlla che sia acceso.",
+      how:"<b>1) Scegli come funziona:</b> \"Gratis con Gemini\" (consigliato) e crea la chiave dal link, oppure usa una tua chiave.<br><br><b>2) Premi 🎙 Ascolta</b> tenendo l'audio della call dagli altoparlanti (non cuffie). Con ⚡ attivo, appena l'altro fa una pausa la risposta compare da sola.<br><br><b>3) Leggi</b> la risposta suggerita. Premi 🗔 per staccarla in una finestrella da mettere di fianco a Zoom.<br><br><b>Etica:</b> usare l'AI in una selezione può violare le regole aziendali; registrare la voce altrui richiede consenso (GDPR)."},
+    en:{heroH:"Your assistant for video calls",heroP:"It listens to the conversation (interview, meeting, sales…) and suggests what to say, in real time. With your free AI key, all in your browser.",s1:"Pick how it works",s2:"Press Listen",s3:"Read the answer",
+      startH:"Get started",startSub:"Pick one option — it takes a minute.",freeT:"Free with Google Gemini",reco:"recommended",freeD:"Create a free key in 1 minute, no card. Perfect to try.",ownT:"I have a key / another engine",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… with your key.",localT:"100% local (private)",localD:"Runs entirely on your PC with Ollama. No data leaves. Zero cost.",localNote:"🔒 Local mode: open this file on your computer (not online) and run Ollama with OLLAMA_ORIGINS=* . Then press Verify to load models. No conversation leaves your machine.",
+      engine:"AI engine",apikey:"API key",getkey:"— how to get it",verify:"Verify",model:"Model",baseurl:"Endpoint URL (OpenAI-compatible)",heard:"Speaker language",answerlang:"Answer in",mode:"Conversation type",context:"Tell me about you (optional) — CV, role, product",ctxph:"E.g. I'm Felice, a solar Project Manager. Applying for… Strengths:…",remember:"Remember everything on this computer",forget:"Forget",adv:"⚙️ Advanced settings",
+      listen:"▶ Start (listen & reply)",stop:"⏸ Stop",auto:"⚡ Auto-answer",suggest:"💡 Suggest now",float:"🗔 Floating window",clear:"🗑 Clear",install:"⬇ Install app",installed:"App installed ✔",listening:"What I'm hearing",answer:"What you can say",copy:"Copy",copied:"Copied ✔",howto:"❔ How to use (read here)",manualph:"Or type the question and press Enter…",
+      paid:"💡 Coming soon: a \"ready-to-use\" paid mode with no API key — a small subscription and you use the most powerful model instantly. For now, use your own key (free with Gemini).",
+      thinking:"Thinking…",ready:"Ready ✔",onair:"Listening to you…",stopped:"Stopped.",autoOn:"Auto-answer on.",autoOff:"Auto-answer off.",nokey:"Enter the key first.",noq:"No question heard yet.",valid:"✔ Key ok",
+      proT:"Pro (our cloud)",proBadge:"no key needed",proD:"Log in and use the best models with zero setup: we provide the key. €9/month.",
+      acEmailL:"Email",acPassL:"Password (min 8 chars)",acLogin:"Log in",acSignup:"Sign up",acLogout:"Log out",acUpgrade:"Go Pro (€9/month)",acSync:"I've paid — refresh",proModelL:"Model (from our cloud)",
+      acNeedLogin:"Log in (or sign up) to use Pro mode.",acNeedFields:"Enter email and password.",acWorking:"One moment…",acHello:"Hi",acPlan:"plan",acRpm:"requests/min",acFree:"You're on the Free plan: Pro is required to use models without a key.",acPaid:"Stripe opens in a new tab. After paying, come back and press \"I've paid — refresh\".",acBackendDown:"Backend unreachable: make sure it's running.",
+      how:"<b>1) Pick how it works:</b> \"Free with Gemini\" (recommended), create the key from the link, or use your own key.<br><br><b>2) Press 🎙 Listen</b> with call audio on speakers (not headphones). With ⚡ on, the answer appears by itself when the other person pauses.<br><br><b>3) Read</b> the suggested answer. Press 🗔 to pop it into a small window beside Zoom.<br><br><b>Ethics:</b> using AI in a hiring process may violate company rules; recording others requires consent (GDPR)."},
+    zh:{heroH:"你的视频通话助手",heroP:"实时聆听对话（面试、会议、销售……）并建议你该说什么。使用你的免费 AI 密钥，全部在浏览器中运行。",s1:"选择使用方式",s2:"点击聆听",s3:"阅读回答",
+      startH:"开始使用",startSub:"选择一个选项 — 只需一分钟。",freeT:"免费使用 Google Gemini",reco:"推荐",freeD:"1 分钟创建免费密钥，无需银行卡。适合试用。",ownT:"我有密钥 / 其他引擎",ownD:"OpenAI、Claude、DeepSeek、Qwen、Kimi、Groq……使用你的密钥。",localT:"100% 本地（隐私）",localD:"通过 Ollama 完全在本机运行。数据不外传。零成本。",localNote:"🔒 本地模式：在本机打开此文件（非在线），并以 OLLAMA_ORIGINS=* 运行 Ollama，然后点击“验证”加载模型。任何对话都不会离开你的电脑。",
+      engine:"AI 引擎",apikey:"API 密钥",getkey:"— 如何获取",verify:"验证",model:"模型",baseurl:"接口地址（兼容 OpenAI）",heard:"对方语言",answerlang:"回答语言",mode:"对话类型",context:"介绍一下你自己（可选）— 简历、职位、产品",ctxph:"例如：我是 Felice，光伏项目经理，应聘……优势：……",remember:"在本机记住所有内容",forget:"清除",adv:"⚙️ 高级设置",
+      listen:"▶ 开始（聆听并回答）",stop:"⏸ 停止",auto:"⚡ 自动回答",suggest:"💡 立即建议",float:"🗔 悬浮窗口",clear:"🗑 清空",install:"⬇ 安装应用",installed:"已安装 ✔",listening:"我听到的内容",answer:"你可以这样回答",copy:"复制",copied:"已复制 ✔",howto:"❔ 使用方法（点此）",manualph:"或输入问题并按回车…",
+      paid:"💡 即将推出：无需 API 密钥的付费“即用”模式 — 小额订阅即可立即使用最强模型。目前请使用你自己的密钥（Gemini 免费）。",
+      thinking:"思考中…",ready:"完成 ✔",onair:"正在聆听…",stopped:"已停止。",autoOn:"自动回答已开启。",autoOff:"自动回答已关闭。",nokey:"请先输入密钥。",noq:"还没听到问题。",valid:"✔ 密钥有效",
+      proT:"Pro（我们的云）",proBadge:"无需密钥",proD:"登录即可使用最佳模型，无需任何配置：密钥由我们提供。€9/月。",
+      acEmailL:"邮箱",acPassL:"密码（至少 8 位）",acLogin:"登录",acSignup:"注册",acLogout:"退出",acUpgrade:"升级 Pro（€9/月）",acSync:"已付款 — 刷新",proModelL:"模型（来自我们的云）",
+      acNeedLogin:"请先登录（或注册）以使用 Pro 模式。",acNeedFields:"请输入邮箱和密码。",acWorking:"请稍候…",acHello:"你好",acPlan:"套餐",acRpm:"次/分钟",acFree:"你当前是免费套餐：无密钥使用模型需要 Pro。",acPaid:"将在新标签页打开 Stripe。付款后回到这里，点击“已付款 — 刷新”。",acBackendDown:"无法连接后端：请确认它正在运行。",
+      how:"<b>1) 选择使用方式：</b>“免费使用 Gemini”（推荐），从链接创建密钥，或使用自己的密钥。<br><br><b>2) 点击 🎙 聆听，</b>让通话声音从扬声器播放（不要用耳机）。开启 ⚡ 后，对方停顿时回答会自动出现。<br><br><b>3) 阅读</b>建议回答。点击 🗔 弹出小窗口放在 Zoom 旁边。<br><br><b>伦理：</b>在招聘中使用 AI 可能违反公司规定；录制他人需征得同意（GDPR）。"},
+    es:{heroH:"Tu asistente para videollamadas",heroP:"Escucha la conversación (entrevista, reunión, ventas…) y te sugiere qué responder, en tiempo real. Con tu clave de IA gratuita, todo en el navegador.",s1:"Elige cómo funciona",s2:"Pulsa Escuchar",s3:"Lee la respuesta",
+      startH:"Para empezar",startSub:"Elige una opción — es cuestión de un minuto.",freeT:"Gratis con Google Gemini",reco:"recomendado",freeD:"Creas una clave gratis en 1 minuto, sin tarjeta. Ideal para probar.",ownT:"Ya tengo clave / otro motor",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… con tu clave.",localT:"100% local (privado)",localD:"Todo funciona en tu PC con Ollama. Ningún dato sale. Coste cero.",localNote:"🔒 Modo local: abre este archivo en tu ordenador (no online) y ejecuta Ollama con OLLAMA_ORIGINS=* . Luego pulsa Verificar para cargar los modelos. Ninguna conversación sale de tu equipo.",
+      engine:"Motor de IA",apikey:"Clave API",getkey:"— cómo obtenerla",verify:"Verificar",model:"Modelo",baseurl:"URL del endpoint (compatible OpenAI)",heard:"Idioma del interlocutor",answerlang:"Responder en",mode:"Tipo de conversación",context:"Háblame de ti (opcional) — CV, rol, producto",ctxph:"Ej: Soy Felice, Project Manager fotovoltaico. Me postulo para… Fortalezas:…",remember:"Recordar todo en este ordenador",forget:"Olvidar",adv:"⚙️ Ajustes avanzados",
+      listen:"▶ Iniciar (escuchar y responder)",stop:"⏸ Parar",auto:"⚡ Respuesta automática",suggest:"💡 Sugerir ahora",float:"🗔 Ventana flotante",clear:"🗑 Limpiar",install:"⬇ Instalar app",installed:"App instalada ✔",listening:"Lo que estoy oyendo",answer:"Lo que puedes decir",copy:"Copiar",copied:"Copiado ✔",howto:"❔ Cómo se usa (lee aquí)",manualph:"O escribe la pregunta y pulsa Enter…",
+      paid:"💡 Próximamente: un modo \"listo para usar\" de pago sin clave API — una pequeña suscripción y usas el modelo más potente al instante. Por ahora, usa tu clave (gratis con Gemini).",
+      thinking:"Pensando…",ready:"Listo ✔",onair:"Te escucho…",stopped:"Detenido.",autoOn:"Respuesta automática activada.",autoOff:"Respuesta automática desactivada.",nokey:"Introduce primero la clave.",noq:"Aún no he oído una pregunta.",valid:"✔ Clave ok",
+      proT:"Pro (nuestra nube)",proBadge:"sin clave",proD:"Inicia sesión y usa los mejores modelos sin configurar nada: la clave la ponemos nosotros. 9 €/mes.",
+      acEmailL:"Email",acPassL:"Contraseña (mín. 8 caracteres)",acLogin:"Entrar",acSignup:"Registrarse",acLogout:"Salir",acUpgrade:"Pasar a Pro (9 €/mes)",acSync:"He pagado — actualizar",proModelL:"Modelo (de nuestra nube)",
+      acNeedLogin:"Inicia sesión (o regístrate) para usar el modo Pro.",acNeedFields:"Introduce email y contraseña.",acWorking:"Un momento…",acHello:"Hola",acPlan:"plan",acRpm:"solicitudes/min",acFree:"Estás en el plan Free: para usar modelos sin clave necesitas Pro.",acPaid:"Stripe se abre en otra pestaña. Tras pagar, vuelve aquí y pulsa \"He pagado — actualizar\".",acBackendDown:"Backend no accesible: comprueba que esté encendido.",
+      how:"<b>1) Elige cómo funciona:</b> \"Gratis con Gemini\" (recomendado), crea la clave desde el enlace, o usa tu clave.<br><br><b>2) Pulsa 🎙 Escuchar</b> con el audio por altavoces (no auriculares). Con ⚡ activo, la respuesta aparece sola cuando la otra persona hace una pausa.<br><br><b>3) Lee</b> la respuesta sugerida. Pulsa 🗔 para separarla en una ventana junto a Zoom.<br><br><b>Ética:</b> usar IA en una selección puede violar reglas de la empresa; grabar a otros requiere consentimiento (RGPD)."}
+  };
+  let LANG='it';
+  function t(k){ return (T[LANG]&&T[LANG][k])||T.it[k]||k; }
+  function applyLang(){
+    document.documentElement.lang=LANG;
+    document.querySelectorAll('[data-i18n]').forEach(el=>el.innerHTML=t(el.getAttribute('data-i18n')));
+    document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.placeholder=t(el.getAttribute('data-i18n-ph')));
+    $('howtoBody').innerHTML=t('how'); buildModeOptions(); refreshProviderLabels();
+    listenBtn.querySelector('span').textContent = recognizing? t('stop'):t('listen');
   }
-  function setStatus(el,msg,cls){ el.textContent=msg; el.className='status '+(cls||''); }
-  function updChips(){
-    chipKey.textContent='chiave: '+(apiKeyEl.value.trim()?'sì':'no'); chipKey.className='chip '+(apiKeyEl.value.trim()?'ok':'off');
-    chipAuto.textContent='auto: '+(autoMode?'on':'off'); chipAuto.className='chip '+(autoMode?'ok':'off');
+
+  const PROVIDERS={
+    gemini:{gemini:true,kind:'gemini',keyUrl:'https://aistudio.google.com/apikey',hint:'AIza...',models:[]},
+    ollama:{label:'🔒 Ollama (locale)',kind:'openai',local:true,base:'http://localhost:11434/v1',keyUrl:'https://ollama.com/download',hint:'(nessuna chiave)',models:['llama3.2','qwen2.5','mistral']},
+    openai:{label:'OpenAI (GPT)',kind:'openai',base:'https://api.openai.com/v1',keyUrl:'https://platform.openai.com/api-keys',hint:'sk-...',models:['gpt-4o-mini','gpt-4o','o4-mini']},
+    anthropic:{label:'Anthropic (Claude)',kind:'anthropic',base:'https://api.anthropic.com/v1',keyUrl:'https://console.anthropic.com/settings/keys',hint:'sk-ant-...',models:['claude-3-5-haiku-latest','claude-3-5-sonnet-latest','claude-sonnet-4-20250514']},
+    mistral:{label:'Mistral 🇪🇺 (europeo)',kind:'openai',base:'https://api.mistral.ai/v1',keyUrl:'https://console.mistral.ai/api-keys',hint:'...',models:['mistral-large-latest','mistral-small-latest','open-mistral-nemo']},
+    deepseek:{label:'DeepSeek',kind:'openai',base:'https://api.deepseek.com/v1',keyUrl:'https://platform.deepseek.com/api_keys',hint:'sk-...',models:['deepseek-chat','deepseek-reasoner']},
+    qwen:{label:'Qwen (Alibaba)',kind:'openai',base:'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',keyUrl:'https://dashscope.console.aliyun.com/',hint:'sk-...',models:['qwen-plus','qwen-turbo','qwen-max']},
+    kimi:{label:'Kimi (Moonshot)',kind:'openai',base:'https://api.moonshot.ai/v1',keyUrl:'https://platform.moonshot.ai/console/api-keys',hint:'sk-...',models:['kimi-k2-0711-preview','moonshot-v1-8k']},
+    groq:{label:'Groq ⚡',kind:'openai',base:'https://api.groq.com/openai/v1',keyUrl:'https://console.groq.com/keys',hint:'gsk_...',models:['llama-3.3-70b-versatile','llama-3.1-8b-instant']},
+    custom:{label:'Custom (OpenAI-compatible)',kind:'openai',base:'',keyUrl:'',hint:'',models:[]}
+  };
+  const PKEYS=Object.keys(PROVIDERS);
+  const providerEl=$('provider');
+  PKEYS.forEach(k=>{const o=document.createElement('option');o.value=k;providerEl.appendChild(o);});
+  function refreshProviderLabels(){ [...providerEl.options].forEach(o=>{const p=PROVIDERS[o.value];o.textContent=p.gemini?('Google Gemini ✧ '+({it:'gratis',en:'free',zh:'免费',es:'gratis'}[LANG])):p.label;}); }
+  function curProv(){ return PROVIDERS[providerEl.value]; }
+
+  const MODES={
+    interview:{it:'Colloquio di lavoro',en:'Job interview',zh:'求职面试',es:'Entrevista de trabajo',p:"You are the copilot of a CANDIDATE in a job interview. Detect the interviewer's LAST question and craft a spoken, first-person answer, confident, concise (4-7 sentences), grounded in the candidate context. Use STAR for behavioral questions."},
+    sales:{it:'Vendite',en:'Sales call',zh:'销售通话',es:'Llamada de ventas',p:"You are the copilot of a SALESPERSON. Detect the prospect's last point/objection and suggest a persuasive, empathetic first-person reply handling objections, showing value, moving to next steps."},
+    support:{it:'Assistenza clienti',en:'Customer support',zh:'客户支持',es:'Atención al cliente',p:"You are the copilot of a SUPPORT AGENT. Detect the customer's issue and suggest a clear, friendly, solution-oriented reply with concrete next steps."},
+    meeting:{it:'Riunione',en:'Meeting',zh:'会议',es:'Reunión',p:"You are a meeting copilot. Detect the last question/point and suggest a clear, professional first-person response."},
+    negotiation:{it:'Negoziazione',en:'Negotiation',zh:'谈判',es:'Negociación',p:"You are a negotiation copilot. Detect the counterpart's last move and suggest a calm, strategic first-person reply that protects interests and keeps rapport."},
+    translate:{it:'Traduzione simultanea',en:'Live translation',zh:'同声翻译',es:'Traducción simultánea',p:"__translate__"},
+    study:{it:'Studio / esame',en:'Study / exam',zh:'学习/考试',es:'Estudio / examen',p:"You are a study copilot. Detect the examiner's question and give a correct, well-structured spoken answer."},
+    custom:{it:'Personalizzato',en:'Custom',zh:'自定义',es:'Personalizado',p:"__custom__"}
+  };
+  const modeEl=$('mode');
+  function buildModeOptions(){const cur=modeEl.value||'interview';modeEl.innerHTML='';Object.keys(MODES).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=MODES[k][LANG]||MODES[k].it;modeEl.appendChild(o);});modeEl.value=cur;}
+
+  const store={get(k){try{return localStorage.getItem(k)}catch(_){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(_){}} ,del(k){try{localStorage.removeItem(k)}catch(_){}}};
+  const KEYS=['v5_lang','v5_prov','v5_mode','v5_heard','v5_ans','v5_ctx','v5_auto','v5_remember','v6_pro','v6_promodel'];
+  const keyName=()=>'v5_key_'+providerEl.value;
+  function save(){
+    if(!$('remember').checked){KEYS.forEach(store.del);PKEYS.forEach(p=>{store.del('v5_key_'+p);store.del('v5_model_'+p);store.del('v5_base_'+p);});store.set('v5_remember','0');return;}
+    store.set('v5_remember','1');store.set('v5_lang',LANG);store.set('v5_prov',providerEl.value);store.set('v5_mode',modeEl.value);store.set('v6_pro',proMode?'1':'0');
+    store.set('v5_heard',$('lang').value);store.set('v5_ans',$('ansLang').value);store.set('v5_ctx',$('context').value);store.set('v5_auto',autoMode?'1':'0');
+    if($('model').value)store.set('v5_model_'+providerEl.value,$('model').value);
+    if($('baseUrl').value)store.set('v5_base_'+providerEl.value,$('baseUrl').value);
+    if($('apiKey').value.trim())store.set(keyName(),$('apiKey').value.trim());
   }
 
-  // ---- load models (robust to model changes over time) ----
-  async function loadModels(auto){
-    const key=apiKeyEl.value.trim();
-    if(!key){ if(!auto) setStatus(setupStatus,'Inserisci prima la chiave API.','err'); return; }
-    setStatus(setupStatus,'Verifico la chiave e carico i modelli…','work');
+  let finalText='',recognizing=false,recognition=null,autoMode=true,busy=false,pauseTimer=null,lastLen=0,lastAnswer='';
+  const setupStatus=$('setupStatus'),liveStatus=$('liveStatus'),transcriptEl=$('transcript'),answerEl=$('answer');
+  const listenBtn=$('listenBtn'),autoBtn=$('autoBtn'),suggestBtn=$('suggestBtn'),recDot=$('recDot');
+  function setS(el,msg,cls){el.textContent=msg;el.className='status '+(cls||'');}
+
+  /* onboarding choice */
+  let proMode=false;
+  function selChoice(which){ ['choiceFree','choiceOwn','choiceLocal','choicePro'].forEach(c=>$(c).classList.toggle('sel',c===which)); }
+  $('choiceFree').addEventListener('click',()=>{ proMode=false; providerEl.value='gemini'; selChoice('choiceFree'); $('ownWrap').style.display='none'; syncProvider(); save(); });
+  $('choiceOwn').addEventListener('click',()=>{ proMode=false; if(providerEl.value==='gemini'||providerEl.value==='ollama')providerEl.value='openai'; selChoice('choiceOwn'); $('ownWrap').style.display=''; syncProvider(); save(); });
+  $('choiceLocal').addEventListener('click',()=>{ proMode=false; providerEl.value='ollama'; selChoice('choiceLocal'); $('ownWrap').style.display='none'; syncProvider(); save(); });
+  $('choicePro').addEventListener('click',()=>{ proMode=true; selChoice('choicePro'); $('ownWrap').style.display='none'; syncProvider(); refreshMe(); save(); });
+  providerEl.addEventListener('change',()=>{syncProvider();save();});
+
+  function syncProvider(){
+    const p=curProv(); const local=!!p.local&&!proMode;
+    $('proWrap').style.display=proMode?'':'none';
+    $('keyLabel').style.display=proMode?'none':'';
+    $('keyRow').style.display=proMode?'none':'';
+    $('localNote').style.display=(local)?'':'none';
+    if(proMode){ $('baseWrap').style.display='none'; suggestBtn.disabled=!meUser; setS(setupStatus,'',''); return; }
+    $('keyLink').href=p.keyUrl||'#'; $('apiKey').placeholder=local?'(nessuna chiave — locale)':(p.hint||'API key');
+    $('apiKey').disabled=local;
+    $('baseWrap').style.display=(providerEl.value==='custom'||local)?'':'none';
+    const dl=$('modelList');dl.innerHTML='';(p.models||[]).forEach(m=>{const o=document.createElement('option');o.value=m;dl.appendChild(o);});
+    $('apiKey').value=local?'':(store.get(keyName())||'');
+    $('model').value=store.get('v5_model_'+providerEl.value)||(p.models&&p.models[0])||'';
+    $('baseUrl').value=store.get('v5_base_'+providerEl.value)||(p.base||'');
+    suggestBtn.disabled = local? false : !$('apiKey').value.trim(); setS(setupStatus,'','');
+  }
+
+  /* ---- Account & piano Pro (nostro backend) ---- */
+  let meUser=null, mePlan=null;
+  const api=(path,opts={})=>fetch(BACKEND_URL+path,Object.assign({credentials:'include',headers:{'Content-Type':'application/json'}},opts));
+  function setAc(msg,cls){const el=$('acStatus');el.textContent=msg;el.className='status '+(cls||'');}
+  function renderAccount(d){
+    const inEl=$('proLoggedIn'),outEl=$('proLoggedOut');
+    if(!d){ inEl.style.display='none'; outEl.style.display=''; if(proMode)suggestBtn.disabled=true; return; }
+    outEl.style.display='none'; inEl.style.display='';
+    const pro=d.plan!=='free';
+    $('proPlanNote').textContent=t('acHello')+' '+d.user.name+' ('+d.user.email+') — '+t('acPlan')+': '+d.plan.toUpperCase()+' · '+d.limits.requestsPerMinute+' '+t('acRpm')+(pro?'':' — '+t('acFree'));
+    $('proUpgradeRow').style.display=pro?'none':'';
+    if(proMode)suggestBtn.disabled=false;
+  }
+  async function refreshMe(){
     try{
-      const r=await fetch(API+'models?key='+encodeURIComponent(key));
-      const data=await r.json();
-      if(!r.ok) throw new Error((data.error&&data.error.message)||('HTTP '+r.status));
-      const models=(data.models||[])
-        .filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
-        .filter(m=>/gemini/i.test(m.name) && !/embedding|aqa|imagen/i.test(m.name));
-      if(!models.length) throw new Error('Nessun modello di testo su questa chiave.');
-      modelEl.innerHTML='';
-      models.forEach(m=>{ const o=document.createElement('option'); o.value=m.name;
-        o.textContent=m.displayName||m.name.replace('models/',''); modelEl.appendChild(o); });
-      const saved=store.get('ic_model');
-      const opts=[...modelEl.options];
-      const pick = (saved && opts.find(o=>o.value===saved)) ||
-                   opts.find(o=>/flash/i.test(o.value)&&/latest/i.test(o.value)) ||
-                   opts.find(o=>/flash-lite/i.test(o.value)&&!/2\.5|2\.0|1\.5/i.test(o.value)) ||
-                   opts.find(o=>/flash/i.test(o.value)&&!/2\.5|2\.0|1\.5/i.test(o.value)) ||
-                   opts.find(o=>/flash/i.test(o.value)) || opts[0];
-      if(pick) modelEl.value=pick.value;
-      saveSettings();
-      setStatus(setupStatus,'✔ Chiave valida — '+models.length+' modelli. Sei pronta.','ok');
-    }catch(e){ setStatus(setupStatus,'Errore: '+e.message,'err'); }
+      const r=await api('/v1/me');
+      if(r.status===401){meUser=null;mePlan=null;renderAccount(null);return;}
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const d=await r.json(); meUser=d.user; mePlan=d.plan; renderAccount(d); loadProModels();
+    }catch(_){ meUser=null;mePlan=null;renderAccount(null); if(proMode)setAc(t('acBackendDown'),'err'); }
   }
-  loadBtn.addEventListener('click',()=>loadModels(false));
+  async function loadProModels(){
+    try{
+      const r=await api('/v1/models'); const d=await r.json();
+      const sel=$('proModel'); const saved=store.get('v6_promodel'); sel.innerHTML='';
+      d.models.filter(m=>m.available).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.label;sel.appendChild(o);});
+      if(saved && [...sel.options].some(o=>o.value===saved)) sel.value=saved;
+    }catch(_){}
+  }
+  async function authCall(path){
+    const email=$('acEmail').value.trim(), password=$('acPass').value;
+    if(!email||!password){setAc(t('acNeedFields'),'err');return;}
+    setAc(t('acWorking'),'work');
+    try{
+      const body=path.indexOf('sign-up')>=0? {name:email.split('@')[0],email,password} : {email,password};
+      const r=await api(path,{method:'POST',body:JSON.stringify(body)});
+      if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.message||('HTTP '+r.status));}
+      setAc('✔','ok'); $('acPass').value=''; await refreshMe();
+    }catch(e){setAc(e.message,'err');}
+  }
+  $('loginBtn').addEventListener('click',()=>authCall('/api/auth/sign-in/email'));
+  $('signupBtn').addEventListener('click',()=>authCall('/api/auth/sign-up/email'));
+  $('logoutBtn').addEventListener('click',async()=>{
+    try{await api('/api/auth/sign-out',{method:'POST',body:'{}'});}catch(_){}
+    await refreshMe();
+  });
+  $('upgradeBtn').addEventListener('click',async()=>{
+    setAc(t('acWorking'),'work');
+    try{
+      const r=await api('/v1/billing/checkout',{method:'POST',body:'{}'});
+      const d=await r.json(); if(!r.ok||!d.url)throw new Error(d.error||'checkout');
+      window.open(d.url,'_blank'); setAc(t('acPaid'),'work');
+    }catch(e){setAc(e.message,'err');}
+  });
+  $('syncBtn').addEventListener('click',async()=>{
+    setAc(t('acWorking'),'work');
+    try{ await api('/v1/billing/sync',{method:'POST',body:'{}'}); setAc('✔','ok'); await refreshMe(); }
+    catch(e){setAc(e.message,'err');}
+  });
+  $('proModel').addEventListener('change',()=>store.set('v6_promodel',$('proModel').value));
 
-  // ---- speech recognition ----
+  $('verifyBtn').addEventListener('click',async()=>{
+    const p=curProv(),key=$('apiKey').value.trim();
+    if(p.local){
+      setS(setupStatus,t('thinking'),'work');
+      try{
+        const base=($('baseUrl').value.trim()||p.base).replace(/\/v1$/,'');
+        const r=await fetch(base+'/api/tags'); const d=await r.json();
+        const ms=(d.models||[]).map(m=>m.name); const dl=$('modelList');dl.innerHTML='';ms.forEach(m=>{const o=document.createElement('option');o.value=m;dl.appendChild(o);});
+        if(ms.length&&!$('model').value)$('model').value=ms[0];
+        setS(setupStatus,'✔ Ollama '+(ms.length?('— '+ms.length+' modelli'):'raggiunto'),'ok');save();
+      }catch(e){ setS(setupStatus,'Ollama non raggiungibile. Apri questo file in locale e avvia Ollama con OLLAMA_ORIGINS=* (vedi nota).','err'); }
+      return;
+    }
+    if(!key){setS(setupStatus,t('nokey'),'err');return;}
+    if(p.gemini){
+      setS(setupStatus,t('thinking'),'work');
+      try{
+        const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(key));
+        const d=await r.json();if(!r.ok)throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
+        const ms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).filter(m=>/gemini/i.test(m.name)&&!/embedding|aqa|imagen/i.test(m.name)).map(m=>m.name.replace('models/',''));
+        const dl=$('modelList');dl.innerHTML='';ms.forEach(m=>{const o=document.createElement('option');o.value=m;dl.appendChild(o);});
+        const pick=ms.find(n=>/flash/i.test(n)&&/latest/i.test(n))||ms.find(n=>/flash/i.test(n)&&!/2\.5|2\.0|1\.5/.test(n))||ms.find(n=>/flash/i.test(n))||ms[0];
+        if(pick)$('model').value=pick; setS(setupStatus,t('valid'),'ok');save();
+      }catch(e){setS(setupStatus,'Error: '+e.message,'err');}
+    }else{setS(setupStatus,t('valid'),'ok');save();}
+  });
+
+  function canRun(){ return proMode? !!meUser : ($('apiKey').value.trim()||curProv().local); }
+  function cantRunMsg(){ return proMode? t('acNeedLogin') : t('nokey'); }
+
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   function startRec(){
-    if(!SR){ setStatus(liveStatus,'Riconoscimento vocale non supportato: usa Chrome o scrivi la domanda.','err'); return; }
-    recognition=new SR(); recognition.lang=langEl.value; recognition.continuous=true; recognition.interimResults=true;
-    recognition.onresult=e=>{
-      let interim='';
-      for(let i=e.resultIndex;i<e.results.length;i++){
-        const t=e.results[i][0].transcript;
-        if(e.results[i].isFinal){ finalText+=t+' '; } else { interim+=t; }
-      }
-      render(interim);
-      if(autoMode) scheduleAuto();
-    };
-    recognition.onerror=e=>{ setStatus(liveStatus,'Microfono: '+e.error,'err'); };
-    recognition.onend=()=>{ if(recognizing){ try{recognition.start();}catch(_){}} };
-    try{ recognition.start(); recognizing=true; listenBtn.classList.add('on'); listenBtn.textContent='⏸ Stop'; setStatus(liveStatus,'In ascolto…','ok'); }catch(_){}
+    if(!canRun()){ setS(liveStatus,cantRunMsg(),'err'); $('setupCard').scrollIntoView({behavior:'smooth'}); return; }
+    if(!SR){setS(liveStatus,'Chrome required for speech.','err');return;}
+    autoMode=true; autoBtn.classList.add('on');
+    recognition=new SR();recognition.lang=$('lang').value;recognition.continuous=true;recognition.interimResults=true;
+    recognition.onresult=e=>{let itr='';for(let i=e.resultIndex;i<e.results.length;i++){const x=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=x+' ';else itr+=x;}render(itr);if(autoMode)sched();};
+    recognition.onerror=e=>setS(liveStatus,'Mic: '+e.error,'err');
+    recognition.onend=()=>{if(recognizing){try{recognition.start()}catch(_){}}};
+    try{recognition.start();recognizing=true;listenBtn.classList.add('on');listenBtn.querySelector('span').textContent=t('stop');recDot.classList.add('live');setS(liveStatus,t('onair'),'ok');}catch(_){}
   }
-  function stopRec(){ recognizing=false; if(recognition) recognition.stop(); if(pauseTimer) clearTimeout(pauseTimer);
-    listenBtn.classList.remove('on'); listenBtn.textContent='🎙 Ascolta'; setStatus(liveStatus,'Fermato.'); }
-  function render(interim){ transcriptEl.innerHTML=finalText+'<span class="interim">'+(interim||'')+'</span>'; transcriptEl.scrollTop=transcriptEl.scrollHeight; }
-  listenBtn.addEventListener('click',()=> recognizing?stopRec():startRec());
+  function stopRec(){recognizing=false;if(recognition)recognition.stop();if(pauseTimer)clearTimeout(pauseTimer);listenBtn.classList.remove('on');listenBtn.querySelector('span').textContent=t('listen');recDot.classList.remove('live');setS(liveStatus,t('stopped'));}
+  function render(itr){transcriptEl.innerHTML=finalText+'<span class="interim">'+(itr||'')+'</span>';transcriptEl.scrollTop=transcriptEl.scrollHeight;}
+  function sched(){if(pauseTimer)clearTimeout(pauseTimer);pauseTimer=setTimeout(()=>{if(!busy&&finalText.length-lastLen>14){lastLen=finalText.length;suggest();}},1000);}
+  listenBtn.addEventListener('click',()=>recognizing?stopRec():startRec());
+  autoBtn.addEventListener('click',()=>{autoMode=!autoMode;autoBtn.classList.toggle('on',autoMode);setS(liveStatus,autoMode?t('autoOn'):t('autoOff'),autoMode?'ok':'');save();});
+  $('clearBtn').addEventListener('click',()=>{finalText='';lastLen=0;render('');answerEl.innerHTML='';lastAnswer='';});
 
-  // auto-suggest on pause
-  function scheduleAuto(){
-    if(pauseTimer) clearTimeout(pauseTimer);
-    pauseTimer=setTimeout(()=>{
-      const grown = finalText.length - lastLen;
-      if(!busy && grown>18){ lastLen=finalText.length; suggest(); }
-    }, 1200);
+  function systemPrompt(){
+    const m=MODES[modeEl.value]||MODES.interview; const ans=$('ansLang').value;
+    if(m.p==='__translate__'){ const target=ans==='same'?'Italian':ans; return "You are a live interpreter. Translate the following speech into "+target+". Output ONLY the translation, nothing else. If partial, translate what you have."; }
+    let base=m.p==='__custom__'?($('context').value.trim()?'Follow the user context as instructions.':'You are a helpful real-time call copilot.'):m.p;
+    const ansInstr=ans==='same'?'Answer in the SAME language the speaker used.':('Write the suggested answer in '+ans+'.');
+    return base+"\n\nPerson/context (first person): "+($('context').value.trim()||'(none)')+"\n\nYou get a live transcript of the other party. Focus on the LAST question/point. "+ansInstr+" Natural, spoken, concise. Begin with a one-line note of the detected question, then the answer.";
   }
-  autoBtn.addEventListener('click',()=>{ autoMode=!autoMode; autoBtn.classList.toggle('on',autoMode); updChips();
-    setStatus(liveStatus, autoMode?'Risposta automatica attiva.':'Risposta automatica disattivata.', autoMode?'ok':''); });
 
-  clearBtn.addEventListener('click',()=>{ finalText=''; lastLen=0; render(''); answerEl.innerHTML=''; lastAnswer=''; });
-
-  // ---- Gemini call with auto-fallback ----
-  function buildSystem(){
-    return "Sei il copilota di una persona durante una call/colloquio di lavoro. "
-      +"Contesto sulla persona (usalo per personalizzare, in prima persona):\n"+(ctxEl.value.trim()||'(nessun contesto)')
-      +"\n\nRicevi la trascrizione di ciò che ha detto l'interlocutore. Individua l'ULTIMA domanda e:\n"
-      +"1) Riporta la domanda tradotta in italiano.\n"
-      +"2) Scrivi una risposta pronta da dire ad alta voce, in inglese naturale e parlato, in prima persona, concisa (4-7 frasi), sicura ma non arrogante, coerente col contesto.\n"
-      +"Se non c'è una vera domanda, scrivi comunque un breve spunto utile.\n"
-      +"Formato ESATTO:\nDOMANDA (IT): <...>\nRISPOSTA (EN): <...>";
+  async function errMsg(res){let m='HTTP '+res.status;try{const d=await res.json();m=(d.error&&(d.error.message||d.error))||JSON.stringify(d);}catch(_){}return m;}
+  async function readSSE(res,onLine){const rd=res.body.getReader(),dec=new TextDecoder();let buf='';while(true){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;while((i=buf.indexOf('\n'))>=0){let ln=buf.slice(0,i).trim();buf=buf.slice(i+1);if(!ln.startsWith('data:'))continue;ln=ln.slice(5).trim();if(!ln||ln==='[DONE]')continue;onLine(ln);}}}
+  /* Modalità Pro: la richiesta va al NOSTRO backend (chiave universale lato
+     server, cookie di sessione). Formato SSE: {type:"delta"|"done"|"error"}. */
+  function backendMode(){ const m=modeEl.value; return (m==='interview'||m==='sales'||m==='meeting')?m:'general'; }
+  async function callProStream(onDelta){
+    const q=finalText.trim().slice(-2000);
+    const res=await fetch(BACKEND_URL+'/v1/complete',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:($('proModel').value||'mock'),mode:backendMode(),tier:'cloud',system:systemPrompt(),messages:[{role:'user',content:'Transcript:\n'+q}],maxTokens:800})});
+    if(!res.ok){const d=await res.json().catch(()=>({}));throw new Error(d.detail||d.error||('HTTP '+res.status));}
+    let apiErr=null;
+    await readSSE(res,ln=>{try{const j=JSON.parse(ln);if(j.type==='delta'&&j.text)onDelta(j.text);else if(j.type==='error')apiErr=j.message||'errore dal backend';}catch(_){}});
+    if(apiErr)throw new Error(apiErr);
   }
-  // streaming: la risposta si scrive man mano che arriva (effetto live)
-  async function streamModel(model,key,system,q,onDelta){
-    let res;
+
+  async function callStream(onDelta){
+    if(proMode) return callProStream(onDelta);
+    const p=curProv(),key=$('apiKey').value.trim(),model=$('model').value.trim(),q=finalText.trim().slice(-2000),sys=systemPrompt();
     try{
-      res=await fetch(API+model+':streamGenerateContent?alt=sse&key='+encodeURIComponent(key),{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ systemInstruction:{parts:[{text:system}]},
-          contents:[{role:'user',parts:[{text:'Trascrizione:\n'+q}]}],
-          generationConfig:{temperature:0.6,maxOutputTokens:700} })
-      });
-    }catch(e){ return {ok:false,error:e.message,retry:false}; }
-    if(!res.ok){ let msg='HTTP '+res.status; try{const d=await res.json(); msg=(d.error&&d.error.message)||msg;}catch(_){}
-      const retry=res.status===404||/no longer available|not found|not supported|deprecated|update your code/i.test(msg);
-      return {ok:false,error:msg,retry}; }
-    const reader=res.body.getReader(), dec=new TextDecoder(); let buf='', full='';
-    try{
-      while(true){
-        const {done,value}=await reader.read(); if(done) break;
-        buf+=dec.decode(value,{stream:true});
-        let idx;
-        while((idx=buf.indexOf('\n'))>=0){
-          const line=buf.slice(0,idx).trim(); buf=buf.slice(idx+1);
-          if(!line.startsWith('data:')) continue;
-          const payload=line.slice(5).trim(); if(!payload||payload==='[DONE]') continue;
-          try{ const j=JSON.parse(payload);
-            const parts=(((j.candidates||[])[0]||{}).content||{}).parts||[];
-            const t=parts.map(p=>p.text||'').join('');
-            if(t){ full+=t; onDelta(full); }
-          }catch(_){}
-        }
+      if(p.kind==='gemini'){
+        const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':streamGenerateContent?alt=sse&key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:'Transcript:\n'+q}]}],generationConfig:{temperature:0.6,maxOutputTokens:800}})});
+        if(!res.ok)throw new Error(await errMsg(res));
+        await readSSE(res,ln=>{try{const j=JSON.parse(ln);const parts=(((j.candidates||[])[0]||{}).content||{}).parts||[];const tx=parts.map(x=>x.text||'').join('');if(tx)onDelta(tx);}catch(_){}});return;
       }
-    }catch(e){ if(!full) return {ok:false,error:e.message,retry:false}; }
-    return {ok:true,text:full||'(nessuna risposta)'};
+      if(p.kind==='anthropic'){
+        const base=$('baseUrl').value.trim()||p.base;
+        const res=await fetch(base+'/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model,max_tokens:800,system:sys,messages:[{role:'user',content:'Transcript:\n'+q}],stream:true})});
+        if(!res.ok)throw new Error(await errMsg(res));
+        await readSSE(res,ln=>{try{const j=JSON.parse(ln);if(j.type==='content_block_delta'&&j.delta&&j.delta.text)onDelta(j.delta.text);}catch(_){}});return;
+      }
+      const base=$('baseUrl').value.trim()||p.base;
+      const hd={'Content-Type':'application/json'}; if(key) hd['Authorization']='Bearer '+key;
+      const res=await fetch(base+'/chat/completions',{method:'POST',headers:hd,body:JSON.stringify({model,stream:true,temperature:0.6,max_tokens:800,messages:[{role:'system',content:sys},{role:'user',content:'Transcript:\n'+q}]})});
+      if(!res.ok)throw new Error(await errMsg(res));
+      await readSSE(res,ln=>{try{const j=JSON.parse(ln);const d=((j.choices||[])[0]||{}).delta||{};if(d.content)onDelta(d.content);}catch(_){}});
+    }catch(e){ if(/Failed to fetch|NetworkError/i.test(e.message))throw new Error(e.message+' — questo provider può bloccare le chiamate dal browser (CORS). Prova Gemini, Claude, OpenAI o Groq.'); throw e; }
   }
-  async function suggest(questionText){
-    const key=apiKeyEl.value.trim();
-    if(!key){ setStatus(liveStatus,'Manca la chiave API.','err'); return; }
-    if(!modelEl.value){ setStatus(liveStatus,'Carica prima i modelli.','err'); return; }
-    const q=(questionText||finalText).trim().slice(-1800);
-    if(!q){ setStatus(liveStatus,'Non c\'è ancora una domanda.','err'); return; }
-    busy=true; suggestBtn.disabled=true;
-    const system=buildSystem();
-    const cands=[modelEl.value,...[...modelEl.options].map(o=>o.value).filter(v=>v&&v!==modelEl.value)];
-    let done=false;
-    for(let i=0;i<cands.length;i++){
-      const m=cands[i];
-      setStatus(liveStatus, i===0?'Sto pensando…':'Provo un altro modello ('+m.replace('models/','')+')…','work');
-      const res=await streamModel(m,key,system,q,renderAnswer);
-      if(res.ok){ renderAnswer(res.text); modelEl.value=m; saveSettings();
-        setStatus(liveStatus,'Pronta ✔ — '+m.replace('models/',''),'ok'); done=true; break; }
-      if(!res.retry){ setStatus(liveStatus,'Errore: '+res.error,'err'); done=true; break; }
-    }
-    if(!done) setStatus(liveStatus,'Nessun modello disponibile. Ricarica i modelli o crea una nuova chiave.','err');
-    busy=false; suggestBtn.disabled=false;
-  }
-  function renderAnswer(text){
-    lastAnswer=text;
-    const safe=text.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-    answerEl.innerHTML=safe.replace(/(DOMANDA \(IT\):)/,'<span class="q">$1</span>').replace(/(RISPOSTA \(EN\):)/,'<span class="a">$1</span>');
-    answerEl.scrollTop=0;
+  async function suggest(qOverride){
+    if(!canRun()){setS(liveStatus,cantRunMsg(),'err');$('setupCard').scrollIntoView({behavior:'smooth'});return;}
+    if(qOverride){finalText=(finalText+' '+qOverride).trim();}
+    if(!finalText.trim()){setS(liveStatus,t('noq'),'err');return;}
+    busy=true;suggestBtn.disabled=true;setS(liveStatus,t('thinking'),'work');let acc='';answerEl.textContent='';
+    try{await callStream(tx=>{acc+=tx;lastAnswer=acc;answerEl.innerHTML=acc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');answerEl.scrollTop=answerEl.scrollHeight;});setS(liveStatus,t('ready'),'ok');}
+    catch(e){setS(liveStatus,'Error: '+e.message,'err');}
+    busy=false;suggestBtn.disabled=false;
   }
   suggestBtn.addEventListener('click',()=>suggest());
-  manualQ.addEventListener('keydown',e=>{ if(e.key==='Enter'&&manualQ.value.trim()){ suggest(manualQ.value.trim()); manualQ.value=''; } });
-  copyBtn.addEventListener('click',()=>{ if(!lastAnswer) return; try{ navigator.clipboard.writeText(lastAnswer); copyBtn.textContent='Copiato ✔'; setTimeout(()=>copyBtn.textContent='Copia',1500);}catch(_){} });
+  $('manualQ').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.value.trim()){suggest(e.target.value.trim());e.target.value='';}});
+  $('copyBtn').addEventListener('click',()=>{if(!lastAnswer)return;try{navigator.clipboard.writeText(lastAnswer);$('copyBtn').textContent=t('copied');setTimeout(()=>$('copyBtn').textContent=t('copy'),1500);}catch(_){}});
 
-  // ---- persist on change ----
-  [apiKeyEl,ctxEl,langEl,modelEl].forEach(el=>el.addEventListener('change',()=>{ saveSettings(); updChips(); }));
-  apiKeyEl.addEventListener('input',()=>{ suggestBtn.disabled=!apiKeyEl.value.trim(); updChips(); });
-  rememberEl.addEventListener('change',saveSettings);
-  $('forget').addEventListener('click',e=>{ e.preventDefault(); KEYS.forEach(store.del); apiKeyEl.value=''; ctxEl.value=''; updChips(); setStatus(setupStatus,'Dati dimenticati da questo computer.','ok'); });
+  $('floatBtn').addEventListener('click',async()=>{
+    const box=$('answerBox');
+    if(!('documentPictureInPicture' in window)){const w=document.querySelector('.wrap');w.style.maxWidth=(w.style.maxWidth==='440px')?'960px':'440px';return;}
+    try{const pip=await documentPictureInPicture.requestWindow({width:440,height:560});
+      document.querySelectorAll('style').forEach(s=>pip.document.head.appendChild(s.cloneNode(true)));
+      pip.document.body.style.cssText='margin:0;background:#fbf7f2;color:#2c2521;font-family:inherit;padding:12px;';
+      pip.document.body.appendChild(box);
+      pip.addEventListener('pagehide',()=>$('liveHome').appendChild(box));
+    }catch(e){setS(liveStatus,'Float: '+e.message,'err');}
+  });
 
-  // ---- init: restore saved settings ----
+  $('langswitch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;LANG=b.getAttribute('data-lang');[...$('langswitch').children].forEach(c=>c.classList.toggle('on',c===b));applyLang();save();});
+  ['model','baseUrl','lang','ansLang','context','mode'].forEach(id=>$(id).addEventListener('change',save));
+  $('apiKey').addEventListener('input',()=>{suggestBtn.disabled=!$('apiKey').value.trim();save();});
+  $('remember').addEventListener('change',save);
+  $('forget').addEventListener('click',e=>{e.preventDefault();KEYS.forEach(store.del);PKEYS.forEach(p=>{store.del('v5_key_'+p);store.del('v5_model_'+p);store.del('v5_base_'+p);});$('apiKey').value='';$('context').value='';setS(setupStatus,t('valid'),'ok');});
+
   (function init(){
-    if(store.get('ic_remember')==='0') rememberEl.checked=false;
-    const k=store.get('ic_key'), c=store.get('ic_ctx'), l=store.get('ic_lang');
-    if(k) apiKeyEl.value=k; if(c) ctxEl.value=c; if(l) langEl.value=l;
-    suggestBtn.disabled=!apiKeyEl.value.trim(); updChips();
-    if(apiKeyEl.value.trim()){ loadModels(true); $('setupPanel').open=false; } // già configurata: parti pronta
+    if(store.get('v5_remember')==='0')$('remember').checked=false;
+    LANG=store.get('v5_lang')|| (function(){var n=(navigator.language||navigator.userLanguage||'en').toLowerCase(); if(n.indexOf('it')===0)return'it'; if(n.indexOf('zh')===0)return'zh'; if(n.indexOf('es')===0)return'es'; return 'en';})();
+    [...$('langswitch').children].forEach(c=>c.classList.toggle('on',c.getAttribute('data-lang')===LANG));
+    if(store.get('v5_prov')&&PROVIDERS[store.get('v5_prov')])providerEl.value=store.get('v5_prov');
+    proMode=store.get('v6_pro')==='1';
+    const pv=providerEl.value; const which=proMode?'choicePro':(pv==='gemini'?'choiceFree':(pv==='ollama'?'choiceLocal':'choiceOwn')); selChoice(which); $('ownWrap').style.display=(which==='choiceOwn')?'':'none';
+    if(proMode)refreshMe();
+    buildModeOptions();if(store.get('v5_mode'))modeEl.value=store.get('v5_mode');
+    if(store.get('v5_heard'))$('lang').value=store.get('v5_heard');
+    if(store.get('v5_ans'))$('ansLang').value=store.get('v5_ans');
+    if(store.get('v5_ctx'))$('context').value=store.get('v5_ctx');
+    autoMode=store.get('v5_auto')!=='0';autoBtn.classList.toggle('on',autoMode);
+    syncProvider();applyLang();
   })();
+
+  /* ---- PWA: installable app (like Zoom) ---- */
+  let deferredPrompt=null;
+  const installBtn=$('installBtn');
+  function isStandalone(){ return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true; }
+  window.addEventListener('beforeinstallprompt',(e)=>{ e.preventDefault(); deferredPrompt=e; if(!isStandalone()) installBtn.style.display=''; });
+  installBtn.addEventListener('click',async()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    try{ await deferredPrompt.userChoice; }catch(_){}
+    deferredPrompt=null; installBtn.style.display='none';
+  });
+  window.addEventListener('appinstalled',()=>{ deferredPrompt=null; installBtn.style.display='none'; setS(liveStatus,t('installed'),'ok'); });
+  if(isStandalone()) installBtn.style.display='none';
+
+  /* service worker: enables offline shell + install. Only over http(s), not file://. */
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+  }
 })();
 </script>
 </body>

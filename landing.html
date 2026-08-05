@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Call Copilot — the open, private AI copilot for your calls</title>
+<meta name="description" content="An AI copilot that listens to your call and suggests what to say, in real time. Any model, even 100% local. No install. Open-core, privacy-first, European.">
+<meta name="theme-color" content="#ff7a59">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta property="og:title" content="Live Call Copilot">
+<meta property="og:description" content="The open, private AI copilot for your calls. Any model, even 100% local. No install.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#fbf7f2; --card:#ffffff; --soft:#fff3ec; --soft2:#eefaf4;
+    --ink:#2c2521; --muted:#7d7268; --line:#efe6db;
+    --accent:#ff7a59; --accent-d:#e85d3a; --teal:#12b886; --amber:#f2a900; --violet:#8b7be8;
+    --r:20px; --sh:0 10px 34px rgba(60,40,25,.09);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.6;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;}
+  a{color:var(--accent-d);text-decoration:none;}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px;}
+
+  /* nav */
+  nav{display:flex;align-items:center;gap:12px;padding:18px 20px;max-width:1000px;margin:0 auto;}
+  .logo{width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--amber));display:flex;align-items:center;justify-content:center;font-size:1.25rem;box-shadow:0 6px 18px rgba(255,122,89,.35);}
+  nav .brand{font-weight:800;font-size:1.05rem;}
+  nav .sp{margin-left:auto;}
+  nav a.nlink{color:var(--muted);font-weight:600;font-size:.9rem;margin-left:18px;}
+  nav a.nlink:hover{color:var(--ink);}
+
+  .btn{display:inline-block;cursor:pointer;border:none;border-radius:14px;font-size:1rem;font-weight:700;
+    font-family:inherit;padding:14px 24px;transition:transform .05s,filter .15s,box-shadow .15s;}
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 8px 20px rgba(255,122,89,.32);}
+  .btn-primary:hover{filter:brightness(1.06);}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:#ffcdbc;}
+  .btn-sm{padding:10px 18px;font-size:.9rem;}
+
+  /* hero */
+  header.hero{background:radial-gradient(1200px 400px at 50% -10%,var(--soft),transparent 70%);}
+  .hero-in{text-align:center;padding:26px 20px 10px;max-width:820px;margin:0 auto;}
+  .pill{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:30px;padding:6px 15px;font-size:.8rem;font-weight:700;color:var(--accent-d);box-shadow:var(--sh);}
+  h1{font-size:2.6rem;line-height:1.12;letter-spacing:-.5px;margin:16px 0 10px;font-weight:800;}
+  h1 .hl{background:linear-gradient(120deg,var(--accent),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .lead{font-size:1.18rem;color:#5f564e;max-width:640px;margin:0 auto 22px;}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .microcopy{color:var(--muted);font-size:.85rem;margin-top:14px;}
+
+  .mock{margin:34px auto 0;max-width:720px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;}
+  .mock .bar{display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:1px solid var(--line);background:#fff;}
+  .mock .bar i{width:11px;height:11px;border-radius:50%;background:#e7ddd1;display:inline-block;}
+  .mock .bar i:nth-child(1){background:#ff8b6b;}.mock .bar i:nth-child(2){background:#f2c14e;}.mock .bar i:nth-child(3){background:#38c99a;}
+  .mock .bd{padding:18px;display:grid;grid-template-columns:1fr 1.15fr;gap:14px;text-align:left;}
+  @media(max-width:640px){.mock .bd{grid-template-columns:1fr;}}
+  .mbox{background:#fbf7f2;border:1px solid var(--line);border-radius:14px;padding:13px 15px;}
+  .mbox h4{margin:0 0 8px;font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .mbox p{margin:0;font-size:.95rem;color:#4a423b;}
+  .mbox.ans p b{color:var(--teal);}
+  .dotlive{width:8px;height:8px;border-radius:50%;background:var(--accent-d);display:inline-block;margin-right:6px;box-shadow:0 0 8px var(--accent-d);}
+
+  section{padding:56px 0;}
+  section h2{font-size:1.7rem;text-align:center;margin:0 0 8px;font-weight:800;letter-spacing:-.3px;}
+  section .sub{text-align:center;color:var(--muted);max-width:560px;margin:0 auto 34px;}
+
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:760px){.grid3{grid-template-columns:1fr;}}
+  .feat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--sh);}
+  .feat .ic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:10px;}
+  .feat h3{margin:0 0 6px;font-size:1.05rem;font-weight:800;}
+  .feat p{margin:0;color:#5f564e;font-size:.94rem;}
+  .i-teal{background:var(--soft2);}.i-acc{background:var(--soft);}.i-amb{background:#fff6e6;}.i-vio{background:#f1eefc;}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:760px){.steps{grid-template-columns:1fr;}}
+  .stp{text-align:center;padding:10px;}
+  .stp .n{width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid var(--line);color:var(--accent-d);font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;box-shadow:var(--sh);}
+  .stp h3{margin:0 0 4px;font-size:1rem;}
+  .stp p{margin:0;color:#5f564e;font-size:.92rem;}
+
+  .cmp{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);}
+  .cmp th,.cmp td{padding:14px 16px;text-align:left;font-size:.94rem;border-bottom:1px solid var(--line);}
+  .cmp th{background:#fff;font-weight:800;}
+  .cmp thead th:nth-child(2){color:var(--accent-d);}
+  .cmp td:first-child{color:#5f564e;font-weight:600;}
+  .cmp tr:last-child td{border-bottom:none;}
+  .yes{color:var(--teal);font-weight:800;}.no{color:#c9beb2;font-weight:800;}
+
+  .final{background:linear-gradient(160deg,var(--soft),#fff 75%);border:1px solid var(--line);border-radius:26px;padding:40px 24px;text-align:center;box-shadow:var(--sh);}
+  .final h2{margin-top:0;}
+  footer{padding:34px 20px 50px;text-align:center;color:var(--muted);font-size:.86rem;}
+  footer a{font-weight:600;}
+  .foot-links{margin:8px 0 16px;}
+  .foot-links a{margin:0 10px;}
+  .note{max-width:640px;margin:14px auto 0;font-size:.8rem;color:#9a8f83;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">🎧</div>
+  <div class="brand">Live Call Copilot</div>
+  <div class="sp"></div>
+  <a class="nlink" href="#how">How it works</a>
+  <a class="nlink" href="#why">Why it's different</a>
+  <a class="nlink" href="https://github.com/felicelucia/live-call-copilot" target="_blank" rel="noopener">GitHub</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-in">
+    <span class="pill">Open-core · Privacy-first · Made in Europe 🇪🇺</span>
+    <h1>Your calls, with an <span class="hl">AI copilot</span> that whispers the answer</h1>
+    <p class="lead">It listens to your interview, meeting or sales call and suggests what to say — in real time. Any model, even <b>100% on your computer</b>. No install needed.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="index.html">▶ Open the app — free</a>
+      <a class="btn btn-ghost" href="index.html">⬇ Install as an app</a>
+    </div>
+    <div class="microcopy">Free with Google Gemini · or bring your own key · or run it fully offline with Ollama</div>
+
+    <div class="mock" aria-hidden="true">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="bd">
+        <div class="mbox"><h4><span class="dotlive"></span>What it hears</h4><p>“So, why should we hire you over the other candidates for this solar project role?”</p></div>
+        <div class="mbox ans"><h4>💬 What you can say</h4><p><b>They're asking about your edge.</b> “In my last role I delivered three PV plants on time and cut procurement cost 12%. I combine hands-on field experience with…”</p></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="how" class="wrap">
+  <h2>Three steps, one minute</h2>
+  <p class="sub">No account, no download. Open a link and you're ready.</p>
+  <div class="steps">
+    <div class="stp"><div class="n">1</div><h3>Choose how it runs</h3><p>Free with Gemini, your own key (Claude, OpenAI, Mistral, DeepSeek, Qwen…), or 100% local.</p></div>
+    <div class="stp"><div class="n">2</div><h3>Press Start</h3><p>It listens to the call and, when the other person pauses, the suggested answer appears on its own.</p></div>
+    <div class="stp"><div class="n">3</div><h3>Read &amp; reply</h3><p>Pop it into a floating window next to Zoom. Copy with one click if you like.</p></div>
+  </div>
+</section>
+
+<section id="why" class="wrap">
+  <h2>Why it's different</h2>
+  <p class="sub">Most “interview copilots” lock you to one model, one cloud, and one price. This one doesn't.</p>
+  <div class="grid3">
+    <div class="feat"><div class="ic i-teal">🔒</div><h3>Truly private</h3><p>Your key and text stay in your browser. In local mode, <b>nothing ever leaves your computer</b> — no middle server, no tracking.</p></div>
+    <div class="feat"><div class="ic i-acc">🧩</div><h3>Model-agnostic</h3><p>Gemini, Claude, Mistral 🇪🇺, OpenAI, DeepSeek, Qwen, Kimi, Groq or your own local model. Switch anytime.</p></div>
+    <div class="feat"><div class="ic i-amb">⚡</div><h3>No install</h3><p>It's a single web page. Open it from a link — or install it as an app on desktop and phone when you want.</p></div>
+    <div class="feat"><div class="ic i-vio">🌍</div><h3>Speaks your language</h3><p>Live UI and answers in English, Italian, 中文 and Español, with auto-detect. Great for cross-border calls.</p></div>
+    <div class="feat"><div class="ic i-teal">🇪🇺</div><h3>European &amp; open</h3><p>Open-core and built with GDPR &amp; the EU AI Act in mind. The client is open source under AGPL-3.0.</p></div>
+    <div class="feat"><div class="ic i-acc">🎯</div><h3>Skills built in</h3><p>Interview, sales, support, meeting, negotiation, live translation, study — or your own custom prompt.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>How it compares</h2>
+  <p class="sub">Typical paid interview-copilot apps vs. Live Call Copilot.</p>
+  <table class="cmp">
+    <thead><tr><th>&nbsp;</th><th>Live Call Copilot</th><th>Typical “copilot” app</th></tr></thead>
+    <tbody>
+      <tr><td>Bring your own model</td><td class="yes">✓ any provider</td><td class="no">usually one</td></tr>
+      <tr><td>100% local / offline mode</td><td class="yes">✓ with Ollama</td><td class="no">✗</td></tr>
+      <tr><td>Install required</td><td class="yes">none (or optional app)</td><td class="no">download needed</td></tr>
+      <tr><td>Open source</td><td class="yes">✓ AGPL-3.0</td><td class="no">closed</td></tr>
+      <tr><td>Data leaves your device</td><td class="yes">only if you choose a cloud model</td><td class="no">yes, to their servers</td></tr>
+      <tr><td>Price to start</td><td class="yes">free</td><td class="no">subscription</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="wrap">
+  <div class="final">
+    <h2>Try it on your next call</h2>
+    <p class="sub" style="margin-bottom:22px">Free with Gemini in about a minute. Your call, your model, your data.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="index.html">▶ Open the app</a>
+      <a class="btn btn-ghost" href="https://github.com/felicelucia/live-call-copilot" target="_blank" rel="noopener">★ Star on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-links">
+    <a href="index.html">Open app</a>·
+    <a href="https://github.com/felicelucia/live-call-copilot" target="_blank" rel="noopener">GitHub</a>·
+    <a href="https://github.com/felicelucia/live-call-copilot/blob/main/LICENSE" target="_blank" rel="noopener">License (AGPL-3.0)</a>
+  </div>
+  <div>Open-core · Model-agnostic · Privacy-first · Made in Europe 🇪🇺</div>
+  <p class="note">Responsible use: using AI suggestions during a hiring process may violate the employer's rules, and capturing other people's voices requires their consent (GDPR). This tool is intended for transparent, mindful use.</p>
+</footer>
+
+</body>
+</html>
