@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -106,6 +106,28 @@
   a{color:var(--accent-d);}
   .foot{font-size:.78rem;color:var(--muted);}
   .paidnote{background:var(--soft2);border:1px solid #cdeede;border-radius:12px;padding:11px 14px;font-size:.82rem;color:#2f7a5e;margin-top:12px;}
+
+  /* settings button + slide-in drawer */
+  .setbtn{margin-left:auto;padding:9px 14px;}
+  .langswitch{margin-left:0;}
+  .privacy-chip{display:inline-flex;align-items:center;gap:7px;margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:30px;padding:7px 15px;font-size:.82rem;color:#3f6a58;font-weight:600;box-shadow:0 3px 10px rgba(60,40,25,.05);}
+  .consent{text-align:center;font-size:.78rem;color:var(--muted);margin-top:2px;}
+  .consent b{color:var(--accent-d);font-weight:700;}
+  .backdrop{position:fixed;inset:0;background:rgba(40,30,22,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40;}
+  .backdrop.open{opacity:1;pointer-events:auto;}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:min(470px,94vw);background:var(--bg);box-shadow:-14px 0 44px rgba(60,40,25,.20);transform:translateX(101%);transition:transform .25s cubic-bezier(.4,0,.2,1);z-index:50;display:flex;flex-direction:column;}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line);background:#fff;flex:0 0 auto;}
+  .drawer-head h2{margin:0;font-size:1.05rem;font-weight:800;}
+  .drawer-head .x{margin-left:auto;background:#fff;border:1px solid var(--line);border-radius:10px;width:36px;height:36px;cursor:pointer;font-size:1rem;color:var(--muted);}
+  .drawer-head .x:hover{color:var(--ink);border-color:#ffcdbc;}
+  .drawer-inner{overflow-y:auto;padding:16px 16px 48px;display:flex;flex-direction:column;gap:14px;}
+  .drawer-inner .card{box-shadow:none;}
+  .drawer-inner .choices{grid-template-columns:1fr;}
+  .caps{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;}
+  .caps h3{margin:0 0 8px;font-size:1rem;font-weight:800;}
+  .caps .capsbody{font-size:.86rem;color:#5f564e;line-height:1.62;}
+  .caps .capsbody b{color:var(--ink);}
 </style>
 </head>
 <body>
@@ -114,6 +136,7 @@
   <div class="top">
     <div class="logo">🎧</div>
     <div class="name">Live Call Copilot</div>
+    <button class="btn btn-ghost setbtn" id="settingsBtn"><span data-i18n="settings"></span></button>
     <div class="langswitch" id="langswitch">
       <button data-lang="it" class="on">IT</button>
       <button data-lang="en">EN</button>
@@ -131,6 +154,7 @@
       <div class="step"><span class="n">2</span><span data-i18n="s2"></span></div>
       <div class="step"><span class="n">3</span><span data-i18n="s3"></span></div>
     </div>
+    <div class="privacy-chip" data-i18n="privacyChip"></div>
   </div>
 
   <!-- LIVE (front and center) -->
@@ -142,6 +166,7 @@
     <button class="btn btn-ghost" id="clearBtn" data-i18n="clear"></button>
     <button class="btn btn-soft" id="installBtn" style="display:none" data-i18n="install"></button>
   </div>
+  <div class="consent" data-i18n="consentLine"></div>
   <div class="status" id="liveStatus" style="text-align:center"></div>
 
   <div class="live-grid" id="liveHome">
@@ -155,8 +180,13 @@
       <div class="answer" id="answer" data-ph="—"></div>
     </div>
   </div>
+</div><!-- /wrap -->
 
-  <!-- SETUP: friendly, guided, below -->
+<div class="backdrop" id="backdrop"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head"><h2 data-i18n="drawerH"></h2><button class="x" id="drawerClose">✕</button></div>
+  <div class="drawer-inner">
+
   <div class="card" id="setupCard">
     <h2 data-i18n="startH"></h2>
     <p class="sub" data-i18n="startSub"></p>
@@ -271,16 +301,25 @@
     <div class="paidnote" data-i18n="paid"></div>
   </div>
 
+  <div class="caps">
+    <h3 data-i18n="capsTitle"></h3>
+    <div class="capsbody" data-i18n="capsBody"></div>
+  </div>
+
   <details class="card">
     <summary style="cursor:pointer;font-weight:800;list-style:none" data-i18n="howto"></summary>
     <div class="foot" id="howtoBody" style="margin-top:10px"></div>
   </details>
 
-</div>
+  </div><!-- /drawer-inner -->
+</div><!-- /drawer -->
 
 <script>
-/* ═══ URL del backend (piano Pro) — cambia SOLO questa riga col deploy ═══ */
-const BACKEND_URL='http://127.0.0.1:8787';
+/* ═══ URL del backend (piano Pro) ═══
+   Se la pagina è servita via http(s) (dal backend stesso, da un tunnel o dal
+   deploy) usa la STESSA origine — così funziona ovunque senza toccare nulla.
+   Il fallback su localhost serve solo quando si apre il file in locale (file://). */
+const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'http://127.0.0.1:8787';
 
 (function(){
   const $=id=>document.getElementById(id);
@@ -326,7 +365,14 @@ const BACKEND_URL='http://127.0.0.1:8787';
       acNeedLogin:"Inicia sesión (o regístrate) para usar el modo Pro.",acNeedFields:"Introduce email y contraseña.",acWorking:"Un momento…",acHello:"Hola",acPlan:"plan",acRpm:"solicitudes/min",acFree:"Estás en el plan Free: para usar modelos sin clave necesitas Pro.",acPaid:"Stripe se abre en otra pestaña. Tras pagar, vuelve aquí y pulsa \"He pagado — actualizar\".",acBackendDown:"Backend no accesible: comprueba que esté encendido.",
       how:"<b>1) Elige cómo funciona:</b> \"Gratis con Gemini\" (recomendado), crea la clave desde el enlace, o usa tu clave.<br><br><b>2) Pulsa 🎙 Escuchar</b> con el audio por altavoces (no auriculares). Con ⚡ activo, la respuesta aparece sola cuando la otra persona hace una pausa.<br><br><b>3) Lee</b> la respuesta sugerida. Pulsa 🗔 para separarla en una ventana junto a Zoom.<br><br><b>Ética:</b> usar IA en una selección puede violar reglas de la empresa; grabar a otros requiere consentimiento (RGPD)."}
   };
-  let LANG='it';
+  const T2={
+    it:{settings:"⚙︎ Impostazioni",drawerH:"Impostazioni e avvio",close:"Chiudi",privacyChip:"🔒 Niente viene salvato — la trascrizione resta nel tuo browser",consentLine:"Assistente <b>AI</b> · registrare la voce altrui richiede il loro <b>consenso</b> (GDPR/AI Act).",capsTitle:"Cosa puoi fare",capsBody:"<b>Skill</b>: colloquio, vendita, assistenza, riunione, negoziazione, traduzione dal vivo, studio, o un profilo su misura.<br><br><b>Come usarlo</b>: 🆓 gratis con Gemini · 🔑 la tua chiave (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 100% locale con Ollama (niente esce dal PC) · ⭐ Pro senza chiave (la mettiamo noi).<br><br><b>Extra</b>: risposta automatica quando l'altro fa una pausa · 🗔 finestra flottante di fianco a Zoom · ⬇ installabile come app · lingua automatica per zona.<br><br><b>Privacy</b>: le conversazioni non vengono salvate sui nostri server. In modalità locale non lasciano nemmeno il tuo computer."},
+    en:{settings:"⚙︎ Settings",drawerH:"Settings & start",close:"Close",privacyChip:"🔒 Nothing is saved — the transcript stays in your browser",consentLine:"<b>AI</b> assistant · recording other people requires their <b>consent</b> (GDPR/AI Act).",capsTitle:"What you can do",capsBody:"<b>Skills</b>: interview, sales, support, meeting, negotiation, live translation, study, or your own custom profile.<br><br><b>How to use it</b>: 🆓 free with Gemini · 🔑 your own key (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 100% local with Ollama (nothing leaves your PC) · ⭐ Pro with no key (we provide it).<br><br><b>Extras</b>: auto-answer when the other person pauses · 🗔 floating window to dock next to Zoom · ⬇ installable as an app · language auto-detected by region.<br><br><b>Privacy</b>: conversations are not stored on our servers. In local mode they never even leave your computer."},
+    zh:{settings:"⚙︎ 设置",drawerH:"设置与开始",close:"关闭",privacyChip:"🔒 不保存任何内容 — 转录仅留在你的浏览器中",consentLine:"<b>AI</b> 助手 · 录制他人语音需征得其<b>同意</b>（GDPR/AI 法案）。",capsTitle:"你可以做什么",capsBody:"<b>技能</b>：面试、销售、客服、会议、谈判、实时翻译、学习，或自定义。<br><br><b>使用方式</b>：🆓 免费使用 Gemini · 🔑 你自己的密钥（OpenAI、Claude、Mistral 🇪🇺、DeepSeek、Qwen、Kimi、Groq）· 🔒 通过 Ollama 100% 本地（数据不出电脑）· ⭐ Pro 无需密钥（由我们提供）。<br><br><b>额外</b>：对方停顿时自动回答 · 🗔 可贴在 Zoom 旁的悬浮窗 · ⬇ 可安装为应用 · 按地区自动选择语言。<br><br><b>隐私</b>：对话不会存储在我们的服务器上。本地模式下甚至不会离开你的电脑。"},
+    es:{settings:"⚙︎ Ajustes",drawerH:"Ajustes e inicio",close:"Cerrar",privacyChip:"🔒 No se guarda nada — la transcripción se queda en tu navegador",consentLine:"Asistente <b>IA</b> · grabar la voz de otros requiere su <b>consentimiento</b> (RGPD/Ley IA).",capsTitle:"Qué puedes hacer",capsBody:"<b>Skills</b>: entrevista, ventas, soporte, reunión, negociación, traducción en vivo, estudio, o tu perfil a medida.<br><br><b>Cómo usarlo</b>: 🆓 gratis con Gemini · 🔑 tu propia clave (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 100% local con Ollama (nada sale del PC) · ⭐ Pro sin clave (la ponemos nosotros).<br><br><b>Extras</b>: respuesta automática cuando la otra persona hace una pausa · 🗔 ventana flotante junto a Zoom · ⬇ instalable como app · idioma automático por región.<br><br><b>Privacidad</b>: las conversaciones no se guardan en nuestros servidores. En modo local ni siquiera salen de tu ordenador."}
+  };
+  Object.keys(T2).forEach(l=>Object.assign(T[l],T2[l]));
+  let LANG='en';
   function t(k){ return (T[LANG]&&T[LANG][k])||T.it[k]||k; }
   function applyLang(){
     document.documentElement.lang=LANG;
@@ -503,7 +549,7 @@ const BACKEND_URL='http://127.0.0.1:8787';
 
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   function startRec(){
-    if(!canRun()){ setS(liveStatus,cantRunMsg(),'err'); $('setupCard').scrollIntoView({behavior:'smooth'}); return; }
+    if(!canRun()){ setS(liveStatus,cantRunMsg(),'err'); openDrawer(); return; }
     if(!SR){setS(liveStatus,'Chrome required for speech.','err');return;}
     autoMode=true; autoBtn.classList.add('on');
     recognition=new SR();recognition.lang=$('lang').value;recognition.continuous=true;recognition.interimResults=true;
@@ -565,7 +611,7 @@ const BACKEND_URL='http://127.0.0.1:8787';
     }catch(e){ if(/Failed to fetch|NetworkError/i.test(e.message))throw new Error(e.message+' — questo provider può bloccare le chiamate dal browser (CORS). Prova Gemini, Claude, OpenAI o Groq.'); throw e; }
   }
   async function suggest(qOverride){
-    if(!canRun()){setS(liveStatus,cantRunMsg(),'err');$('setupCard').scrollIntoView({behavior:'smooth'});return;}
+    if(!canRun()){setS(liveStatus,cantRunMsg(),'err');openDrawer();return;}
     if(qOverride){finalText=(finalText+' '+qOverride).trim();}
     if(!finalText.trim()){setS(liveStatus,t('noq'),'err');return;}
     busy=true;suggestBtn.disabled=true;setS(liveStatus,t('thinking'),'work');let acc='';answerEl.textContent='';
@@ -609,6 +655,17 @@ const BACKEND_URL='http://127.0.0.1:8787';
     autoMode=store.get('v5_auto')!=='0';autoBtn.classList.toggle('on',autoMode);
     syncProvider();applyLang();
   })();
+
+  /* ---- Drawer impostazioni (setup a scomparsa) ---- */
+  function openDrawer(){ $('drawer').classList.add('open'); $('backdrop').classList.add('open'); }
+  function closeDrawer(){ $('drawer').classList.remove('open'); $('backdrop').classList.remove('open'); }
+  $('settingsBtn').addEventListener('click',openDrawer);
+  $('drawerClose').addEventListener('click',closeDrawer);
+  $('backdrop').addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape')closeDrawer(); });
+  if(!canRun()) openDrawer();            // primo avvio: mostra le opzioni
+  /* Privacy: la trascrizione non viene mai salvata; la azzero anche alla chiusura. */
+  window.addEventListener('pagehide',()=>{ finalText=''; });
 
   /* ---- PWA: installable app (like Zoom) ---- */
   let deferredPrompt=null;
