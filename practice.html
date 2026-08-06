@@ -3,70 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Practice — Interview simulator (prototype)</title>
+<title>Practice — AI interview simulator</title>
 <meta name="theme-color" content="#8b7be8">
-<meta name="description" content="Practice real conversations with an AI that talks back — interview simulator prototype.">
+<meta name="description" content="Professional AI interview practice — tailored to your CV and the job, hands-free voice conversation, live coaching and a scored report.">
 <style>
   :root{
-    --bg:#fbf7f2; --card:#ffffff; --soft:#f4f1ff; --soft2:#eefaf4;
-    --ink:#2c2521; --muted:#948a80; --line:#efe6db;
-    --accent:#8b7be8; --accent-d:#6f5fd6; --teal:#12b886; --amber:#f2a900; --orange:#ff7a59;
-    --r:18px; --sh:0 8px 30px rgba(60,40,25,.09);
+    --bg:#faf8f4; --card:#ffffff; --soft:#f4f1ff; --soft2:#eefaf4; --soft3:#fff3ec;
+    --ink:#241f1b; --muted:#8f857a; --line:#ece3d8;
+    --accent:#7b6ef0; --accent-d:#5a4bd6; --teal:#12b886; --amber:#f2a900; --orange:#ff7a59; --red:#e05a44;
+    --r:16px; --sh:0 10px 34px rgba(50,35,20,.08);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;}
   body{background:var(--bg);color:var(--ink);line-height:1.55;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;}
-  .wrap{max-width:720px;margin:0 auto;padding:18px 18px 70px;display:flex;flex-direction:column;gap:16px;}
+  .wrap{max-width:740px;margin:0 auto;padding:18px 18px 80px;display:flex;flex-direction:column;gap:16px;}
   .top{display:flex;align-items:center;gap:12px;}
-  .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--orange));display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 6px 18px rgba(139,123,232,.35);}
-  .top .name{font-weight:800;font-size:1.05rem;}
-  .tag{font-size:.66rem;font-weight:800;background:var(--accent);color:#fff;border-radius:20px;padding:3px 9px;margin-left:6px;vertical-align:middle;}
-  .hero{background:linear-gradient(160deg,var(--soft),#fff 70%);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh);text-align:center;}
-  .hero h1{margin:0 0 6px;font-size:1.5rem;font-weight:800;letter-spacing:-.3px;}
-  .hero p{margin:0 auto;max-width:520px;color:#6b625a;font-size:.98rem;}
+  .logo{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--orange));display:flex;align-items:center;justify-content:center;font-size:1.35rem;box-shadow:0 6px 18px rgba(123,110,240,.35);}
+  .top .name{font-weight:800;font-size:1.05rem;letter-spacing:-.2px;}
+  .tag{font-size:.64rem;font-weight:800;background:var(--accent);color:#fff;border-radius:20px;padding:3px 9px;margin-left:7px;vertical-align:middle;letter-spacing:.3px;}
+  .hero{background:linear-gradient(155deg,var(--soft),#fff 72%);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh);text-align:center;}
+  .hero h1{margin:0 0 6px;font-size:1.5rem;font-weight:800;letter-spacing:-.4px;}
+  .hero p{margin:0 auto;max-width:540px;color:#665d54;font-size:.98rem;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;box-shadow:var(--sh);}
-  label{display:block;font-size:.8rem;color:#6b625a;font-weight:700;margin:12px 0 5px;}
-  input,select,textarea{width:100%;background:#fff;border:1.5px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 13px;font-size:.95rem;font-family:inherit;outline:none;transition:border-color .15s;}
+  .card h2{margin:0 0 2px;font-size:1rem;font-weight:800;}
+  .card .sub{color:var(--muted);font-size:.84rem;margin:0 0 8px;}
+  label{display:block;font-size:.78rem;color:#5f574e;font-weight:700;margin:12px 0 5px;}
+  input,select,textarea{width:100%;background:#fff;border:1.5px solid var(--line);color:var(--ink);border-radius:11px;padding:10px 12px;font-size:.94rem;font-family:inherit;outline:none;transition:border-color .15s;}
   input:focus,select:focus,textarea:focus{border-color:var(--accent);}
-  textarea{resize:vertical;min-height:90px;}
+  textarea{resize:vertical;min-height:70px;}
   .row{display:flex;gap:12px;flex-wrap:wrap;}
   .row>div{flex:1;min-width:140px;}
-  button.btn{cursor:pointer;border:none;border-radius:13px;font-size:.95rem;font-weight:700;font-family:inherit;padding:12px 18px;transition:transform .05s,filter .15s,box-shadow .15s;}
+  button.btn{cursor:pointer;border:none;border-radius:12px;font-size:.94rem;font-weight:700;font-family:inherit;padding:11px 17px;transition:transform .05s,filter .15s,box-shadow .15s;}
   button.btn:active{transform:translateY(1px);}
-  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(139,123,232,.32);}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(123,110,240,.32);}
   .btn-primary:hover{filter:brightness(1.06);}
   .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
-  .btn-rec{background:var(--teal);color:#fff;box-shadow:0 6px 16px rgba(18,184,134,.3);}
-  .btn-rec.on{background:var(--accent-d);animation:pulse 1.4s infinite;}
   .btn-danger{background:#fff;color:var(--accent-d);border:1.5px solid #ddd6fa;}
+  .btn.on{background:var(--teal);color:#fff;}
   .btn:disabled{opacity:.45;cursor:not-allowed;}
-  @keyframes pulse{50%{filter:brightness(1.14);}}
-  .hintlink{font-size:.78rem;color:var(--accent-d);text-decoration:none;font-weight:700;}
+  .hintlink{font-size:.76rem;color:var(--accent-d);text-decoration:none;font-weight:700;}
   .status{font-size:.82rem;color:var(--muted);min-height:1.05em;margin-top:8px;}
-  .status.err{color:#d1483a;} .status.work{color:var(--amber);} .status.ok{color:var(--teal);}
-  .note{background:var(--soft2);border:1px solid #cdeede;border-radius:12px;padding:10px 13px;font-size:.8rem;color:#2f7a5e;margin-top:12px;}
+  .status.err{color:var(--red);} .status.work{color:var(--amber);} .status.ok{color:var(--teal);}
+  .note{background:var(--soft2);border:1px solid #cdeede;border-radius:11px;padding:10px 13px;font-size:.79rem;color:#2f7a5e;margin-top:12px;}
+  details.more>summary{cursor:pointer;font-size:.82rem;color:var(--muted);font-weight:700;padding:8px 0;list-style:none;}
+  details.more>summary::-webkit-details-marker{display:none;}
 
-  /* interview stage */
   .stage{display:none;flex-direction:column;gap:14px;}
+  .pbar{height:6px;background:#eee3d6;border-radius:6px;overflow:hidden;}
+  .pbar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--orange));transition:width .4s;}
   .interviewer{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;box-shadow:var(--sh);}
-  .interviewer .who{display:flex;align-items:center;gap:10px;font-weight:800;font-size:.9rem;color:var(--accent-d);margin-bottom:10px;}
-  .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--orange));display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
-  .avatar.talking{box-shadow:0 0 0 0 rgba(139,123,232,.5);animation:ring 1.3s infinite;}
-  @keyframes ring{0%{box-shadow:0 0 0 0 rgba(139,123,232,.45);}70%{box-shadow:0 0 0 14px rgba(139,123,232,0);}100%{box-shadow:0 0 0 0 rgba(139,123,232,0);}}
-  .qtext{font-size:1.2rem;line-height:1.5;color:#332e29;min-height:1.5em;}
-  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-  .prog{font-size:.8rem;color:var(--muted);margin-left:auto;}
-  .replay{font-size:.75rem;color:var(--accent-d);background:#fff;border:1px solid var(--line);border-radius:9px;padding:5px 10px;cursor:pointer;}
+  .who{display:flex;align-items:center;gap:10px;font-weight:800;font-size:.88rem;color:var(--accent-d);margin-bottom:10px;}
+  .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--orange));display:flex;align-items:center;justify-content:center;font-size:1.15rem;}
+  .avatar.talking{animation:ring 1.3s infinite;}
+  @keyframes ring{0%{box-shadow:0 0 0 0 rgba(123,110,240,.45);}70%{box-shadow:0 0 0 14px rgba(123,110,240,0);}100%{box-shadow:0 0 0 0 rgba(123,110,240,0);}}
+  .qtext{font-size:1.2rem;line-height:1.5;color:#2e2924;min-height:1.5em;}
+  .smallbtn{font-size:.75rem;color:var(--accent-d);background:#fff;border:1px solid var(--line);border-radius:9px;padding:6px 11px;cursor:pointer;font-weight:700;}
+  .smallbtn:disabled{opacity:.5;cursor:not-allowed;}
+  .coachbox{margin-top:12px;background:var(--soft2);border:1px solid #cdeede;border-radius:11px;padding:12px 14px;font-size:.9rem;color:#2f5f4e;line-height:1.55;}
+  .coachbox b{color:#227a56;}
+  .prog{font-size:.78rem;color:var(--muted);margin-left:auto;}
+  .statepill{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:.84rem;color:var(--accent-d);background:var(--soft);border:1px solid #ddd6fa;border-radius:30px;padding:7px 15px;}
+  .statepill.listen{color:#0e9c72;background:var(--soft2);border-color:#b8ecd8;}
+  .statepill.listen .glow{width:9px;height:9px;border-radius:50%;background:#12b886;box-shadow:0 0 8px #12b886;animation:blink 1.2s infinite;}
+  @keyframes blink{50%{opacity:.35;}}
+  .statepill.think{color:#8a6d2f;background:#fff7ec;border-color:#f2dcb0;}
+  .youtext{margin-top:14px;min-height:2.2em;font-size:1.06rem;color:#3a332e;}
+  .youtext:empty::before{content:attr(data-ph);color:#bcafa0;font-size:.9rem;}
+  .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:14px;}
 
-  /* feedback */
   .fb{display:none;}
-  .score{display:flex;align-items:center;gap:16px;background:linear-gradient(160deg,var(--soft),#fff 70%);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;box-shadow:var(--sh);}
-  .score .num{font-size:2.6rem;font-weight:800;color:var(--accent-d);line-height:1;}
-  .score .lbl{font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
-  .fbbody{font-size:.96rem;color:#3a332e;white-space:pre-wrap;line-height:1.6;}
-  .fbbody b{color:var(--accent-d);}
+  .score{display:flex;align-items:center;gap:18px;background:linear-gradient(155deg,var(--soft),#fff 72%);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh);}
+  .ring{--v:0;width:92px;height:92px;border-radius:50%;flex:0 0 auto;background:conic-gradient(var(--accent) calc(var(--v)*1%), #eadff9 0);display:flex;align-items:center;justify-content:center;}
+  .ring>div{width:70px;height:70px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring .n{font-size:1.7rem;font-weight:800;color:var(--accent-d);line-height:1;}
+  .ring .u{font-size:.62rem;color:var(--muted);font-weight:700;}
+  .score .sum{font-size:.96rem;color:#4a423b;}
+  .dims{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+  .dim .dh{display:flex;justify-content:space-between;font-size:.86rem;font-weight:700;color:#3a332e;margin-bottom:3px;}
+  .dim .dh span:last-child{color:var(--accent-d);}
+  .dim .track{height:8px;background:#efe7db;border-radius:6px;overflow:hidden;}
+  .dim .track>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:6px;}
+  .dim .note{font-size:.8rem;color:var(--muted);margin-top:4px;}
+  .fbsec h3{margin:14px 0 8px;font-size:.95rem;font-weight:800;}
+  .fbsec ul{margin:0;padding-left:18px;}
+  .fbsec li{margin:5px 0;font-size:.92rem;color:#3a332e;}
+  .model{background:var(--soft3);border:1px solid #ffd9cb;border-radius:11px;padding:13px 15px;font-size:.93rem;color:#7a4a38;line-height:1.55;white-space:pre-wrap;}
   a{color:var(--accent-d);}
-  .foot{font-size:.76rem;color:var(--muted);text-align:center;margin-top:8px;}
+  .foot{font-size:.75rem;color:var(--muted);text-align:center;margin-top:8px;}
+  .raw{white-space:pre-wrap;font-size:.92rem;color:#3a332e;line-height:1.6;}
 </style>
 </head>
 <body>
@@ -74,77 +98,94 @@
 
   <div class="top">
     <div class="logo">🎤</div>
-    <div class="name">Live Call Copilot · Practice<span class="tag">PROTOTYPE</span></div>
+    <div class="name">Live Call Copilot · Practice<span class="tag">BETA</span></div>
   </div>
 
   <div class="hero">
-    <h1 id="heroH">Practice the conversations that matter</h1>
-    <p id="heroP">A realistic AI interviewer talks with you by voice. Answer out loud — then get a score and specific feedback.</p>
+    <h1 id="heroH">Rehearse the interview — with a coach that knows your CV</h1>
+    <p id="heroP">A realistic AI interviewer, tailored to your résumé and the job. Talk hands-free, get live coaching, and finish with a scored report.</p>
   </div>
 
   <!-- SETUP -->
   <div class="card" id="setup">
+    <h2 id="setupH">Set up your session</h2>
+    <p class="sub" id="setupSub">The more you give it, the sharper the interview.</p>
+
+    <label id="lRole">Role / position</label>
+    <input id="role" placeholder="e.g. Project Manager — solar / renewables">
+
+    <label id="lJob">Job description <span style="color:var(--muted);font-weight:400">(paste it — optional but recommended)</span></label>
+    <textarea id="job" placeholder="Paste the job ad or key requirements…"></textarea>
+
+    <label id="lCv">Your CV / background <span style="color:var(--muted);font-weight:400">(paste key points — optional)</span></label>
+    <textarea id="cv" placeholder="Paste your résumé or a few bullet points about your experience…"></textarea>
+
     <div class="row">
-      <div>
-        <label>Role you're interviewing for</label>
-        <input id="role" placeholder="e.g. Project Manager (solar / renewables)">
-      </div>
+      <div><label id="lLang">Language</label><select id="lang"><option value="en">English</option><option value="it">Italiano</option></select></div>
+      <div><label id="lVoice">Interviewer voice</label><select id="voiceSel"><option value="female">Female</option><option value="male">Male</option></select></div>
+      <div><label id="lStyle">Style</label><select id="style"><option value="friendly">Friendly</option><option value="neutral">Neutral</option><option value="tough">Tough / challenging</option></select></div>
+      <div><label id="lNq">Questions</label><select id="nq"><option>4</option><option selected>5</option><option>6</option><option>8</option></select></div>
     </div>
-    <div class="row">
-      <div>
-        <label>Language</label>
-        <select id="lang"><option value="en">English</option><option value="it">Italiano</option></select>
-      </div>
-      <div>
-        <label>Interviewer voice</label>
-        <select id="voiceSel"><option value="female">Female</option><option value="male">Male</option></select>
-      </div>
-      <div>
-        <label>Questions</label>
-        <select id="nq"><option>4</option><option selected>5</option><option>6</option><option>8</option></select>
-      </div>
+
+    <label id="lEngine">AI engine <span style="color:var(--muted);font-weight:400">— for real quality use Claude or Groq, not only free Gemini</span></label>
+    <select id="engine"></select>
+    <div class="row" style="margin-top:2px">
+      <div style="flex:3"><label id="lKey">API key <a class="hintlink" id="keyLink" target="_blank">— get one</a></label><input type="password" id="key" placeholder="..." autocomplete="off"></div>
+      <div style="flex:2"><label id="lModel">Model</label><input id="model" list="modelList" placeholder="(auto)"><datalist id="modelList"></datalist></div>
     </div>
-    <label>Google Gemini API key <a class="hintlink" href="https://aistudio.google.com/apikey" target="_blank">— get a free one</a></label>
-    <input type="password" id="key" placeholder="AIza..." autocomplete="off">
-    <div class="note">🔒 This prototype runs on your Gemini key, in your browser — nothing is saved on a server. In the full product this routes through our <b>sovereign European backend</b> (no key needed), choosing the best engine by task and data sensitivity.</div>
+
+    <div class="note" id="privacyNote">🎧 Use headphones so the interviewer's voice isn't picked up by your mic. 🔒 Everything runs in your browser on your key — nothing is saved on a server. In the full product this routes through our sovereign European backend (no key needed) and can run several specialised agents in parallel.</div>
     <div style="margin-top:16px"><button class="btn btn-primary" id="startBtn" style="width:100%">▶ Start the interview</button></div>
     <div class="status" id="setupStatus"></div>
   </div>
 
-  <!-- INTERVIEW STAGE -->
+  <!-- STAGE -->
   <div class="stage" id="stage">
+    <div class="pbar"><i id="pbarFill"></i></div>
     <div class="interviewer">
       <div class="who"><span class="avatar" id="avatar">🧑‍💼</span><span id="whoName">Interviewer</span><span class="prog" id="prog"></span></div>
       <div class="qtext" id="qtext">…</div>
-      <div style="margin-top:12px"><button class="replay" id="replayBtn">🔊 Repeat question</button></div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="smallbtn" id="replayBtn">🔊 Repeat</button>
+        <button class="smallbtn" id="hintBtn">💡 Suggest an answer</button>
+        <button class="smallbtn" id="coachBtn" disabled>✍️ Improve my last answer</button>
+      </div>
+      <div class="coachbox" id="coachbox" style="display:none"></div>
     </div>
     <div class="card">
-      <label id="ansLabel">Your answer — speak or type</label>
-      <textarea id="answer" placeholder="Press 🎤 and answer out loud, or type here…"></textarea>
-      <div class="bar" style="margin-top:12px">
-        <button class="btn btn-rec" id="recBtn">🎤 <span id="recLbl">Record answer</span></button>
-        <button class="btn btn-primary" id="sendBtn">Send answer →</button>
-        <button class="btn btn-danger" id="endBtn">End &amp; get feedback</button>
+      <span class="statepill" id="statepill">…</span>
+      <div class="youtext" id="youtext" data-ph="Your words appear here as you speak…"></div>
+      <div class="bar">
+        <button class="btn on" id="handsBtn">✋ Hands-free: ON</button>
+        <button class="btn btn-ghost" id="micBtn">🎤 Talk</button>
+        <button class="btn btn-danger" id="endBtn">End &amp; get report</button>
       </div>
+      <details class="more" style="margin-top:10px"><summary>⌨ Type instead</summary>
+        <div style="margin-top:8px;display:flex;gap:8px"><input id="answerInput" placeholder="Type your answer, press Enter"><button class="btn btn-ghost" id="sendType">Send</button></div>
+      </details>
       <div class="status" id="liveStatus"></div>
     </div>
   </div>
 
-  <!-- FEEDBACK -->
+  <!-- REPORT -->
   <div class="fb" id="fb">
     <div class="score">
-      <div><div class="num" id="scoreNum">—</div><div class="lbl">/ 100</div></div>
-      <div class="lbl" id="scoreWhy" style="text-transform:none;font-weight:600;color:#5f564e;font-size:.9rem"></div>
+      <div class="ring" id="ring"><div><div class="n" id="scoreNum">—</div><div class="u">/ 100</div></div></div>
+      <div class="sum" id="scoreWhy"></div>
     </div>
-    <div class="card" style="margin-top:14px">
-      <div class="fbbody" id="fbbody"></div>
+    <div class="card" style="margin-top:14px" id="reportCard">
+      <div class="dims" id="dims"></div>
+      <div class="fbsec"><h3 id="hStr">Strengths</h3><ul id="strengths"></ul></div>
+      <div class="fbsec"><h3 id="hImp">What to improve</h3><ul id="improvements"></ul></div>
+      <div class="fbsec"><h3 id="hModel">Stronger version of your weakest answer</h3><div class="model" id="modelAns"></div></div>
+      <div class="raw" id="rawFb" style="display:none"></div>
     </div>
     <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn btn-primary" id="againBtn">↻ Practice again</button>
     </div>
   </div>
 
-  <div class="foot">Prototype · your data stays in your browser · powered by your chosen model (Gemini for now).</div>
+  <div class="foot">Beta · your data stays in your browser · sovereign multi-agent backend coming next.</div>
 
 </div>
 
@@ -153,171 +194,290 @@
   const $=id=>document.getElementById(id);
   const store={get(k){try{return localStorage.getItem(k)}catch(_){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(_){}}};
 
-  // pre-fill saved values (reuse the main app's saved Gemini key if present)
-  $('key').value = store.get('prac_key') || store.get('v5_key_gemini') || '';
-  if(store.get('prac_role')) $('role').value = store.get('prac_role');
-  if(store.get('prac_lang')) $('lang').value = store.get('prac_lang');
-  if(store.get('prac_voice')) $('voiceSel').value = store.get('prac_voice');
+  /* ---------- providers ---------- */
+  const PROV={
+    gemini:{label:'Google Gemini (free)',kind:'gemini',keyUrl:'https://aistudio.google.com/apikey',hint:'AIza...',def:''},
+    groq:{label:'Groq — Llama 70B (free, fast)',kind:'openai',base:'https://api.groq.com/openai/v1',keyUrl:'https://console.groq.com/keys',hint:'gsk_...',def:'llama-3.3-70b-versatile',models:['llama-3.3-70b-versatile','llama-3.1-8b-instant']},
+    anthropic:{label:'Anthropic — Claude (best quality)',kind:'anthropic',base:'https://api.anthropic.com/v1',keyUrl:'https://console.anthropic.com/settings/keys',hint:'sk-ant-...',def:'claude-3-5-sonnet-latest',models:['claude-3-5-sonnet-latest','claude-3-5-haiku-latest','claude-sonnet-4-20250514']},
+    mistral:{label:'Mistral 🇪🇺 (European)',kind:'openai',base:'https://api.mistral.ai/v1',keyUrl:'https://console.mistral.ai/api-keys',hint:'...',def:'mistral-large-latest',models:['mistral-large-latest','mistral-small-latest']},
+    openai:{label:'OpenAI — GPT (may be blocked in-browser)',kind:'openai',base:'https://api.openai.com/v1',keyUrl:'https://platform.openai.com/api-keys',hint:'sk-...',def:'gpt-4o',models:['gpt-4o','gpt-4o-mini']}
+  };
+  const engineEl=$('engine');
+  Object.keys(PROV).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=PROV[k].label;engineEl.appendChild(o);});
+  engineEl.value = store.get('prac_engine')||'gemini';
+  function P(){ return PROV[engineEl.value]; }
+  function keyStoreName(){ return 'prac_key_'+engineEl.value; }
+  function syncEngine(){
+    const p=P();
+    $('keyLink').href=p.keyUrl||'#'; $('key').placeholder=p.hint||'API key';
+    $('key').value = store.get(keyStoreName()) || store.get('v5_key_'+engineEl.value) || (engineEl.value==='gemini'?(store.get('v5_key_gemini')||''):'') || '';
+    const dl=$('modelList'); dl.innerHTML=''; (p.models||[]).forEach(m=>{const o=document.createElement('option');o.value=m;dl.appendChild(o);});
+    $('model').value = store.get('prac_model_'+engineEl.value) || '';
+    $('model').placeholder = p.def? p.def : '(auto)';
+  }
+  engineEl.addEventListener('change',()=>{ store.set('prac_engine',engineEl.value); syncEngine(); });
 
-  let MODEL=null, history=[], qCount=0, maxQ=5, recognizing=false, recognition=null, chosenVoice=null;
+  ['role','job','cv'].forEach(id=>{ if(store.get('prac_'+id)) $(id).value=store.get('prac_'+id); });
+  if(store.get('prac_lang')) $('lang').value=store.get('prac_lang');
+  if(store.get('prac_voice')) $('voiceSel').value=store.get('prac_voice');
+  if(store.get('prac_style')) $('style').value=store.get('prac_style');
+  syncEngine();
+
+  let MODEL=null, history=[], qCount=0, maxQ=5, lastQ='', lastAnswer='';
+  let state='idle', handsFree=true, recognition=null, recognizing=false, silenceTimer=null, chosenVoice=null;
+  const SILENCE_MS=1900;
   const L=()=>$('lang').value;
   const setSt=(el,m,c)=>{$(el).textContent=m;$(el).className='status '+(c||'');};
+  const IT=k=>({listen:L()==='it'?'🎙 Ti ascolto — parla pure':'🎙 Listening — just talk',
+                speak:L()==='it'?'🧑‍💼 L\'intervistatore parla…':'🧑‍💼 Interviewer speaking…',
+                think:L()==='it'?'💭 Sto pensando…':'💭 Thinking…',
+                ready:L()==='it'?'Pronto — premi 🎤 o scrivi':'Ready — press 🎤 or type'}[k]);
+  function setState(s){
+    state=s; const p=$('statepill');
+    if(s==='listening'){p.className='statepill listen';p.innerHTML='<span class="glow"></span>'+IT('listen');}
+    else if(s==='speaking'){p.className='statepill';p.textContent=IT('speak');}
+    else if(s==='thinking'){p.className='statepill think';p.textContent=IT('think');}
+    else {p.className='statepill';p.textContent=IT('ready');}
+    $('micBtn').textContent=(s==='listening')?(L()==='it'?'⏹ Fermo':'⏹ Stop'):'🎤 '+(L()==='it'?'Parla':'Talk');
+  }
 
-  /* ---------- Text-to-speech ---------- */
+  /* ---------- TTS ---------- */
   function loadVoices(){ return (window.speechSynthesis?window.speechSynthesis.getVoices():[])||[]; }
   function pickVoice(){
     const voices=loadVoices(); if(!voices.length) return null;
-    const lang=L()==='it'?'it':'en';
-    const want=$('voiceSel').value;
-    const pool=voices.filter(v=>v.lang && v.lang.toLowerCase().startsWith(lang));
-    const list=pool.length?pool:voices;
-    const femaleHint=/female|donna|female|samantha|victoria|karen|serena|alice|google.*(female)?|zira|elsa|federica|paola/i;
-    const maleHint=/male|uomo|daniel|alex|fred|diego|jorge|david|google.*male|luca|cosimo/i;
-    let v=list.find(x=> (want==='female'?femaleHint:maleHint).test(x.name));
-    if(!v) v=list.find(x=> !(want==='female'?maleHint:femaleHint).test(x.name)) || list[0];
+    const lang=L()==='it'?'it':'en', want=$('voiceSel').value;
+    const pool=voices.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(lang)); const list=pool.length?pool:voices;
+    const female=/female|donna|samantha|victoria|karen|serena|alice|zira|elsa|federica|paola|google us english/i;
+    const male=/male|uomo|daniel|alex|fred|diego|jorge|david|luca|cosimo/i;
+    let v=list.find(x=>(want==='female'?female:male).test(x.name));
+    if(!v) v=list.find(x=>!(want==='female'?male:female).test(x.name))||list[0];
     return v;
   }
-  function speak(text){
-    if(!('speechSynthesis' in window)) return;
+  function speak(text, done){
+    let fired=false; const fire=()=>{if(!fired){fired=true;done&&done();}};
+    if(!('speechSynthesis' in window)){ setTimeout(fire,300); return; }
     try{
       window.speechSynthesis.cancel();
       const u=new SpeechSynthesisUtterance(text);
-      chosenVoice = chosenVoice || pickVoice();
-      if(chosenVoice){ u.voice=chosenVoice; u.lang=chosenVoice.lang; } else { u.lang=L()==='it'?'it-IT':'en-US'; }
-      u.rate=1.0; u.pitch=1.0;
+      chosenVoice=chosenVoice||pickVoice();
+      if(chosenVoice){u.voice=chosenVoice;u.lang=chosenVoice.lang;} else {u.lang=L()==='it'?'it-IT':'en-US';}
       const av=$('avatar');
-      u.onstart=()=>av.classList.add('talking'); u.onend=()=>av.classList.remove('talking');
+      u.onstart=()=>av.classList.add('talking'); u.onend=()=>{av.classList.remove('talking');fire();}; u.onerror=()=>{av.classList.remove('talking');fire();};
       window.speechSynthesis.speak(u);
-    }catch(_){}
+      setTimeout(fire, Math.min(22000, text.length*70+2500));
+    }catch(_){ fire(); }
   }
   if(window.speechSynthesis) window.speechSynthesis.onvoiceschanged=()=>{ chosenVoice=null; };
 
-  /* ---------- Gemini ---------- */
-  async function resolveModel(key){
+  /* ---------- unified LLM call (any provider, non-streaming) ---------- */
+  function curModel(){ return $('model').value.trim() || (P().def||''); }
+  async function resolveGemini(key){
     const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(key));
     const d=await r.json(); if(!r.ok) throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
     const ms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
       .filter(m=>/gemini/i.test(m.name)&&!/embedding|aqa|imagen|vision/i.test(m.name)).map(m=>m.name.replace('models/',''));
-    return ms.find(n=>/flash/i.test(n)&&/latest/i.test(n)) || ms.find(n=>/flash/i.test(n)) || ms[0];
+    return ms.find(n=>/flash/i.test(n)&&/latest/i.test(n))||ms.find(n=>/flash/i.test(n))||ms[0];
   }
-  async function llm(system, contents, maxTokens){
-    const key=$('key').value.trim();
-    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+MODEL+':generateContent?key='+encodeURIComponent(key),{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents,generationConfig:{temperature:0.8,maxOutputTokens:maxTokens||400}})});
-    const d=await r.json(); if(!r.ok) throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
-    const parts=(((d.candidates||[])[0]||{}).content||{}).parts||[];
-    return parts.map(p=>p.text||'').join('').trim();
+  // msgs: [{role:'user'|'assistant', content}]
+  async function chat(system, msgs, maxTokens){
+    const p=P(), key=$('key').value.trim(), model=MODEL||curModel();
+    try{
+      if(p.kind==='gemini'){
+        const contents=msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+        const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+encodeURIComponent(key),
+          {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents,generationConfig:{temperature:0.85,maxOutputTokens:maxTokens||500}})});
+        const d=await r.json(); if(!r.ok) throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
+        return ((((d.candidates||[])[0]||{}).content||{}).parts||[]).map(x=>x.text||'').join('').trim();
+      }
+      if(p.kind==='anthropic'){
+        const r=await fetch(p.base+'/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+          body:JSON.stringify({model,max_tokens:maxTokens||500,system,messages:msgs.map(m=>({role:m.role,content:m.content}))})});
+        const d=await r.json(); if(!r.ok) throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
+        return (d.content||[]).map(c=>c.text||'').join('').trim();
+      }
+      // openai-compatible
+      const r=await fetch(p.base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+        body:JSON.stringify({model,temperature:0.85,max_tokens:maxTokens||500,messages:[{role:'system',content:system},...msgs]})});
+      const d=await r.json(); if(!r.ok) throw new Error((d.error&&(d.error.message||d.error))||('HTTP '+r.status));
+      return (((d.choices||[])[0]||{}).message||{}).content||'';
+    }catch(e){
+      if(/Failed to fetch|NetworkError/i.test(e.message)) throw new Error((L()==='it'?'Questo motore blocca le chiamate dal browser (CORS). Prova Gemini, Groq o Claude.':'This engine blocks in-browser calls (CORS). Try Gemini, Groq or Claude.'));
+      throw e;
+    }
   }
 
-  /* ---------- Prompts ---------- */
+  /* ---------- prompts ---------- */
+  function role(){ return $('role').value.trim()||'the role'; }
+  function langName(){ return L()==='it'?'Italian':'English'; }
+  function ctxBlock(){
+    let s='';
+    if($('job').value.trim()) s+="\n\nJOB DESCRIPTION:\n"+$('job').value.trim().slice(0,2000);
+    if($('cv').value.trim())  s+="\n\nCANDIDATE CV / BACKGROUND:\n"+$('cv').value.trim().slice(0,2000);
+    return s;
+  }
+  function styleWord(){ return {friendly:'warm and encouraging',neutral:'neutral and professional',tough:'demanding and probing (a tough interviewer)'}[$('style').value]||'professional'; }
   function interviewerSystem(){
-    const role=$('role').value.trim()||'the role';
-    const langName=L()==='it'?'Italian':'English';
-    return "You are a professional, realistic and fair job interviewer interviewing a candidate for: "+role+". "
-      +"Conduct a natural SPOKEN interview. Rules: ask ONE question at a time; keep each of your turns short (1–3 sentences) as if speaking aloud; "
-      +"open with a brief friendly greeting and your first question; after each answer, react briefly and naturally, then ask the next question; "
-      +"mix behavioural, situational and role-specific questions; probe a follow-up when an answer is vague; "
-      +"do NOT give feedback, scores or tips during the interview. Speak entirely in "+langName+".";
+    return "You are a "+styleWord()+" job interviewer for the role: "+role()+"."
+      +" Conduct a natural SPOKEN interview, tailored to the job description and the candidate's CV below."
+      +" Rules: ONE question at a time; keep each turn short (1–3 sentences) as if speaking aloud;"
+      +" open with a brief greeting and your first question; after each answer react briefly, then ask the next;"
+      +" ground questions in the CV and the job (ask about their real projects, gaps, and role-specific challenges);"
+      +" mix behavioural, situational and technical; probe a follow-up when an answer is vague;"
+      +" do NOT give feedback, scores or tips during the interview. Speak entirely in "+langName()+"."+ctxBlock();
+  }
+  function coachAnswerSystem(){
+    return "You are an elite interview coach for the role: "+role()+". The candidate gave an answer you must upgrade."
+      +" In "+langName()+", reply with:\n1) A stronger rewrite of THEIR answer — first person, concise, using the STAR structure, grounded in their CV.\n2) Two short bullet tips (max one line each) on what made it better."
+      +" Keep it tight. Use their real experience from the CV if given."+ctxBlock();
+  }
+  function suggestSystem(){
+    return "You are an interview coach for the role: "+role()+". Suggest ONE strong, concise answer the candidate could give to the interviewer's last question."
+      +" First person, spoken, 3–5 sentences, STAR if useful, grounded in their CV. Reply in "+langName()+". Output only the answer."+ctxBlock();
   }
   function feedbackSystem(){
-    const role=$('role').value.trim()||'the role';
-    const langName=L()==='it'?'Italian':'English';
-    return "You are an expert interview coach. Below is a transcript of a mock interview for: "+role+". "
-      +"Give honest, specific, encouraging feedback in "+langName+". Use the candidate's ACTUAL words. Output EXACTLY in this structure:\n"
-      +"SCORE: <number 0-100> — <one short line why>\n"
-      +"STRENGTHS:\n- <point>\n- <point>\n- <point>\n"
-      +"IMPROVEMENTS:\n- <concrete, actionable point>\n- <point>\n- <point>\n"
-      +"MODEL ANSWER: <pick the candidate's weakest moment and rewrite a stronger answer in first person, concise, using the STAR structure>";
+    return "You are an expert interview coach. Score a mock interview for the role: "+role()+", using the job description and CV for context."
+      +" Return ONLY valid JSON (no markdown, no code fences) with this exact shape:\n"
+      +'{"overall":<0-100>,"summary":"<one sentence>","dimensions":[{"name":"Structure (STAR)","score":<0-10>,"note":"<short>"},{"name":"Relevance to the role","score":<0-10>,"note":"<short>"},{"name":"Specificity & impact","score":<0-10>,"note":"<short>"},{"name":"Clarity","score":<0-10>,"note":"<short>"},{"name":"Confidence","score":<0-10>,"note":"<short>"}],"strengths":["<3 items, cite the candidate\'s words>"],"improvements":["<3 concrete, actionable items>"],"modelAnswer":"<rewrite the candidate\'s weakest answer, stronger, first person, STAR>"}\n'
+      +"Write all text values in "+langName()+". Be honest but encouraging."+ctxBlock();
   }
   function transcript(){
-    return history.filter(m=>m.parts[0].text.indexOf('[BEGIN]')<0)
-      .map(m=>(m.role==='model'?'INTERVIEWER: ':'CANDIDATE: ')+m.parts[0].text).join('\n\n');
+    return history.filter(m=>String(m.content).indexOf('[BEGIN]')<0)
+      .map(m=>(m.role==='assistant'?'INTERVIEWER: ':'CANDIDATE: ')+m.content).join('\n\n');
   }
 
-  /* ---------- Flow ---------- */
+  /* ---------- flow ---------- */
   async function startInterview(){
     const key=$('key').value.trim();
-    if(!key){ setSt('setupStatus','Enter your free Gemini key first (link above).','err'); return; }
-    store.set('prac_key',key); store.set('prac_role',$('role').value.trim()); store.set('prac_lang',L()); store.set('prac_voice',$('voiceSel').value);
-    maxQ=parseInt($('nq').value,10)||5; qCount=0; history=[]; chosenVoice=null;
-    $('startBtn').disabled=true; setSt('setupStatus','Preparing your interviewer…','work');
+    if(!key){ setSt('setupStatus',(L()==='it'?'Inserisci prima la chiave del motore scelto.':'Enter your API key for the chosen engine first.'),'err'); return; }
+    ['role','job','cv'].forEach(id=>store.set('prac_'+id,$(id).value.trim()));
+    store.set('prac_lang',L());store.set('prac_voice',$('voiceSel').value);store.set('prac_style',$('style').value);
+    store.set(keyStoreName(),key); if($('model').value.trim()) store.set('prac_model_'+engineEl.value,$('model').value.trim());
+    maxQ=parseInt($('nq').value,10)||5; qCount=0; history=[]; chosenVoice=null; lastAnswer='';
+    $('startBtn').disabled=true; setSt('setupStatus',(L()==='it'?'Preparo il tuo intervistatore…':'Preparing your interviewer…'),'work');
     try{
-      if(!MODEL) MODEL=await resolveModel(key);
-      history.push({role:'user',parts:[{text:'[BEGIN] The candidate has joined. Begin the interview now.'}]});
-      const msg=await llm(interviewerSystem(),history,300);
-      history.push({role:'model',parts:[{text:msg}]});
-      qCount=1;
+      MODEL = (P().kind==='gemini') ? await resolveGemini(key) : curModel();
+      history.push({role:'user',content:'[BEGIN] The candidate has joined. Begin the interview now.'});
+      const msg=await chat(interviewerSystem(),history,320);
+      history.push({role:'assistant',content:msg}); qCount=1;
       $('setup').style.display='none'; $('stage').style.display='flex'; $('fb').style.display='none';
-      $('ansLabel').textContent = L()==='it'?'La tua risposta — parla o scrivi':'Your answer — speak or type';
-      showQuestion(msg);
+      askQuestion(msg);
     }catch(e){ setSt('setupStatus','Error: '+e.message,'err'); }
     $('startBtn').disabled=false;
   }
-  function showQuestion(msg){
+  function askQuestion(msg){
+    lastQ=msg;
     $('prog').textContent=(L()==='it'?'Domanda ':'Question ')+qCount+' / '+maxQ;
-    $('qtext').textContent=msg; speak(msg);
-    $('answer').value=''; $('answer').focus(); setSt('liveStatus','',''); $('sendBtn').disabled=false;
+    $('pbarFill').style.width=Math.round((qCount-1)/maxQ*100)+'%';
+    $('qtext').textContent=msg; $('coachbox').style.display='none'; $('youtext').textContent=''; setSt('liveStatus','','');
+    setState('speaking');
+    speak(msg, ()=>{ if(handsFree) startListening(); else setState('ready'); });
   }
-  async function sendAnswer(){
-    const ans=$('answer').value.trim();
-    if(!ans){ setSt('liveStatus', L()==='it'?'Scrivi o registra una risposta.':'Type or record an answer.', 'err'); return; }
-    if(recognizing) stopRec();
-    history.push({role:'user',parts:[{text:ans}]});
-    $('sendBtn').disabled=true; setSt('liveStatus', L()==='it'?'L\'intervistatore sta pensando…':'The interviewer is thinking…','work');
+  async function nextTurn(answer){
+    stopListening(); lastAnswer=answer; $('coachBtn').disabled=false;
+    history.push({role:'user',content:answer});
+    setState('thinking'); $('youtext').textContent=answer; $('pbarFill').style.width=Math.round(qCount/maxQ*100)+'%';
     if(qCount>=maxQ){ return endInterview(); }
     try{
-      const msg=await llm(interviewerSystem(),history,300);
-      history.push({role:'model',parts:[{text:msg}]}); qCount++;
-      showQuestion(msg);
-    }catch(e){ setSt('liveStatus','Error: '+e.message,'err'); $('sendBtn').disabled=false; }
+      const msg=await chat(interviewerSystem(),history,320);
+      history.push({role:'assistant',content:msg}); qCount++;
+      askQuestion(msg);
+    }catch(e){ setSt('liveStatus','Error: '+e.message,'err'); setState('ready'); }
+  }
+  async function suggest(){
+    stopListening(); setState('ready');
+    $('coachbox').style.display=''; $('coachbox').innerHTML=(L()==='it'?'💡 Penso a un suggerimento…':'💡 Thinking of a suggestion…');
+    try{
+      const txt=await chat(suggestSystem(),[{role:'user',content:'The interviewer just asked: '+lastQ}],320);
+      $('coachbox').innerHTML='<b>💡 '+(L()==='it'?'Potresti dire:':'You could say:')+'</b><br>'+esc(txt);
+    }catch(e){ $('coachbox').innerHTML='Error: '+e.message; }
+  }
+  async function coachLast(){
+    if(!lastAnswer){ return; }
+    stopListening(); setState('ready');
+    $('coachbox').style.display=''; $('coachbox').innerHTML=(L()==='it'?'✍️ Miglioro la tua risposta…':'✍️ Improving your answer…');
+    try{
+      const txt=await chat(coachAnswerSystem(),[{role:'user',content:'Question: '+lastQ+'\n\nMy answer: '+lastAnswer}],420);
+      $('coachbox').innerHTML='<b>✍️ '+(L()==='it'?'Versione migliorata:':'Stronger version:')+'</b><br>'+esc(txt);
+    }catch(e){ $('coachbox').innerHTML='Error: '+e.message; }
   }
   async function endInterview(){
-    if(window.speechSynthesis) window.speechSynthesis.cancel();
+    if(window.speechSynthesis) window.speechSynthesis.cancel(); stopListening();
     $('stage').style.display='none'; $('fb').style.display='block';
-    $('scoreNum').textContent='…'; $('fbbody').textContent = L()==='it'?'Preparo il tuo feedback…':'Preparing your feedback…';
+    $('scoreNum').textContent='…'; $('scoreWhy').textContent=(L()==='it'?'Preparo il tuo report…':'Preparing your report…');
+    $('dims').innerHTML=''; $('strengths').innerHTML=''; $('improvements').innerHTML=''; $('modelAns').textContent=''; $('rawFb').style.display='none';
     try{
-      const raw=await llm(feedbackSystem(),[{role:'user',parts:[{text:transcript()+'\n\nGive the feedback now.'}]}],900);
-      renderFeedback(raw);
-    }catch(e){ $('fbbody').textContent='Error: '+e.message; $('scoreNum').textContent='—'; }
+      const raw=await chat(feedbackSystem(),[{role:'user',content:transcript()+'\n\nReturn the JSON report now.'}],1100);
+      renderReport(raw);
+    }catch(e){ $('scoreNum').textContent='—'; $('scoreWhy').textContent='Error: '+e.message; }
   }
-  function renderFeedback(raw){
-    let score='—', why='';
-    const m=raw.match(/SCORE:\s*(\d{1,3})\s*(?:—|-|:)?\s*(.*)/i);
-    if(m){ score=m[1]; why=(m[2]||'').trim(); }
-    $('scoreNum').textContent=score; $('scoreWhy').textContent=why;
-    let body=raw.replace(/^SCORE:.*$/im,'').trim();
-    body=body.replace(/\b(STRENGTHS|IMPROVEMENTS|MODEL ANSWER|PUNTI DI FORZA|MIGLIORAMENTI|RISPOSTA MODELLO|PUNTEGGIO)\b:?/gi,m=>'<b>'+m.replace(/:$/,'')+'</b>');
-    $('fbbody').innerHTML=body;
+  function parseJSON(raw){
+    let s=String(raw).trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+    try{return JSON.parse(s);}catch(_){}
+    const m=s.match(/\{[\s\S]*\}/); if(m){ try{return JSON.parse(m[0]);}catch(_){}}
+    return null;
   }
+  function renderReport(raw){
+    const d=parseJSON(raw);
+    if(!d){ $('scoreNum').textContent='—'; $('scoreWhy').textContent=''; $('rawFb').style.display=''; $('rawFb').textContent=raw; return; }
+    const ov=Math.max(0,Math.min(100,parseInt(d.overall,10)||0));
+    $('scoreNum').textContent=ov; $('ring').style.setProperty('--v',ov); $('scoreWhy').textContent=d.summary||'';
+    $('dims').innerHTML=(d.dimensions||[]).map(x=>{
+      const sc=Math.max(0,Math.min(10,parseInt(x.score,10)||0));
+      return '<div class="dim"><div class="dh"><span>'+esc(x.name||'')+'</span><span>'+sc+'/10</span></div>'
+        +'<div class="track"><i style="width:'+(sc*10)+'%"></i></div>'+(x.note?'<div class="note">'+esc(x.note)+'</div>':'')+'</div>';
+    }).join('');
+    $('strengths').innerHTML=(d.strengths||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
+    $('improvements').innerHTML=(d.improvements||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
+    $('modelAns').textContent=d.modelAnswer||'';
+  }
+  function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'); }
 
-  /* ---------- Speech-to-text ---------- */
+  /* ---------- STT ---------- */
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  let baseText='';
-  function startRec(){
-    if(!SR){ setSt('liveStatus','Speech recognition needs Chrome. You can type instead.','err'); return; }
-    baseText=$('answer').value?($('answer').value+' '):'';
+  function armSilence(){ clearTimeout(silenceTimer); silenceTimer=setTimeout(()=>{ if(state==='listening'){ const t=$('youtext').textContent.trim(); if(t.length>1) nextTurn(t); } }, SILENCE_MS); }
+  function startListening(){
+    if(!SR){ setState('ready'); setSt('liveStatus',(L()==='it'?'Il microfono richiede Chrome. Usa "Scrivi" qui sotto.':'Mic needs Chrome. Use "Type instead" below.'),'err'); return; }
+    setState('listening'); $('youtext').textContent='';
     recognition=new SR(); recognition.lang=L()==='it'?'it-IT':'en-US'; recognition.continuous=true; recognition.interimResults=true;
-    recognition.onresult=e=>{let s='';for(let i=0;i<e.results.length;i++)s+=e.results[i][0].transcript;$('answer').value=baseText+s;};
-    recognition.onerror=e=>setSt('liveStatus','Mic: '+e.error,'err');
-    recognition.onend=()=>{ if(recognizing){try{recognition.start()}catch(_){}}};
-    try{recognition.start();recognizing=true;$('recBtn').classList.add('on');$('recLbl').textContent=L()==='it'?'Sto ascoltando… (stop)':'Listening… (stop)';setSt('liveStatus',L()==='it'?'Parla pure.':'Go ahead, speak.','ok');}catch(_){}
+    recognition.onresult=e=>{ let s=''; for(let i=0;i<e.results.length;i++) s+=e.results[i][0].transcript; $('youtext').textContent=s; armSilence(); };
+    recognition.onerror=e=>{ if(e.error==='not-allowed'||e.error==='service-not-allowed') setSt('liveStatus',(L()==='it'?'Permesso microfono negato. Usa "Scrivi".':'Mic permission denied. Use "Type instead".'),'err'); };
+    recognition.onend=()=>{ if(state==='listening'&&recognizing){ try{recognition.start()}catch(_){} } };
+    try{ recognition.start(); recognizing=true; }catch(_){}
   }
-  function stopRec(){recognizing=false;if(recognition)recognition.stop();$('recBtn').classList.remove('on');$('recLbl').textContent=L()==='it'?'Registra risposta':'Record answer';}
+  function stopListening(){ recognizing=false; clearTimeout(silenceTimer); if(recognition){try{recognition.stop()}catch(_){}} }
 
-  /* ---------- wire up ---------- */
+  /* ---------- wire ---------- */
   $('startBtn').addEventListener('click',startInterview);
-  $('sendBtn').addEventListener('click',sendAnswer);
-  $('endBtn').addEventListener('click',()=>{ if(confirm(L()==='it'?'Termino e genero il feedback?':'End now and get feedback?')) endInterview(); });
-  $('recBtn').addEventListener('click',()=>recognizing?stopRec():startRec());
-  $('replayBtn').addEventListener('click',()=>speak($('qtext').textContent));
-  $('againBtn').addEventListener('click',()=>{ $('fb').style.display='none'; $('setup').style.display='block'; history=[];qCount=0; });
-  $('answer').addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); sendAnswer(); }});
-  $('lang').addEventListener('change',()=>{ chosenVoice=null;
-    if(L()==='it'){ $('heroH').textContent='Allenati alle conversazioni che contano'; $('heroP').textContent='Un selezionatore AI parla con te a voce. Rispondi ad alta voce — poi ricevi un punteggio e un feedback specifico.'; }
-    else{ $('heroH').textContent='Practice the conversations that matter'; $('heroP').textContent='A realistic AI interviewer talks with you by voice. Answer out loud — then get a score and specific feedback.'; }
-  });
-  window.addEventListener('pagehide',()=>{ if(window.speechSynthesis)window.speechSynthesis.cancel(); history=[]; });
+  $('handsBtn').addEventListener('click',()=>{ handsFree=!handsFree; $('handsBtn').classList.toggle('on',handsFree); $('handsBtn').textContent=handsFree?'✋ Hands-free: ON':'✋ Hands-free: OFF'; if(handsFree&&state==='ready')startListening(); if(!handsFree)stopListening(); });
+  $('micBtn').addEventListener('click',()=>{ if(state==='listening'){ const t=$('youtext').textContent.trim(); if(t.length>1) nextTurn(t); else {stopListening();setState('ready');} } else startListening(); });
+  $('endBtn').addEventListener('click',()=>{ if(confirm(L()==='it'?'Termino e genero il report?':'End now and get the report?')) endInterview(); });
+  $('replayBtn').addEventListener('click',()=>{ const was=handsFree; stopListening(); speak(lastQ,()=>{ if(was)startListening(); }); });
+  $('hintBtn').addEventListener('click',suggest);
+  $('coachBtn').addEventListener('click',coachLast);
+  $('sendType').addEventListener('click',()=>{ const t=$('answerInput').value.trim(); if(t){ $('answerInput').value=''; nextTurn(t); }});
+  $('answerInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const t=e.target.value.trim(); if(t){ e.target.value=''; nextTurn(t); }}});
+  $('againBtn').addEventListener('click',()=>{ $('fb').style.display='none'; $('setup').style.display='block'; history=[];qCount=0;lastAnswer=''; $('coachBtn').disabled=true; });
+  $('lang').addEventListener('change',()=>{ chosenVoice=null; applyLang(); });
+  function applyLang(){
+    const it=L()==='it';
+    $('heroH').textContent=it?'Prova il colloquio — con un coach che conosce il tuo CV':'Rehearse the interview — with a coach that knows your CV';
+    $('heroP').textContent=it?'Un intervistatore AI, cucito sul tuo CV e sull\'offerta. Parli a mani libere, ricevi coaching dal vivo e finisci con un report a punteggio.':'A realistic AI interviewer, tailored to your résumé and the job. Talk hands-free, get live coaching, and finish with a scored report.';
+    $('setupH').textContent=it?'Imposta la sessione':'Set up your session';
+    $('setupSub').textContent=it?'Più cose gli dai, più l\'intervista è precisa.':'The more you give it, the sharper the interview.';
+    $('lRole').textContent=it?'Ruolo / posizione':'Role / position';
+    $('lJob').innerHTML=(it?'Descrizione dell\'offerta ':'Job description ')+'<span style="color:var(--muted);font-weight:400">('+(it?'incollala — facoltativa ma consigliata':'paste it — optional but recommended')+')</span>';
+    $('lCv').innerHTML=(it?'Il tuo CV / background ':'Your CV / background ')+'<span style="color:var(--muted);font-weight:400">('+(it?'incolla i punti chiave — facoltativo':'paste key points — optional')+')</span>';
+    $('lLang').textContent=it?'Lingua':'Language'; $('lVoice').textContent=it?'Voce intervistatore':'Interviewer voice'; $('lStyle').textContent=it?'Stile':'Style'; $('lNq').textContent=it?'Domande':'Questions';
+    [...$('style').options].forEach(o=>{o.textContent={friendly:it?'Amichevole':'Friendly',neutral:it?'Neutro':'Neutral',tough:it?'Duro / sfidante':'Tough / challenging'}[o.value];});
+    $('lEngine').innerHTML=(it?'Motore AI ':'AI engine ')+'<span style="color:var(--muted);font-weight:400">'+(it?'— per qualità vera usa Claude o Groq, non solo il Gemini gratis':'— for real quality use Claude or Groq, not only free Gemini')+'</span>';
+    $('lModel').textContent=it?'Modello':'Model'; $('lKey').childNodes[0].nodeValue=it?'Chiave API ':'API key ';
+    $('startBtn').textContent=it?'▶ Inizia il colloquio':'▶ Start the interview';
+    $('hStr').textContent=it?'Punti di forza':'Strengths'; $('hImp').textContent=it?'Cosa migliorare':'What to improve'; $('hModel').textContent=it?'Versione più forte della tua risposta più debole':'Stronger version of your weakest answer';
+    $('replayBtn').textContent=it?'🔊 Ripeti':'🔊 Repeat'; $('hintBtn').textContent=it?'💡 Suggerisci una risposta':'💡 Suggest an answer'; $('coachBtn').textContent=it?'✍️ Migliora la mia ultima risposta':'✍️ Improve my last answer';
+    $('againBtn').textContent=it?'↻ Riprova':'↻ Practice again';
+  }
+  window.addEventListener('pagehide',()=>{ if(window.speechSynthesis)window.speechSynthesis.cancel(); stopListening(); history=[]; });
+  if(L()==='it') applyLang();
 })();
 </script>
 </body>
