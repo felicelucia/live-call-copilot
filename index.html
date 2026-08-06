@@ -277,8 +277,36 @@
       </div>
     </div>
 
-    <label data-i18n="context"></label>
-    <textarea id="context" data-i18n-ph="ctxph"></textarea>
+    <!-- Profilo (memoria, M2): superficie UNICA di modifica — sostituisce il
+         vecchio campo libero "contesto/CV". BYOK/locale: resta solo su questo
+         dispositivo (localStorage). Loggato + consenso: sincronizzato
+         sull'account (server UE), con esportazione e cancellazione GDPR. -->
+    <div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:8px">
+      <label style="font-size:.92rem;color:var(--ink)" data-i18n="profH"></label>
+      <p class="sub" data-i18n="profSub"></p>
+      <div class="row">
+        <div><label data-i18n="profRoleL"></label><input id="pfRole" data-i18n-ph="profRolePh"></div>
+        <div><label data-i18n="profCompanyL"></label><input id="pfCompany" data-i18n-ph="profCompanyPh"></div>
+      </div>
+      <label data-i18n="profCvL"></label>
+      <textarea id="pfCv" data-i18n-ph="profCvPh"></textarea>
+      <label data-i18n="profStyleL"></label>
+      <input id="pfStyle" data-i18n-ph="profStylePh">
+      <label data-i18n="profObjL"></label>
+      <textarea id="pfObj" data-i18n-ph="profObjPh"></textarea>
+      <div class="paidnote" id="profWhere" style="margin-top:10px"></div>
+      <div id="profSyncWrap" style="display:none">
+        <div class="checkbox">
+          <input type="checkbox" id="profConsent">
+          <label for="profConsent" style="margin:0" data-i18n="profConsentL"></label>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div><button class="btn btn-ghost" id="profExportBtn" style="width:100%" data-i18n="profExport"></button></div>
+          <div><button class="btn btn-ghost" id="profDeleteBtn" style="width:100%" data-i18n="profDelete"></button></div>
+        </div>
+      </div>
+      <div class="status" id="profStatus"></div>
+    </div>
 
     <details class="adv">
       <summary data-i18n="adv"></summary>
@@ -385,14 +413,22 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     zh:{settings:"⚙︎ 设置",drawerH:"设置与开始",close:"关闭",doneBack:"← 完成",desktopMic:"在桌面版中，原生捕获（右下角面板）取代浏览器聆听。",privacyChip:"🔒 不保存任何内容 — 转录仅留在你的浏览器中",consentLine:"<b>AI</b> 助手 · 录制他人语音需征得其<b>同意</b>（GDPR/AI 法案）。",capsTitle:"你可以做什么",capsBody:"<b>技能</b>：面试、销售、客服、会议、谈判、实时翻译、学习，或自定义。<br><br><b>使用方式</b>：🆓 免费使用 Gemini · 🔑 你自己的密钥（OpenAI、Claude、Mistral 🇪🇺、DeepSeek、Qwen、Kimi、Groq）· 🔒 通过 Ollama 100% 本地（数据不出电脑）· ⭐ Pro 无需密钥（由我们提供）。<br><br><b>额外</b>：对方停顿时自动回答 · 🗔 可贴在 Zoom 旁的悬浮窗 · ⬇ 可安装为应用 · 按地区自动选择语言。<br><br><b>隐私</b>：对话不会存储在我们的服务器上。本地模式下甚至不会离开你的电脑。"},
     es:{settings:"⚙︎ Ajustes",drawerH:"Ajustes e inicio",close:"Cerrar",doneBack:"← Hecho",desktopMic:"En escritorio, la captura nativa (panel inferior derecho) sustituye la escucha del navegador.",privacyChip:"🔒 No se guarda nada — la transcripción se queda en tu navegador",consentLine:"Asistente <b>IA</b> · grabar la voz de otros requiere su <b>consentimiento</b> (RGPD/Ley IA).",capsTitle:"Qué puedes hacer",capsBody:"<b>Skills</b>: entrevista, ventas, soporte, reunión, negociación, traducción en vivo, estudio, o tu perfil a medida.<br><br><b>Cómo usarlo</b>: 🆓 gratis con Gemini · 🔑 tu propia clave (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 100% local con Ollama (nada sale del PC) · ⭐ Pro sin clave (la ponemos nosotros).<br><br><b>Extras</b>: respuesta automática cuando la otra persona hace una pausa · 🗔 ventana flotante junto a Zoom · ⬇ instalable como app · idioma automático por región.<br><br><b>Privacidad</b>: las conversaciones no se guardan en nuestros servidores. En modo local ni siquiera salen de tu ordenador."}
   };
+  /* Profilo (memoria persistente): i18n della sezione strutturata. */
+  const T3={
+    it:{profH:"👤 Il tuo profilo (memoria)",profSub:"Chi sei, cosa vendi, come rispondi: rende i suggerimenti su misura. Tutto facoltativo.",profRoleL:"Ruolo",profRolePh:"Es: Account Executive",profCompanyL:"Azienda / prodotto",profCompanyPh:"Es: software HR per PMI",profCvL:"CV / esperienza",profCvPh:"Es: 10 anni di vendita B2B, prima in banca poi nel SaaS…",profStyleL:"Stile di risposta",profStylePh:"Es: diretto ma cordiale, frasi brevi",profObjL:"Obiezioni / domande ricorrenti",profObjPh:"Es: costa troppo; abbiamo già un fornitore; ne parliamo a settembre",profConsentL:"Acconsento a salvare il profilo sul mio <b>account</b> (server in UE) per ritrovarlo su tutti i miei dispositivi",profExport:"⬇ Esporta i miei dati",profDelete:"🗑 Cancella il profilo",profDeleteConfirm:"Cancellare il profilo dal server e da questo dispositivo? L'operazione è definitiva.",profStoredAccount:"💾 Profilo salvato sul tuo account (server in UE), sincronizzato su tutti i tuoi dispositivi. Puoi esportarlo o cancellarlo quando vuoi.",profStoredDevice:"💾 Profilo salvato solo su questo dispositivo: non viene inviato a nessun server.",profSynced:"✔ Sincronizzato sul tuo account",profDeleted:"Profilo cancellato ovunque.",profServerOff:"Profilo rimosso dal server: resta solo su questo dispositivo."},
+    en:{profH:"👤 Your profile (memory)",profSub:"Who you are, what you sell, how you answer: makes suggestions tailored. All optional.",profRoleL:"Role",profRolePh:"E.g. Account Executive",profCompanyL:"Company / product",profCompanyPh:"E.g. HR software for SMBs",profCvL:"CV / experience",profCvPh:"E.g. 10 years of B2B sales, first in banking then SaaS…",profStyleL:"Answering style",profStylePh:"E.g. direct but friendly, short sentences",profObjL:"Recurring objections / questions",profObjPh:"E.g. too expensive; we already have a vendor; let's talk in September",profConsentL:"I consent to saving my profile on my <b>account</b> (EU servers) so I find it on all my devices",profExport:"⬇ Export my data",profDelete:"🗑 Delete profile",profDeleteConfirm:"Delete the profile from the server and this device? This cannot be undone.",profStoredAccount:"💾 Profile saved on your account (EU servers), synced across your devices. You can export or delete it anytime.",profStoredDevice:"💾 Profile saved only on this device: it is not sent to any server.",profSynced:"✔ Synced to your account",profDeleted:"Profile deleted everywhere.",profServerOff:"Profile removed from the server: it stays only on this device."},
+    zh:{profH:"👤 你的档案（记忆）",profSub:"你是谁、卖什么、怎样回答：让建议更贴合你。全部可选。",profRoleL:"职位",profRolePh:"例：客户经理",profCompanyL:"公司 / 产品",profCompanyPh:"例：面向中小企业的 HR 软件",profCvL:"简历 / 经验",profCvPh:"例：10 年 B2B 销售经验，先银行后 SaaS……",profStyleL:"回答风格",profStylePh:"例：直接但友好，句子简短",profObjL:"常见异议 / 问题",profObjPh:"例：太贵了；我们已有供应商；九月再谈",profConsentL:"我同意将档案保存到我的<b>账户</b>（欧盟服务器），以便在所有设备上使用",profExport:"⬇ 导出我的数据",profDelete:"🗑 删除档案",profDeleteConfirm:"从服务器和本设备删除档案？此操作不可撤销。",profStoredAccount:"💾 档案已保存到你的账户（欧盟服务器），在你的设备间同步。可随时导出或删除。",profStoredDevice:"💾 档案仅保存在本设备：不会发送到任何服务器。",profSynced:"✔ 已同步到你的账户",profDeleted:"档案已全部删除。",profServerOff:"档案已从服务器移除：仅保留在本设备。"},
+    es:{profH:"👤 Tu perfil (memoria)",profSub:"Quién eres, qué vendes, cómo respondes: hace las sugerencias a medida. Todo opcional.",profRoleL:"Rol",profRolePh:"Ej: Account Executive",profCompanyL:"Empresa / producto",profCompanyPh:"Ej: software de RRHH para pymes",profCvL:"CV / experiencia",profCvPh:"Ej: 10 años de ventas B2B, primero en banca y luego en SaaS…",profStyleL:"Estilo de respuesta",profStylePh:"Ej: directo pero cordial, frases cortas",profObjL:"Objeciones / preguntas recurrentes",profObjPh:"Ej: es muy caro; ya tenemos proveedor; hablamos en septiembre",profConsentL:"Acepto guardar mi perfil en mi <b>cuenta</b> (servidores en la UE) para encontrarlo en todos mis dispositivos",profExport:"⬇ Exportar mis datos",profDelete:"🗑 Borrar perfil",profDeleteConfirm:"¿Borrar el perfil del servidor y de este dispositivo? No se puede deshacer.",profStoredAccount:"💾 Perfil guardado en tu cuenta (servidores en la UE), sincronizado en tus dispositivos. Puedes exportarlo o borrarlo cuando quieras.",profStoredDevice:"💾 Perfil guardado solo en este dispositivo: no se envía a ningún servidor.",profSynced:"✔ Sincronizado en tu cuenta",profDeleted:"Perfil borrado en todas partes.",profServerOff:"Perfil eliminado del servidor: queda solo en este dispositivo."}
+  };
   Object.keys(T2).forEach(l=>Object.assign(T[l],T2[l]));
+  Object.keys(T3).forEach(l=>Object.assign(T[l],T3[l]));
   let LANG='en';
   function t(k){ return (T[LANG]&&T[LANG][k])||T.it[k]||k; }
   function applyLang(){
     document.documentElement.lang=LANG;
     document.querySelectorAll('[data-i18n]').forEach(el=>el.innerHTML=t(el.getAttribute('data-i18n')));
     document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.placeholder=t(el.getAttribute('data-i18n-ph')));
-    $('howtoBody').innerHTML=t('how'); buildModeOptions(); refreshProviderLabels();
+    $('howtoBody').innerHTML=t('how'); buildModeOptions(); refreshProviderLabels(); renderProfileWhere();
     listenBtn.querySelector('span').textContent = recognizing? t('stop'):t('listen');
   }
 
@@ -428,12 +464,16 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   function buildModeOptions(){const cur=modeEl.value||'interview';modeEl.innerHTML='';Object.keys(MODES).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=MODES[k][LANG]||MODES[k].it;modeEl.appendChild(o);});modeEl.value=cur;}
 
   const store={get(k){try{return localStorage.getItem(k)}catch(_){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(_){}} ,del(k){try{localStorage.removeItem(k)}catch(_){}}};
-  const KEYS=['v5_lang','v5_prov','v5_mode','v5_heard','v5_ans','v5_ctx','v5_auto','v5_remember','v6_pro','v6_promodel'];
+  const KEYS=['v5_lang','v5_prov','v5_mode','v5_heard','v5_ans','v5_ctx','v5_auto','v5_remember','v6_pro','v6_promodel','v7_role','v7_company','v7_cv','v7_style','v7_obj'];
+  // Profilo strutturato: id campo → chiave localStorage (v5_ctx resta solo per migrare il vecchio campo libero)
+  const PF_KEYS={pfRole:'v7_role',pfCompany:'v7_company',pfCv:'v7_cv',pfStyle:'v7_style',pfObj:'v7_obj'};
+  const PF_IDS=Object.keys(PF_KEYS);
   const keyName=()=>'v5_key_'+providerEl.value;
   function save(){
     if(!$('remember').checked){KEYS.forEach(store.del);PKEYS.forEach(p=>{store.del('v5_key_'+p);store.del('v5_model_'+p);store.del('v5_base_'+p);});store.set('v5_remember','0');return;}
     store.set('v5_remember','1');store.set('v5_lang',LANG);store.set('v5_prov',providerEl.value);store.set('v5_mode',modeEl.value);store.set('v6_pro',proMode?'1':'0');
-    store.set('v5_heard',$('lang').value);store.set('v5_ans',$('ansLang').value);store.set('v5_ctx',$('context').value);store.set('v5_auto',autoMode?'1':'0');
+    store.set('v5_heard',$('lang').value);store.set('v5_ans',$('ansLang').value);store.set('v5_auto',autoMode?'1':'0');
+    PF_IDS.forEach(id=>store.set(PF_KEYS[id],$(id).value));
     if($('model').value)store.set('v5_model_'+providerEl.value,$('model').value);
     if($('baseUrl').value)store.set('v5_base_'+providerEl.value,$('baseUrl').value);
     if($('apiKey').value.trim())store.set(keyName(),$('apiKey').value.trim());
@@ -486,10 +526,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   async function refreshMe(){
     try{
       const r=await api('/v1/me');
-      if(r.status===401){meUser=null;mePlan=null;renderAccount(null);return;}
+      if(r.status===401){meUser=null;mePlan=null;renderAccount(null);renderProfileWhere();return;}
       if(!r.ok)throw new Error('HTTP '+r.status);
-      const d=await r.json(); meUser=d.user; mePlan=d.plan; renderAccount(d); loadProModels();
-    }catch(_){ meUser=null;mePlan=null;renderAccount(null); if(proMode)setAc(t('acBackendDown'),'err'); }
+      const d=await r.json(); meUser=d.user; mePlan=d.plan; renderAccount(d); loadProModels(); pullProfile();
+    }catch(_){ meUser=null;mePlan=null;renderAccount(null); renderProfileWhere(); if(proMode)setAc(t('acBackendDown'),'err'); }
   }
   async function loadProModels(){
     try{
@@ -533,6 +573,68 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     catch(e){setAc(e.message,'err');}
   });
   $('proModel').addEventListener('change',()=>store.set('v6_promodel',$('proModel').value));
+
+  /* ---- Profilo (memoria persistente, M2) ----
+     Sempre salvato in locale. Se l'utente è loggato E ha dato il consenso,
+     viene anche sincronizzato sull'account (server UE). La revoca del
+     consenso cancella la copia sul server; "Cancella il profilo" cancella
+     ovunque (server + questo dispositivo). */
+  function profileText(){
+    const v=id=>$(id).value.trim(); const parts=[];
+    if(v('pfRole'))parts.push('Role: '+v('pfRole'));
+    if(v('pfCompany'))parts.push('Company/product: '+v('pfCompany'));
+    if(v('pfCv'))parts.push('CV/experience: '+v('pfCv'));
+    if(v('pfStyle'))parts.push('Preferred answering style: '+v('pfStyle'));
+    if(v('pfObj'))parts.push('Recurring objections/questions to be ready for: '+v('pfObj'));
+    return parts.join('\n');
+  }
+  function setPf(msg,cls){const el=$('profStatus');el.textContent=msg;el.className='status '+(cls||'');}
+  function renderProfileWhere(){
+    const synced=!!meUser&&$('profConsent').checked;
+    $('profWhere').textContent=synced?t('profStoredAccount'):t('profStoredDevice');
+    $('profSyncWrap').style.display=meUser?'':'none';
+  }
+  async function pushProfile(){
+    if(!meUser||!$('profConsent').checked)return;
+    try{
+      const body={consent:true,role:$('pfRole').value.trim(),company:$('pfCompany').value.trim(),cv:$('pfCv').value.trim(),style:$('pfStyle').value.trim(),objections:$('pfObj').value.trim()};
+      const r=await api('/v1/profile',{method:'PUT',body:JSON.stringify(body)});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      setPf(t('profSynced'),'ok');
+    }catch(e){setPf('Sync: '+e.message,'err');}
+  }
+  async function pullProfile(){
+    if(!meUser){renderProfileWhere();return;}
+    try{
+      const r=await api('/v1/profile');
+      if(r.ok){
+        const d=await r.json();
+        if(d.exists){ // il server vince: è la copia condivisa tra i dispositivi
+          const p=d.profile;
+          $('pfRole').value=p.role||'';$('pfCompany').value=p.company||'';$('pfCv').value=p.cv||'';$('pfStyle').value=p.style||'';$('pfObj').value=p.objections||'';
+          $('profConsent').checked=true; save();
+        }else{ $('profConsent').checked=false; }
+      }
+    }catch(_){}
+    renderProfileWhere();
+  }
+  $('profConsent').addEventListener('change',async()=>{
+    if(!meUser){renderProfileWhere();return;}
+    if($('profConsent').checked){ await pushProfile(); }
+    else{
+      try{ await api('/v1/profile',{method:'DELETE',body:'{}'}); setPf(t('profServerOff'),'ok'); }
+      catch(e){ setPf(e.message,'err'); }
+    }
+    renderProfileWhere();
+  });
+  $('profExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/profile/export','_blank'));
+  $('profDeleteBtn').addEventListener('click',async()=>{
+    if(!confirm(t('profDeleteConfirm')))return;
+    try{ await api('/v1/profile',{method:'DELETE',body:'{}'}); }catch(_){}
+    PF_IDS.forEach(id=>{$(id).value='';store.del(PF_KEYS[id]);});
+    $('profConsent').checked=false; renderProfileWhere(); setPf(t('profDeleted'),'ok');
+  });
+  PF_IDS.forEach(id=>$(id).addEventListener('change',()=>{save();pushProfile();}));
 
   $('verifyBtn').addEventListener('click',async()=>{
     const p=curProv(),key=$('apiKey').value.trim();
@@ -585,13 +687,13 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   function systemPrompt(){
     const m=MODES[modeEl.value]||MODES.interview; const ans=$('ansLang').value;
     if(m.p==='__translate__'){ const target=ans==='same'?'Italian':ans; return "You are a live interpreter. Translate the following speech into "+target+". Output ONLY the translation, nothing else. If partial, translate what you have."; }
-    let base=m.p==='__custom__'?($('context').value.trim()?'Follow the user context as instructions.':'You are a helpful real-time call copilot.'):m.p;
+    let base=m.p==='__custom__'?(profileText()?'Follow the user context as instructions.':'You are a helpful real-time call copilot.'):m.p;
     const ansInstr=ans==='same'?'Answer in the SAME language the speaker used.':('Write the suggested answer in '+ans+'.');
     // Trascrizione desktop: entrambi i lati etichettati. Il suggerimento deve
     // rispondere all'ULTIMA battuta dell'interlocutore, mai alle battute "Io:".
     const labeled=/(^|\n)Interlocutore:/.test(finalText);
     const labeledInstr=labeled?" The transcript has BOTH sides labeled: lines starting with 'Io:' are what the USER already said; lines starting with 'Interlocutore:' are the other party. Respond ONLY to the LAST 'Interlocutore:' line — never answer or rephrase the user's own 'Io:' lines.":"";
-    return base+"\n\nPerson/context (first person): "+($('context').value.trim()||'(none)')+"\n\nYou get a live transcript of the other party. Focus on the LAST question/point."+labeledInstr+" "+ansInstr+" Natural, spoken, concise. Begin with a one-line note of the detected question, then the answer.";
+    return base+"\n\nPerson/context (first person): "+(profileText()||'(none)')+"\n\nYou get a live transcript of the other party. Focus on the LAST question/point."+labeledInstr+" "+ansInstr+" Natural, spoken, concise. Begin with a one-line note of the detected question, then the answer.";
   }
 
   async function errMsg(res){let m='HTTP '+res.status;try{const d=await res.json();m=(d.error&&(d.error.message||d.error))||JSON.stringify(d);}catch(_){}return m;}
@@ -665,10 +767,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   });
 
   $('langswitch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;LANG=b.getAttribute('data-lang');[...$('langswitch').children].forEach(c=>c.classList.toggle('on',c===b));applyLang();save();});
-  ['model','baseUrl','lang','ansLang','context','mode'].forEach(id=>$(id).addEventListener('change',save));
+  ['model','baseUrl','lang','ansLang','mode'].forEach(id=>$(id).addEventListener('change',save));
   $('apiKey').addEventListener('input',()=>{suggestBtn.disabled=!$('apiKey').value.trim();save();});
   $('remember').addEventListener('change',save);
-  $('forget').addEventListener('click',e=>{e.preventDefault();KEYS.forEach(store.del);PKEYS.forEach(p=>{store.del('v5_key_'+p);store.del('v5_model_'+p);store.del('v5_base_'+p);});$('apiKey').value='';$('context').value='';setS(setupStatus,t('valid'),'ok');});
+  $('forget').addEventListener('click',e=>{e.preventDefault();KEYS.forEach(store.del);PKEYS.forEach(p=>{store.del('v5_key_'+p);store.del('v5_model_'+p);store.del('v5_base_'+p);});$('apiKey').value='';PF_IDS.forEach(id=>$(id).value='');setS(setupStatus,t('valid'),'ok');});
 
   (function init(){
     if(store.get('v5_remember')==='0')$('remember').checked=false;
@@ -682,7 +784,9 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     buildModeOptions();if(store.get('v5_mode'))modeEl.value=store.get('v5_mode');
     if(store.get('v5_heard'))$('lang').value=store.get('v5_heard');
     if(store.get('v5_ans'))$('ansLang').value=store.get('v5_ans');
-    if(store.get('v5_ctx'))$('context').value=store.get('v5_ctx');
+    PF_IDS.forEach(id=>{const v=store.get(PF_KEYS[id]);if(v)$(id).value=v;});
+    // Migrazione dal vecchio campo libero "contesto/CV": finisce in CV/esperienza.
+    if(!$('pfCv').value&&store.get('v5_ctx'))$('pfCv').value=store.get('v5_ctx');
     autoMode=store.get('v5_auto')!=='0';autoBtn.classList.toggle('on',autoMode);
     syncProvider();applyLang();
   })();
