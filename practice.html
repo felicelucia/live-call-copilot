@@ -110,6 +110,7 @@
   <div class="card" id="setup">
     <h2 id="setupH">Set up your session</h2>
     <p class="sub" id="setupSub">The more you give it, the sharper the interview.</p>
+    <div class="note" id="profNote" style="display:none"></div>
 
     <label id="lRole">Role / position</label>
     <input id="role" placeholder="e.g. Project Manager — solar / renewables">
@@ -223,6 +224,21 @@
   if(store.get('prac_style')) $('style').value=store.get('prac_style');
   syncEngine();
 
+  /* ---------- profilo dall'account (M2 memoria) ----------
+     Se la pagina è servita dal backend e l'utente è loggato con consenso,
+     GET /v1/profile/summary restituisce il riassunto (~1200 char) e
+     l'intervista viene personalizzata. Senza login/consenso: nessuna
+     chiamata riuscita → tutto resta come oggi, solo i campi manuali. */
+  let profileSummary=null;
+  function profNoteText(){ return L()==='it'
+    ? '👤 Profilo caricato dal tuo account: l\'intervista è personalizzata su ruolo, CV e obiezioni. I campi qui sotto servono per aggiunte o modifiche.'
+    : '👤 Profile loaded from your account: the interview is tailored to your role, CV and objections. The fields below are for extras or overrides.'; }
+  if(location.protocol.indexOf('http')===0){
+    fetch('/v1/profile/summary',{credentials:'include'}).then(r=>r.ok?r.json():null).then(d=>{
+      if(d&&d.summary){ profileSummary=String(d.summary).slice(0,1200); const n=$('profNote'); n.textContent=profNoteText(); n.style.display=''; }
+    }).catch(()=>{});
+  }
+
   let MODEL=null, history=[], qCount=0, maxQ=5, lastQ='', lastAnswer='';
   let state='idle', handsFree=true, recognition=null, recognizing=false, silenceTimer=null, chosenVoice=null;
   const SILENCE_MS=1900;
@@ -311,6 +327,9 @@
   function langName(){ return L()==='it'?'Italian':'English'; }
   function ctxBlock(){
     let s='';
+    // Prima il profilo dell'account (già riassunto lato server, ≤1200 char),
+    // poi i campi manuali (≤2000 l'uno): budget di contesto rispettato.
+    if(profileSummary) s+="\n\nCANDIDATE PROFILE (from their account — role, experience, style, recurring objections):\n"+profileSummary;
     if($('job').value.trim()) s+="\n\nJOB DESCRIPTION:\n"+$('job').value.trim().slice(0,2000);
     if($('cv').value.trim())  s+="\n\nCANDIDATE CV / BACKGROUND:\n"+$('cv').value.trim().slice(0,2000);
     return s;
@@ -475,6 +494,7 @@
     $('hStr').textContent=it?'Punti di forza':'Strengths'; $('hImp').textContent=it?'Cosa migliorare':'What to improve'; $('hModel').textContent=it?'Versione più forte della tua risposta più debole':'Stronger version of your weakest answer';
     $('replayBtn').textContent=it?'🔊 Ripeti':'🔊 Repeat'; $('hintBtn').textContent=it?'💡 Suggerisci una risposta':'💡 Suggest an answer'; $('coachBtn').textContent=it?'✍️ Migliora la mia ultima risposta':'✍️ Improve my last answer';
     $('againBtn').textContent=it?'↻ Riprova':'↻ Practice again';
+    if(profileSummary) $('profNote').textContent=profNoteText();
   }
   window.addEventListener('pagehide',()=>{ if(window.speechSynthesis)window.speechSynthesis.cancel(); stopListening(); history=[]; });
   if(L()==='it') applyLang();
