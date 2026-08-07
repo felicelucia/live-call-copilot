@@ -108,6 +108,9 @@
   .answer:empty::before{content:attr(data-ph);color:#b8ab9e;font-size:.85rem;}
   .answer b{color:var(--teal);}
   .mini{font-size:.74rem;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:9px;padding:5px 10px;cursor:pointer;}
+  /* feedback flywheel: riga discreta sotto il suggerimento */
+  .fbrow{display:none;gap:6px;align-items:center;flex-wrap:wrap;margin-top:9px;font-size:.75rem;color:var(--muted);}
+  .fbrow.show{display:flex;}
   a{color:var(--accent-d);}
   .foot{font-size:.78rem;color:var(--muted);}
   .paidnote{background:var(--soft2);border:1px solid #cdeede;border-radius:12px;padding:11px 14px;font-size:.82rem;color:#2f7a5e;margin-top:12px;}
@@ -180,6 +183,17 @@
       <div class="bh"><h3>💬 <span data-i18n="answer"></span></h3><button class="mini" id="copyBtn" data-i18n="copy"></button></div>
       <div class="routing" id="routingInfo"><span class="rx">⚡</span><span id="routingText"></span></div>
       <div class="answer" id="answer" data-ph="—"></div>
+      <!-- Flywheel (M2-d): solo il segnale — azione + metadati, mai il testo. -->
+      <div class="fbrow" id="fbRow">
+        <span data-i18n="fbQ"></span>
+        <button class="mini" id="fbUsed" data-i18n="fbUsed"></button>
+        <button class="mini" id="fbEdited" data-i18n="fbEdited"></button>
+        <button class="mini" id="fbIgnored" data-i18n="fbIgnored"></button>
+      </div>
+      <div id="fbEditWrap" style="display:none;margin-top:8px">
+        <textarea id="fbEditText" rows="3"></textarea>
+        <div style="margin-top:6px"><button class="mini" id="fbEditSend" data-i18n="fbSend"></button></div>
+      </div>
     </div>
   </div>
 
@@ -415,10 +429,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   };
   /* Profilo (memoria persistente): i18n della sezione strutturata. */
   const T3={
-    it:{profH:"👤 Il tuo profilo (memoria)",profSub:"Chi sei, cosa vendi, come rispondi: rende i suggerimenti su misura. Tutto facoltativo.",profRoleL:"Ruolo",profRolePh:"Es: Account Executive",profCompanyL:"Azienda / prodotto",profCompanyPh:"Es: software HR per PMI",profCvL:"CV / esperienza",profCvPh:"Es: 10 anni di vendita B2B, prima in banca poi nel SaaS…",profStyleL:"Stile di risposta",profStylePh:"Es: diretto ma cordiale, frasi brevi",profObjL:"Obiezioni / domande ricorrenti",profObjPh:"Es: costa troppo; abbiamo già un fornitore; ne parliamo a settembre",profConsentL:"Acconsento a salvare il profilo sul mio <b>account</b> (server in UE) per ritrovarlo su tutti i miei dispositivi",profExport:"⬇ Esporta i miei dati",profDelete:"🗑 Cancella il profilo",profDeleteConfirm:"Cancellare il profilo dal server e da questo dispositivo? L'operazione è definitiva.",profStoredAccount:"💾 Profilo salvato sul tuo account (server in UE), sincronizzato su tutti i tuoi dispositivi. Puoi esportarlo o cancellarlo quando vuoi.",profStoredDevice:"💾 Profilo salvato solo su questo dispositivo: non viene inviato a nessun server.",profSynced:"✔ Sincronizzato sul tuo account",profDeleted:"Profilo cancellato ovunque.",profServerOff:"Profilo rimosso dal server: resta solo su questo dispositivo."},
-    en:{profH:"👤 Your profile (memory)",profSub:"Who you are, what you sell, how you answer: makes suggestions tailored. All optional.",profRoleL:"Role",profRolePh:"E.g. Account Executive",profCompanyL:"Company / product",profCompanyPh:"E.g. HR software for SMBs",profCvL:"CV / experience",profCvPh:"E.g. 10 years of B2B sales, first in banking then SaaS…",profStyleL:"Answering style",profStylePh:"E.g. direct but friendly, short sentences",profObjL:"Recurring objections / questions",profObjPh:"E.g. too expensive; we already have a vendor; let's talk in September",profConsentL:"I consent to saving my profile on my <b>account</b> (EU servers) so I find it on all my devices",profExport:"⬇ Export my data",profDelete:"🗑 Delete profile",profDeleteConfirm:"Delete the profile from the server and this device? This cannot be undone.",profStoredAccount:"💾 Profile saved on your account (EU servers), synced across your devices. You can export or delete it anytime.",profStoredDevice:"💾 Profile saved only on this device: it is not sent to any server.",profSynced:"✔ Synced to your account",profDeleted:"Profile deleted everywhere.",profServerOff:"Profile removed from the server: it stays only on this device."},
-    zh:{profH:"👤 你的档案（记忆）",profSub:"你是谁、卖什么、怎样回答：让建议更贴合你。全部可选。",profRoleL:"职位",profRolePh:"例：客户经理",profCompanyL:"公司 / 产品",profCompanyPh:"例：面向中小企业的 HR 软件",profCvL:"简历 / 经验",profCvPh:"例：10 年 B2B 销售经验，先银行后 SaaS……",profStyleL:"回答风格",profStylePh:"例：直接但友好，句子简短",profObjL:"常见异议 / 问题",profObjPh:"例：太贵了；我们已有供应商；九月再谈",profConsentL:"我同意将档案保存到我的<b>账户</b>（欧盟服务器），以便在所有设备上使用",profExport:"⬇ 导出我的数据",profDelete:"🗑 删除档案",profDeleteConfirm:"从服务器和本设备删除档案？此操作不可撤销。",profStoredAccount:"💾 档案已保存到你的账户（欧盟服务器），在你的设备间同步。可随时导出或删除。",profStoredDevice:"💾 档案仅保存在本设备：不会发送到任何服务器。",profSynced:"✔ 已同步到你的账户",profDeleted:"档案已全部删除。",profServerOff:"档案已从服务器移除：仅保留在本设备。"},
-    es:{profH:"👤 Tu perfil (memoria)",profSub:"Quién eres, qué vendes, cómo respondes: hace las sugerencias a medida. Todo opcional.",profRoleL:"Rol",profRolePh:"Ej: Account Executive",profCompanyL:"Empresa / producto",profCompanyPh:"Ej: software de RRHH para pymes",profCvL:"CV / experiencia",profCvPh:"Ej: 10 años de ventas B2B, primero en banca y luego en SaaS…",profStyleL:"Estilo de respuesta",profStylePh:"Ej: directo pero cordial, frases cortas",profObjL:"Objeciones / preguntas recurrentes",profObjPh:"Ej: es muy caro; ya tenemos proveedor; hablamos en septiembre",profConsentL:"Acepto guardar mi perfil en mi <b>cuenta</b> (servidores en la UE) para encontrarlo en todos mis dispositivos",profExport:"⬇ Exportar mis datos",profDelete:"🗑 Borrar perfil",profDeleteConfirm:"¿Borrar el perfil del servidor y de este dispositivo? No se puede deshacer.",profStoredAccount:"💾 Perfil guardado en tu cuenta (servidores en la UE), sincronizado en tus dispositivos. Puedes exportarlo o borrarlo cuando quieras.",profStoredDevice:"💾 Perfil guardado solo en este dispositivo: no se envía a ningún servidor.",profSynced:"✔ Sincronizado en tu cuenta",profDeleted:"Perfil borrado en todas partes.",profServerOff:"Perfil eliminado del servidor: queda solo en este dispositivo."}
+    it:{profH:"👤 Il tuo profilo (memoria)",profSub:"Chi sei, cosa vendi, come rispondi: rende i suggerimenti su misura. Tutto facoltativo.",profRoleL:"Ruolo",profRolePh:"Es: Account Executive",profCompanyL:"Azienda / prodotto",profCompanyPh:"Es: software HR per PMI",profCvL:"CV / esperienza",profCvPh:"Es: 10 anni di vendita B2B, prima in banca poi nel SaaS…",profStyleL:"Stile di risposta",profStylePh:"Es: diretto ma cordiale, frasi brevi",profObjL:"Obiezioni / domande ricorrenti",profObjPh:"Es: costa troppo; abbiamo già un fornitore; ne parliamo a settembre",profConsentL:"Acconsento a salvare il profilo sul mio <b>account</b> (server in UE) per ritrovarlo su tutti i miei dispositivi",profExport:"⬇ Esporta i miei dati",profDelete:"🗑 Cancella il profilo",profDeleteConfirm:"Cancellare il profilo dal server e da questo dispositivo? L'operazione è definitiva.",profStoredAccount:"💾 Profilo salvato sul tuo account (server in UE), sincronizzato su tutti i tuoi dispositivi. Puoi esportarlo o cancellarlo quando vuoi.",profStoredDevice:"💾 Profilo salvato solo su questo dispositivo: non viene inviato a nessun server.",profSynced:"✔ Sincronizzato sul tuo account",profDeleted:"Profilo cancellato ovunque.",profServerOff:"Profilo rimosso dal server: resta solo su questo dispositivo.",fbQ:"È servito?",fbUsed:"👍 Usato",fbEdited:"✍️ Modificato",fbIgnored:"👎 Ignorato",fbSend:"Invia la tua versione",fbThanks:"Grazie, registrato ✔"},
+    en:{profH:"👤 Your profile (memory)",profSub:"Who you are, what you sell, how you answer: makes suggestions tailored. All optional.",profRoleL:"Role",profRolePh:"E.g. Account Executive",profCompanyL:"Company / product",profCompanyPh:"E.g. HR software for SMBs",profCvL:"CV / experience",profCvPh:"E.g. 10 years of B2B sales, first in banking then SaaS…",profStyleL:"Answering style",profStylePh:"E.g. direct but friendly, short sentences",profObjL:"Recurring objections / questions",profObjPh:"E.g. too expensive; we already have a vendor; let's talk in September",profConsentL:"I consent to saving my profile on my <b>account</b> (EU servers) so I find it on all my devices",profExport:"⬇ Export my data",profDelete:"🗑 Delete profile",profDeleteConfirm:"Delete the profile from the server and this device? This cannot be undone.",profStoredAccount:"💾 Profile saved on your account (EU servers), synced across your devices. You can export or delete it anytime.",profStoredDevice:"💾 Profile saved only on this device: it is not sent to any server.",profSynced:"✔ Synced to your account",profDeleted:"Profile deleted everywhere.",profServerOff:"Profile removed from the server: it stays only on this device.",fbQ:"Did it help?",fbUsed:"👍 Used",fbEdited:"✍️ Edited",fbIgnored:"👎 Ignored",fbSend:"Send your version",fbThanks:"Thanks, recorded ✔"},
+    zh:{profH:"👤 你的档案（记忆）",profSub:"你是谁、卖什么、怎样回答：让建议更贴合你。全部可选。",profRoleL:"职位",profRolePh:"例：客户经理",profCompanyL:"公司 / 产品",profCompanyPh:"例：面向中小企业的 HR 软件",profCvL:"简历 / 经验",profCvPh:"例：10 年 B2B 销售经验，先银行后 SaaS……",profStyleL:"回答风格",profStylePh:"例：直接但友好，句子简短",profObjL:"常见异议 / 问题",profObjPh:"例：太贵了；我们已有供应商；九月再谈",profConsentL:"我同意将档案保存到我的<b>账户</b>（欧盟服务器），以便在所有设备上使用",profExport:"⬇ 导出我的数据",profDelete:"🗑 删除档案",profDeleteConfirm:"从服务器和本设备删除档案？此操作不可撤销。",profStoredAccount:"💾 档案已保存到你的账户（欧盟服务器），在你的设备间同步。可随时导出或删除。",profStoredDevice:"💾 档案仅保存在本设备：不会发送到任何服务器。",profSynced:"✔ 已同步到你的账户",profDeleted:"档案已全部删除。",profServerOff:"档案已从服务器移除：仅保留在本设备。",fbQ:"有帮助吗？",fbUsed:"👍 已使用",fbEdited:"✍️ 已修改",fbIgnored:"👎 已忽略",fbSend:"发送我的版本",fbThanks:"谢谢，已记录 ✔"},
+    es:{profH:"👤 Tu perfil (memoria)",profSub:"Quién eres, qué vendes, cómo respondes: hace las sugerencias a medida. Todo opcional.",profRoleL:"Rol",profRolePh:"Ej: Account Executive",profCompanyL:"Empresa / producto",profCompanyPh:"Ej: software de RRHH para pymes",profCvL:"CV / experiencia",profCvPh:"Ej: 10 años de ventas B2B, primero en banca y luego en SaaS…",profStyleL:"Estilo de respuesta",profStylePh:"Ej: directo pero cordial, frases cortas",profObjL:"Objeciones / preguntas recurrentes",profObjPh:"Ej: es muy caro; ya tenemos proveedor; hablamos en septiembre",profConsentL:"Acepto guardar mi perfil en mi <b>cuenta</b> (servidores en la UE) para encontrarlo en todos mis dispositivos",profExport:"⬇ Exportar mis datos",profDelete:"🗑 Borrar perfil",profDeleteConfirm:"¿Borrar el perfil del servidor y de este dispositivo? No se puede deshacer.",profStoredAccount:"💾 Perfil guardado en tu cuenta (servidores en la UE), sincronizado en tus dispositivos. Puedes exportarlo o borrarlo cuando quieras.",profStoredDevice:"💾 Perfil guardado solo en este dispositivo: no se envía a ningún servidor.",profSynced:"✔ Sincronizado en tu cuenta",profDeleted:"Perfil borrado en todas partes.",profServerOff:"Perfil eliminado del servidor: queda solo en este dispositivo.",fbQ:"¿Te ha servido?",fbUsed:"👍 Usada",fbEdited:"✍️ Modificada",fbIgnored:"👎 Ignorada",fbSend:"Enviar mi versión",fbThanks:"Gracias, registrado ✔"}
   };
   Object.keys(T2).forEach(l=>Object.assign(T[l],T2[l]));
   Object.keys(T3).forEach(l=>Object.assign(T[l],T3[l]));
@@ -682,7 +696,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   function sched(){if(pauseTimer)clearTimeout(pauseTimer);pauseTimer=setTimeout(()=>{if(!busy&&finalText.length-lastLen>14){lastLen=finalText.length;suggest();}},1000);}
   listenBtn.addEventListener('click',()=>recognizing?stopRec():startRec());
   autoBtn.addEventListener('click',()=>{autoMode=!autoMode;autoBtn.classList.toggle('on',autoMode);setS(liveStatus,autoMode?t('autoOn'):t('autoOff'),autoMode?'ok':'');save();});
-  $('clearBtn').addEventListener('click',()=>{finalText='';lastLen=0;render('');answerEl.innerHTML='';lastAnswer='';});
+  $('clearBtn').addEventListener('click',()=>{finalText='';lastLen=0;render('');answerEl.innerHTML='';lastAnswer='';hideFeedback();});
 
   function systemPrompt(){
     const m=MODES[modeEl.value]||MODES.interview; const ans=$('ansLang').value;
@@ -702,10 +716,37 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
      server, cookie di sessione). Formato SSE: {type:"delta"|"done"|"error"}. */
   function backendMode(){ const m=modeEl.value; return (m==='interview'||m==='sales'||m==='meeting')?m:'general'; }
   function showRouting(j){
+    lastRoutedModel=j.model||null;
     $('routingText').innerHTML=t('routedBy')+' <b>'+(j.label||j.model)+'</b> — '+String(j.reason||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
     $('routingInfo').classList.add('show');
   }
   function clearRouting(){ $('routingInfo').classList.remove('show'); $('routingText').textContent=''; }
+
+  /* ---- Flywheel feedback (M2-d, solo raccolta) ----
+     Al server vanno azione + categoria + modello + LUNGHEZZA del suggerimento:
+     mai la trascrizione né il testo. La versione riscritta dall'utente parte
+     solo da "✍️ Modificato"; è il server a salvarla soltanto se il profilo ha
+     consenso attivo. Visibile solo da loggati (il backend richiede la sessione). */
+  let lastRoutedModel=null;
+  function showFeedback(){ if(!meUser||!lastAnswer)return; $('fbRow').classList.add('show'); $('fbEditWrap').style.display='none'; }
+  function hideFeedback(){ $('fbRow').classList.remove('show'); $('fbEditWrap').style.display='none'; }
+  async function sendFeedback(action,editedText){
+    hideFeedback();
+    try{
+      await api('/v1/feedback',{method:'POST',body:JSON.stringify({
+        action,
+        mode:backendMode(),
+        model:proMode?lastRoutedModel:($('model').value.trim()||null),
+        suggestionChars:lastAnswer.length,
+        editedText:editedText||undefined
+      })});
+      setS(liveStatus,t('fbThanks'),'ok');
+    }catch(_){}
+  }
+  $('fbUsed').addEventListener('click',()=>sendFeedback('used'));
+  $('fbIgnored').addEventListener('click',()=>sendFeedback('ignored'));
+  $('fbEdited').addEventListener('click',()=>{ $('fbEditWrap').style.display=''; $('fbEditText').value=lastAnswer; });
+  $('fbEditSend').addEventListener('click',()=>sendFeedback('edited',$('fbEditText').value.trim().slice(0,4000)));
 
   async function callProStream(onDelta){
     const q=finalText.trim().slice(-2000);
@@ -744,9 +785,9 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     if(!canRun()){setS(liveStatus,cantRunMsg(),'err');showSettings();return;}
     if(qOverride){finalText=(finalText+' '+qOverride).trim();}
     if(!finalText.trim()){setS(liveStatus,t('noq'),'err');return;}
-    busy=true;suggestBtn.disabled=true;setS(liveStatus,t('thinking'),'work');let acc='';answerEl.textContent='';clearRouting();
+    busy=true;suggestBtn.disabled=true;setS(liveStatus,t('thinking'),'work');let acc='';answerEl.textContent='';clearRouting();hideFeedback();
     answerEl.setAttribute('data-ph',t('thinking')); // "sto pensando…" nel riquadro risposta
-    try{await callStream(tx=>{acc+=tx;lastAnswer=acc;answerEl.innerHTML=acc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');answerEl.scrollTop=answerEl.scrollHeight;});setS(liveStatus,t('ready'),'ok');}
+    try{await callStream(tx=>{acc+=tx;lastAnswer=acc;answerEl.innerHTML=acc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');answerEl.scrollTop=answerEl.scrollHeight;});setS(liveStatus,t('ready'),'ok');showFeedback();}
     catch(e){setS(liveStatus,'Error: '+e.message,'err');}
     answerEl.setAttribute('data-ph','—');
     busy=false;suggestBtn.disabled=false;
@@ -805,10 +846,30 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   /* Privacy: la trascrizione non viene mai salvata; la azzero anche alla chiusura. */
   window.addEventListener('pagehide',()=>{ finalText=''; });
 
-  /* ---- Ponte per l'app desktop ----
-     La cattura nativa (WASAPI) e la trascrizione on-device vivono nell'overlay
-     Tauri; da qui entrano nella pipeline suggerimenti ESISTENTE del client.
-     Nel browser normale l'oggetto esiste ma nessuno lo chiama: zero effetti. */
+  /* ═══ CONTRATTO PONTE DESKTOP — NON MODIFICARE SENZA AGGIORNARE L'OVERLAY ═══
+     L'app desktop (repo live-call-copilot-desktop, src-tauri/overlay.js) dipende
+     da questa interfaccia esatta. La cattura nativa (WASAPI) e la trascrizione
+     on-device vivono nell'overlay Tauri; da qui entrano nella pipeline
+     suggerimenti ESISTENTE del client. Nel browser normale l'oggetto esiste ma
+     nessuno lo chiama: zero effetti.
+
+       window.lccCopilot.addTranscript(source, text)
+         source: "mic" (la voce dell'utente) | "system" (l'interlocutore)
+         → aggiunge a finalText una riga etichettata "Io: …" / "Interlocutore: …"
+
+       window.lccCopilot.suggest() → Promise
+         → genera un suggerimento con la pipeline esistente (BYOK/locale/Pro)
+
+       window.lccCopilot.isBusy() → boolean
+         → true mentre una generazione è in corso (l'overlay non ne accoda altre)
+
+     INVARIANTI da preservare quando si tocca suggest()/finalText/busy:
+      - le etichette "Io:"/"Interlocutore:" sono parsate da systemPrompt()
+        (regex /(^|\n)Interlocutore:/) per ancorare la risposta all'ULTIMA
+        battuta dell'interlocutore — non rinominarle;
+      - suggest() deve continuare a restituire una Promise e ad aggiornare busy;
+      - se rinomini suggest()/finalText/busy, aggiorna QUESTO oggetto e
+        l'overlay desktop nello stesso momento. */
   window.lccCopilot={
     addTranscript(source,text){
       const who=source==='mic'?'Io':'Interlocutore';
