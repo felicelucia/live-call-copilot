@@ -241,10 +241,43 @@ function showTab(tab) {
 }
 document.querySelectorAll(".ds-tab").forEach((b) =>
   b.addEventListener("click", () => showTab(b.getAttribute("data-tab"))));
+/* Nome file PDF dinamico: l'Analista apre SEMPRE con due righe a chiavi fisse
+   (RUOLO: / AZIENDA:, identiche in ogni lingua — contratto col backend).
+   Da lì: CV-<Ruolo>-<Azienda>-<AAAA-MM>.pdf, sanitizzato; AZIENDA "n/d" → solo
+   ruolo; niente di affidabile → fallback CV-su-misura / Tailored-CV (senza data). */
+function keyLine(md, key) {
+  for (const raw of String(md || "").split("\n")) {
+    const line = raw.replace(/[*_#`>]/g, "").trim();
+    const m = line.match(new RegExp("^" + key + "\\s*:\\s*(.+)$", "i"));
+    if (m) return m[1].trim();
+  }
+  return null;
+}
+function slugify(s) {
+  return s
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")  // accenti → lettere base
+    .replace(/[^A-Za-z0-9]+/g, "-")                    // tutto il resto → trattini
+    .replace(/-{2,}/g, "-").replace(/^-+|-+$/g, "");   // collassa e rifila
+}
+function pdfFileName() {
+  const role = keyLine(results.analista, "RUOLO");
+  const company = keyLine(results.analista, "AZIENDA");
+  const roleSlug = role ? slugify(role) : "";
+  if (!roleSlug) return t("pdfName"); // fallback esatto, senza data
+  const parts = ["CV", roleSlug];
+  if (company && !/^n\/?d\.?$/i.test(company.trim())) {
+    const c = slugify(company);
+    if (c) parts.push(c);
+  }
+  let base = parts.join("-");
+  if (base.length > 60) base = base.slice(0, 60).replace(/-[^-]*$/, ""); // niente segmenti monchi
+  return base + "-" + new Date().toISOString().slice(0, 7); // AAAA-MM
+}
+
 /* PDF del CV su misura: iframe nascosto con print-CSS → il motore di stampa
    del browser produce un PDF A4 VETTORIALE (testo vero, non uno screenshot).
    Effimero e 100% client-side: nessuna libreria, nessuna chiamata al server.
-   Il titolo del documento diventa il nome file proposto ("CV-su-misura.pdf"). */
+   Il titolo del documento diventa il nome file proposto. */
 function downloadPdf() {
   const md = results.sarto;
   if (!md) return;
@@ -253,7 +286,7 @@ function downloadPdf() {
   document.body.appendChild(iframe);
   const doc = iframe.contentDocument;
   doc.open();
-  doc.write(`<!DOCTYPE html><html lang="${LANG}"><head><meta charset="utf-8"><title>${t("pdfName")}</title><style>
+  doc.write(`<!DOCTYPE html><html lang="${LANG}"><head><meta charset="utf-8"><title>${pdfFileName()}</title><style>
     @page{size:A4;margin:18mm 16mm;}
     body{font-family:'Inter',-apple-system,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;color:#111;background:#fff;font-size:10.5pt;line-height:1.5;margin:0;}
     h1{font-size:16pt;margin:0 0 4pt;letter-spacing:-.01em;}
