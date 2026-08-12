@@ -4,28 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live Call Copilot — il tuo assistente per le videochiamate</title>
-<meta name="theme-color" content="#ff7a59">
+<meta name="theme-color" content="#3b5bdb">
 <meta name="description" content="The open, private AI copilot for your calls — it listens and suggests what to say, in real time.">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/design-system.css">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Copilot">
 <style>
+  /* Le variabili storiche della pagina puntano ai token del design system
+     (assets/design-system.css): stessa lingua visiva del Kit, zero cambi
+     a selettori/id/DOM. */
   :root{
-    --bg:#fbf7f2; --card:#ffffff; --soft:#fff3ec; --soft2:#eefaf4;
-    --ink:#2c2521; --muted:#948a80; --line:#efe6db;
-    --accent:#ff7a59; --accent-d:#e85d3a; --teal:#12b886; --amber:#f2a900; --violet:#8b7be8;
-    --r:18px; --sh:0 8px 30px rgba(60,40,25,.08);
+    --bg:var(--ds-bg); --card:var(--ds-surface); --soft:var(--ds-accent-soft); --soft2:var(--ds-ok-soft);
+    --ink:var(--ds-ink); --muted:var(--ds-muted); --line:var(--ds-line);
+    --accent:var(--ds-accent); --accent-d:var(--ds-accent-deep); --teal:var(--ds-ok); --amber:var(--ds-warn); --violet:var(--ds-accent);
+    --r:var(--ds-r-l); --sh:var(--ds-sh-m);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;}
-  body{background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif; line-height:1.55;}
+  body{background:var(--bg); color:var(--ink); font-family:var(--ds-font); line-height:1.55;}
   .wrap{max-width:960px; margin:0 auto; padding:18px 18px 70px; display:flex; flex-direction:column; gap:18px;}
 
   /* header */
   .top{display:flex; align-items:center; gap:12px;}
-  .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--amber));display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 6px 18px rgba(255,122,89,.35);}
+  .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--ds-accent),#7048e8);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 6px 18px rgba(59,91,219,.35);}
   .top .name{font-weight:800; font-size:1.1rem;}
   .langswitch{margin-left:auto; display:flex; gap:3px; background:#fff; border:1px solid var(--line); border-radius:22px; padding:3px; box-shadow:var(--sh);}
   .langswitch button{background:none;border:none;color:var(--muted);font-size:.8rem;padding:6px 12px;border-radius:18px;cursor:pointer;font-family:inherit;}
@@ -52,12 +56,13 @@
 
   button.btn{cursor:pointer;border:none;border-radius:13px;font-size:.95rem;font-weight:700;font-family:inherit;padding:12px 18px;transition:transform .05s,box-shadow .15s,filter .15s;}
   button.btn:active{transform:translateY(1px);}
-  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(255,122,89,.32);}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(59,91,219,.3);}
   .btn-primary:hover{filter:brightness(1.05);}
-  .btn-soft{background:var(--soft);color:var(--accent-d);border:1.5px solid #ffd9cb;}
+  .btn-soft{background:var(--soft);color:var(--accent-d);border:1.5px solid #d5defb;}
   .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
   .btn-listen{background:var(--teal);color:#fff;font-size:1.05rem;padding:15px 30px;box-shadow:0 8px 20px rgba(18,184,134,.32);}
-  .btn-listen.on{background:var(--accent-d);animation:pulse 1.5s infinite;}
+  /* in registrazione: rosso semantico (prima l'accento era già rosso-arancio) */
+  .btn-listen.on{background:var(--ds-err);animation:pulse 1.5s infinite;}
   .btn-toggle{background:#fff;color:var(--muted);border:1.5px solid var(--line);}
   .btn-toggle.on{background:var(--soft2);color:var(--teal);border-color:#b8ecd8;}
   .btn:disabled{opacity:.45;cursor:not-allowed;}
@@ -67,17 +72,17 @@
   .choices{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
   @media(max-width:900px){.choices{grid-template-columns:1fr 1fr;}}
   @media(max-width:640px){.choices{grid-template-columns:1fr;}}
-  .choice.pro{border-color:#ddd6fa;}
+  .choice.pro{border-color:#d5defb;}
   .choice.pro:hover{border-color:var(--violet);}
-  .choice.pro.sel{border-color:var(--violet);background:#f4f1ff;}
+  .choice.pro.sel{border-color:var(--violet);background:var(--ds-accent-soft);}
   .badge.vio{background:var(--violet);}
   /* pill di trasparenza sul routing (AI Act): chi ha risposto e perché */
-  .routing{display:none;align-items:flex-start;gap:7px;background:#f4f1ff;border:1px solid #ddd6fa;border-radius:11px;padding:7px 11px;margin-bottom:9px;font-size:.78rem;color:#5b4fb8;line-height:1.4;}
+  .routing{display:none;align-items:flex-start;gap:7px;background:var(--ds-accent-soft);border:1px solid #d5defb;border-radius:11px;padding:7px 11px;margin-bottom:9px;font-size:.78rem;color:var(--ds-accent-deep);line-height:1.4;}
   .routing.show{display:flex;}
-  .routing b{color:#3f339b;}
+  .routing b{color:var(--ds-accent-deep);}
   .routing .rx{flex:0 0 auto;}
   .choice{border:2px solid var(--line);border-radius:14px;padding:15px 16px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s;}
-  .choice:hover{border-color:#ffcdbc;}
+  .choice:hover{border-color:#c6d3f7;}
   .choice.sel{border-color:var(--accent);background:var(--soft);}
   .choice .t{font-weight:800;font-size:.98rem;display:flex;align-items:center;gap:8px;}
   .choice .d{color:var(--muted);font-size:.82rem;margin-top:4px;}
@@ -100,7 +105,7 @@
   .box .bh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
   .box .bh h3{margin:0;font-size:.9rem;font-weight:800;}
   .dot{width:9px;height:9px;border-radius:50%;background:#d9cec3;display:inline-block;margin-right:7px;}
-  .dot.live{background:var(--accent-d);box-shadow:0 0 8px var(--accent-d);animation:pulse 1.4s infinite;}
+  .dot.live{background:var(--ds-err);box-shadow:0 0 8px var(--ds-err);animation:pulse 1.4s infinite;}
   .transcript{flex:1;overflow-y:auto;max-height:280px;font-size:.95rem;color:#4a423b;}
   .transcript .interim{color:var(--muted);font-style:italic;}
   .transcript:empty::before{content:attr(data-ph);color:#b8ab9e;font-size:.85rem;}
@@ -120,7 +125,7 @@
   .langswitch{margin-left:0;}
   .privacy-chip{display:inline-flex;align-items:center;gap:7px;margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:30px;padding:7px 15px;font-size:.82rem;color:#3f6a58;font-weight:600;box-shadow:0 3px 10px rgba(60,40,25,.05);}
   /* ingresso al Kit di candidatura: stesso viola della pill di routing */
-  .kitlink{display:inline-flex;align-items:center;gap:7px;margin-top:16px;margin-left:8px;background:#f4f1ff;border:1px solid #ddd6fa;border-radius:30px;padding:7px 15px;font-size:.82rem;color:#5b4fb8;font-weight:700;text-decoration:none;box-shadow:0 3px 10px rgba(60,40,25,.05);transition:border-color .15s;}
+  .kitlink{display:inline-flex;align-items:center;gap:7px;margin-top:16px;margin-left:8px;background:var(--ds-accent-soft);border:1px solid #d5defb;border-radius:30px;padding:7px 15px;font-size:.82rem;color:var(--ds-accent-deep);font-weight:700;text-decoration:none;box-shadow:0 3px 10px rgba(23,26,32,.05);transition:border-color .15s;}
   .kitlink:hover{border-color:var(--violet);}
   .consent{text-align:center;font-size:.78rem;color:var(--muted);margin-top:2px;}
   .consent b{color:var(--accent-d);font-weight:700;}
