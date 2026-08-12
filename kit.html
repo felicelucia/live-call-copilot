@@ -80,6 +80,7 @@
         <button class="ds-tab on" data-tab="sarto" data-i="tabCv"></button>
         <button class="ds-tab" data-tab="intervistatore" data-i="tabQ"></button>
       </div>
+      <button class="ds-btn ds-btn-ghost ds-btn-sm" id="pdfBtn" data-i="pdf" style="display:none"></button>
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="copyBtn" data-i="copy"></button>
     </div>
     <div class="ds-prose" id="outBody" style="margin-top:var(--ds-s4)"></div>
@@ -112,6 +113,8 @@ const T = {
     tabQ: "Domande probabili",
     copy: "⧉ Copia markdown",
     copied: "Copiato ✓",
+    pdf: "⬇ Scarica PDF",
+    pdfName: "CV-su-misura",
     foot: "Il kit è effimero: non salviamo nulla sui nostri server. Solo tu hai il risultato.",
     needLogin: "Serve un account (gratis).",
     openApp: "Apri l'app per accedere →",
@@ -138,6 +141,8 @@ const T = {
     tabQ: "Likely questions",
     copy: "⧉ Copy markdown",
     copied: "Copied ✓",
+    pdf: "⬇ Download PDF",
+    pdfName: "Tailored-CV",
     foot: "The kit is ephemeral: nothing is stored on our servers. Only you have the result.",
     needLogin: "You need a (free) account.",
     openApp: "Open the app to sign in →",
@@ -231,9 +236,43 @@ function showTab(tab) {
   activeTab = tab;
   document.querySelectorAll(".ds-tab").forEach((b) => b.classList.toggle("on", b.getAttribute("data-tab") === tab));
   $("outBody").innerHTML = renderMd(results[tab] || "");
+  // il PDF esiste solo per il CV su misura
+  $("pdfBtn").style.display = tab === "sarto" && results.sarto ? "" : "none";
 }
 document.querySelectorAll(".ds-tab").forEach((b) =>
   b.addEventListener("click", () => showTab(b.getAttribute("data-tab"))));
+/* PDF del CV su misura: iframe nascosto con print-CSS → il motore di stampa
+   del browser produce un PDF A4 VETTORIALE (testo vero, non uno screenshot).
+   Effimero e 100% client-side: nessuna libreria, nessuna chiamata al server.
+   Il titolo del documento diventa il nome file proposto ("CV-su-misura.pdf"). */
+function downloadPdf() {
+  const md = results.sarto;
+  if (!md) return;
+  const iframe = document.createElement("iframe");
+  iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
+  document.body.appendChild(iframe);
+  const doc = iframe.contentDocument;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html lang="${LANG}"><head><meta charset="utf-8"><title>${t("pdfName")}</title><style>
+    @page{size:A4;margin:18mm 16mm;}
+    body{font-family:'Inter',-apple-system,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;color:#111;background:#fff;font-size:10.5pt;line-height:1.5;margin:0;}
+    h1{font-size:16pt;margin:0 0 4pt;letter-spacing:-.01em;}
+    h2{font-size:12.5pt;margin:14pt 0 4pt;border-bottom:.75pt solid #999;padding-bottom:2pt;}
+    h3,h4{font-size:11pt;margin:10pt 0 3pt;}
+    p{margin:4pt 0;} ul,ol{margin:3pt 0;padding-left:16pt;} li{margin:2pt 0;}
+    hr{border:none;border-top:.75pt solid #bbb;margin:10pt 0;}
+    code{font-family:inherit;background:none;border:none;padding:0;}
+    h1,h2,h3,h4{page-break-after:avoid;} li,p{page-break-inside:avoid;}
+  </style></head><body>${renderMd(md)}</body></html>`);
+  doc.close();
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+    setTimeout(() => iframe.remove(), 3000);
+  }, 250);
+}
+$("pdfBtn").addEventListener("click", downloadPdf);
+
 $("copyBtn").addEventListener("click", () => {
   const md = cleanMd(results[activeTab] || "");
   if (!md) return;
