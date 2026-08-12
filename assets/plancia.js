@@ -19,7 +19,7 @@ const DEFAULT_LABELS = {
   recapTitle: "Chi ha fatto cosa",
   agents: "agenti",
   models: "modelli",
-  euData: "dati in UE 🇪🇺",
+  euData: "dati in UE",
   seconds: "s totali",
   chars: "caratteri",
 };
@@ -134,7 +134,12 @@ export function createPlancia(container, opts = {}) {
     const foot = el("div", "pl-recap-foot");
     foot.appendChild(el("span", null, okTasks.length + " " + L.agents));
     foot.appendChild(el("span", null, models.length + " " + L.models));
-    if (recap.allEu) foot.appendChild(el("span", null, L.euData));
+    if (recap.allEu) {
+      // mini-badge UE (.ds-eu): l'emoji bandiera su Windows degrada a "EU" nudo
+      const eu = el("span", null, L.euData + " ");
+      eu.appendChild(el("span", "ds-eu", "EU"));
+      foot.appendChild(eu);
+    }
     foot.appendChild(el("span", null, fmtSec(recap.totalMs).replace(" s", "") + " " + L.seconds));
     box.appendChild(foot);
     container.appendChild(box);

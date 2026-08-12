@@ -99,7 +99,7 @@ const T = {
   it: {
     brandSub: "Kit di candidatura · beta",
     heroH: "Un annuncio. Il tuo profilo. Il kit completo.",
-    heroP: "Tre agenti AI leggono l'annuncio e il tuo percorso, e preparano un CV su misura e le probabili domande del colloquio. I tuoi dati restano su modelli europei 🇪🇺 — sempre.",
+    heroP: "Tre agenti AI leggono l'annuncio e il tuo percorso, e preparano un CV su misura e le probabili domande del colloquio. I tuoi dati restano su modelli europei <span class=\"ds-eu\">EU</span> — sempre.",
     adL: "Annuncio di lavoro (incollalo qui)",
     srcL: "Chi sei tu?",
     srcProfile: "📇 Usa il profilo del mio account",
@@ -119,13 +119,13 @@ const T = {
     plan: "piano",
     adShort: "Incolla l'annuncio (almeno 50 caratteri).",
     netErr: "Backend non raggiungibile: controlla che sia acceso.",
-    labels: { queued:"in coda", working:"al lavoro", done:"fatto", error:"errore", recapTitle:"Chi ha fatto cosa", agents:"agenti", models:"modelli", euData:"dati in UE 🇪🇺", seconds:"s totali", chars:"caratteri" },
+    labels: { queued:"in coda", working:"al lavoro", done:"fatto", error:"errore", recapTitle:"Chi ha fatto cosa", agents:"agenti", models:"modelli", euData:"dati in UE", seconds:"s totali", chars:"caratteri" },
     lang: "italiano",
   },
   en: {
     brandSub: "Application Kit · beta",
     heroH: "One job ad. Your profile. The full kit.",
-    heroP: "Three AI agents read the ad and your background, then craft a tailored CV and the likely interview questions. Your data stays on European models 🇪🇺 — always.",
+    heroP: "Three AI agents read the ad and your background, then craft a tailored CV and the likely interview questions. Your data stays on European models <span class=\"ds-eu\">EU</span> — always.",
     adL: "Job ad (paste it here)",
     srcL: "Who are you?",
     srcProfile: "📇 Use my account profile",
@@ -145,7 +145,7 @@ const T = {
     plan: "plan",
     adShort: "Paste the job ad (at least 50 characters).",
     netErr: "Backend unreachable: make sure it is running.",
-    labels: { queued:"queued", working:"working", done:"done", error:"error", recapTitle:"Who did what", agents:"agents", models:"models", euData:"data in EU 🇪🇺", seconds:"s total", chars:"chars" },
+    labels: { queued:"queued", working:"working", done:"done", error:"error", recapTitle:"Who did what", agents:"agents", models:"models", euData:"data in EU", seconds:"s total", chars:"chars" },
     lang: "english",
   },
 };
@@ -153,7 +153,8 @@ let LANG = (navigator.language || "en").toLowerCase().startsWith("it") ? "it" : 
 const t = (k) => T[LANG][k] ?? k;
 function applyLang() {
   document.documentElement.lang = LANG;
-  document.querySelectorAll("[data-i]").forEach((el) => (el.textContent = t(el.getAttribute("data-i"))));
+  // innerHTML (stringhe nostre, non input utente): serve per il mini-badge UE nella prosa
+  document.querySelectorAll("[data-i]").forEach((el) => (el.innerHTML = t(el.getAttribute("data-i"))));
   document.querySelectorAll("[data-i-ph]").forEach((el) => (el.placeholder = t(el.getAttribute("data-i-ph"))));
   renderAccLine();
 }
