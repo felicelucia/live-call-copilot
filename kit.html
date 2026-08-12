@@ -83,6 +83,8 @@
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="pdfBtn" data-i="pdf" style="display:none"></button>
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="copyBtn" data-i="copy"></button>
     </div>
+    <!-- conferma "cucito su misura": solo UI, non entra mai nel PDF -->
+    <div class="ds-muted" id="cvSub" style="display:none;margin-top:var(--ds-s3);font-style:italic"></div>
     <div class="ds-prose" id="outBody" style="margin-top:var(--ds-s4)"></div>
   </div>
 
@@ -115,6 +117,7 @@ const T = {
     copied: "Copiato ✓",
     pdf: "⬇ Scarica PDF",
     pdfName: "CV-su-misura",
+    cvFor: "CV per",
     foot: "Il kit è effimero: non salviamo nulla sui nostri server. Solo tu hai il risultato.",
     needLogin: "Serve un account (gratis).",
     openApp: "Apri l'app per accedere →",
@@ -143,6 +146,7 @@ const T = {
     copied: "Copied ✓",
     pdf: "⬇ Download PDF",
     pdfName: "Tailored-CV",
+    cvFor: "CV for",
     foot: "The kit is ephemeral: nothing is stored on our servers. Only you have the result.",
     needLogin: "You need a (free) account.",
     openApp: "Open the app to sign in →",
@@ -238,6 +242,17 @@ function showTab(tab) {
   $("outBody").innerHTML = renderMd(results[tab] || "");
   // il PDF esiste solo per il CV su misura
   $("pdfBtn").style.display = tab === "sarto" && results.sarto ? "" : "none";
+  // sottotitolo di conferma (textContent: ruolo/azienda vengono dal modello)
+  const sub = $("cvSub");
+  const role = keyLine(results.analista, "RUOLO");
+  const company = keyLine(results.analista, "AZIENDA");
+  if (tab === "sarto" && results.sarto && role) {
+    const realCompany = company && !/^n\/?d\.?$/i.test(company.trim()) ? company : null;
+    sub.textContent = t("cvFor") + " " + role + (realCompany ? " @ " + realCompany : "");
+    sub.style.display = "";
+  } else {
+    sub.style.display = "none";
+  }
 }
 document.querySelectorAll(".ds-tab").forEach((b) =>
   b.addEventListener("click", () => showTab(b.getAttribute("data-tab"))));
