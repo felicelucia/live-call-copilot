@@ -393,6 +393,21 @@ $("goBtn").addEventListener("click", generate);
 
 applyLang();
 loadMe();
+
+/* Prefill da "Cerca offerte" (sessionStorage, effimero: si consuma alla lettura).
+   autostart lancia il Kit appena la pagina è pronta. */
+try {
+  const pre = sessionStorage.getItem("lcc_kit_prefill");
+  if (pre) {
+    sessionStorage.removeItem("lcc_kit_prefill");
+    const p = JSON.parse(pre);
+    if (p.jobAd) {
+      $("jobAd").value = String(p.jobAd).slice(0, 12000);
+      $("adCount").textContent = $("jobAd").value.length;
+      if (p.autostart) setTimeout(() => generate(), 500);
+    }
+  }
+} catch (_) {}
 </script>
 </body>
 </html>

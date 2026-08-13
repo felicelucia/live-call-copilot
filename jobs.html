@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cerca offerte — Live Call Copilot</title>
+<meta name="theme-color" content="#3b5bdb">
+<meta name="description" content="Cerca offerte di lavoro reali e genera in un click il Kit di candidatura su misura: CV, mail e domande probabili.">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="stylesheet" href="assets/design-system.css">
+<style>
+  .topbar{display:flex;align-items:center;gap:12px;padding-top:var(--ds-s2);}
+  .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--ds-accent),#7048e8);display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 5px 14px rgba(59,91,219,.3);}
+  .brand{font-weight:800;font-size:var(--ds-t-base);letter-spacing:-.01em;}
+  .brand small{display:block;font-weight:600;color:var(--ds-muted);font-size:var(--ds-t-xs);}
+  #langSeg{margin-left:auto;}
+  .searchrow{display:grid;grid-template-columns:2fr 1.4fr auto auto;gap:10px;align-items:end;}
+  @media(max-width:720px){.searchrow{grid-template-columns:1fr;}}
+  .job{display:flex;gap:12px;align-items:flex-start;padding:var(--ds-s4) 0;border-bottom:1px solid var(--ds-line);}
+  .job:last-child{border-bottom:none;}
+  .job .body{flex:1;min-width:0;}
+  .job h3{margin:0 0 3px;font-size:var(--ds-t-lg);letter-spacing:-.01em;}
+  .job h3 a{color:var(--ds-ink);text-decoration:none;}
+  .job h3 a:hover{color:var(--ds-accent);}
+  .job .meta{color:var(--ds-muted);font-size:var(--ds-t-sm);}
+  .job .snip{color:#4a5058;font-size:var(--ds-t-sm);margin-top:6px;line-height:1.55;}
+  .infocard{background:var(--ds-warn-soft);border:1.5px solid #f2dcb0;border-radius:var(--ds-r-m);padding:var(--ds-s4) var(--ds-s5);color:#8a6708;font-size:var(--ds-t-sm);line-height:1.6;}
+  footer{font-size:var(--ds-t-xs);color:var(--ds-muted);text-align:center;}
+</style>
+</head>
+<body class="ds-page">
+<div class="ds-wrap">
+
+  <div class="topbar">
+    <div class="logo">🔎</div>
+    <div class="brand">Live Call Copilot<small data-i="brandSub"></small></div>
+    <div class="ds-seg" id="langSeg">
+      <button data-lang="it" class="on">IT</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+
+  <div class="ds-card">
+    <h1 class="ds-h2" data-i="h1" style="margin-bottom:var(--ds-s2)"></h1>
+    <p class="ds-muted" data-i="sub" style="margin:0 0 var(--ds-s3)"></p>
+    <div class="searchrow">
+      <div><label class="ds-label" data-i="qL"></label><input class="ds-input" id="q" data-i-ph="qPh"></div>
+      <div><label class="ds-label" data-i="lL"></label><input class="ds-input" id="loc" data-i-ph="lPh"></div>
+      <div><label class="ds-label" data-i="cL"></label><select class="ds-select" id="country">
+        <option value="it" selected>Italia</option><option value="fr">France</option>
+        <option value="de">Deutschland</option><option value="es">España</option>
+        <option value="nl">Nederland</option><option value="be">Belgique</option>
+        <option value="at">Österreich</option><option value="pt">Portugal</option>
+        <option value="gb">United Kingdom</option>
+      </select></div>
+      <div><button class="ds-btn ds-btn-primary" id="goBtn" data-i="go"></button></div>
+    </div>
+    <div class="ds-status" id="status" style="margin-top:var(--ds-s2)"></div>
+  </div>
+
+  <div class="ds-card" id="resultsCard" style="display:none">
+    <div id="results"></div>
+  </div>
+
+  <div id="notConf" class="infocard" style="display:none"></div>
+
+  <footer data-i="attrib"></footer>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const BACKEND=location.protocol.startsWith("http")?location.origin:"http://127.0.0.1:8787";
+
+  const T={
+    it:{brandSub:"Cerca offerte · beta",h1:"Cerca offerte reali",
+      sub:"Trova l'annuncio giusto e genera in un click il Kit su misura: CV, mail e domande probabili.",
+      qL:"Cosa cerchi",qPh:"Es: account executive, project manager…",lL:"Dove",lPh:"Es: Milano, remoto…",
+      cL:"Paese",go:"🔎 Cerca",searching:"Cerco…",none:"Nessuna offerta trovata: prova con altre parole.",
+      kitBtn:"✨ Genera Kit",kitPrep:"Preparo il Kit…",
+      notConf:"🔌 La ricerca offerte non è ancora attiva: stiamo completando l'accesso all'API ufficiale del provider. Nel frattempo puoi incollare qualunque annuncio direttamente nel Kit di candidatura.",
+      openKit:"→ Apri il Kit",results:"offerte",attrib:"Ricerca offerte fornita da Indeed. I link di candidatura portano a Indeed."},
+    en:{brandSub:"Job search · beta",h1:"Search real job ads",
+      sub:"Find the right ad and generate the tailored Kit in one click: CV, email and likely questions.",
+      qL:"What",qPh:"E.g. account executive, project manager…",lL:"Where",lPh:"E.g. Milan, remote…",
+      cL:"Country",go:"🔎 Search",searching:"Searching…",none:"No jobs found: try different words.",
+      kitBtn:"✨ Generate Kit",kitPrep:"Preparing the Kit…",
+      notConf:"🔌 Job search is not active yet: we are completing access to the provider's official API. Meanwhile you can paste any job ad directly into the Application Kit.",
+      openKit:"→ Open the Kit",results:"jobs",attrib:"Job search powered by Indeed. Apply links go to Indeed."}
+  };
+  let LANG=(navigator.language||"en").toLowerCase().startsWith("it")?"it":"en";
+  const t=k=>T[LANG][k]||k;
+  function applyLang(){document.documentElement.lang=LANG;
+    document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.getAttribute("data-i")));
+    document.querySelectorAll("[data-i-ph]").forEach(el=>el.placeholder=t(el.getAttribute("data-i-ph")));}
+  $("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...$("langSeg").children].forEach(c=>c.classList.toggle("on",c===b));applyLang();});
+
+  const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  function setStatus(m,c){$("status").textContent=m;$("status").className="ds-status "+(c||"");}
+
+  let lastJobs=[];
+  function render(jobs){
+    lastJobs=jobs;
+    const box=$("results"); box.innerHTML="";
+    if(!jobs.length){ box.innerHTML='<p class="ds-muted">'+t("none")+"</p>"; }
+    jobs.forEach((j,i)=>{
+      const div=document.createElement("div"); div.className="job";
+      div.innerHTML='<div class="body"><h3><a href="'+esc(j.applyUrl)+'" target="_blank" rel="noopener">'+esc(j.title)+"</a></h3>"
+        +'<div class="meta">'+esc(j.company)+(j.location?" · "+esc(j.location):"")
+        +(j.salary?' · <span class="ds-badge">'+esc(j.salary)+"</span>":"")
+        +(j.postedAt?' · <span>'+esc(j.postedAt)+"</span>":"")+"</div>"
+        +(j.snippet?'<div class="snip">'+esc(j.snippet)+"</div>":"")+"</div>"
+        +'<button class="ds-btn ds-btn-ghost ds-btn-sm" data-kit="'+i+'">'+t("kitBtn")+"</button>";
+      box.appendChild(div);
+    });
+    $("resultsCard").style.display="";
+  }
+
+  async function search(){
+    const q=$("q").value.trim(); if(q.length<2){setStatus(t("none"),"err");return;}
+    $("goBtn").disabled=true; setStatus(t("searching"),"");
+    $("notConf").style.display="none";
+    try{
+      const params=new URLSearchParams({search:q,country:$("country").value});
+      if($("loc").value.trim()) params.set("location",$("loc").value.trim());
+      const r=await fetch(BACKEND+"/v1/jobs?"+params.toString());
+      if(r.status===503){ $("resultsCard").style.display="none";
+        $("notConf").innerHTML=esc(t("notConf"))+' <a href="kit.html">'+esc(t("openKit"))+"</a>";
+        $("notConf").style.display=""; setStatus("",""); return; }
+      if(!r.ok){ const d=await r.json().catch(()=>({})); throw new Error(d.detail||d.error||("HTTP "+r.status)); }
+      const d=await r.json();
+      render(d.jobs||[]);
+      setStatus((d.total||d.jobs.length)+" "+t("results"),"ok");
+    }catch(e){ setStatus(e.message,"err"); }
+    $("goBtn").disabled=false;
+  }
+  $("goBtn").addEventListener("click",search);
+  [$("q"),$("loc")].forEach(el=>el.addEventListener("keydown",e=>{if(e.key==="Enter")search();}));
+
+  /* "Genera Kit": prende la descrizione (dettaglio, o snippet come riserva)
+     e passa l'annuncio a kit.html via sessionStorage — effimero, zero server. */
+  $("results").addEventListener("click",async e=>{
+    const b=e.target.closest("button[data-kit]"); if(!b)return;
+    const j=lastJobs[Number(b.getAttribute("data-kit"))]; if(!j)return;
+    b.disabled=true; b.textContent=t("kitPrep");
+    let description=j.snippet||"";
+    try{
+      const r=await fetch(BACKEND+"/v1/jobs/"+encodeURIComponent(j.id));
+      if(r.ok){ const d=await r.json(); if(d.description) description=d.description; }
+    }catch(_){}
+    const jobAd=j.title+"\n"+j.company+(j.location?" — "+j.location:"")+(j.salary?"\n"+j.salary:"")+"\n\n"+description
+      +"\n\n[Fonte: Indeed — "+j.applyUrl+"]";
+    try{ sessionStorage.setItem("lcc_kit_prefill",JSON.stringify({jobAd:jobAd.slice(0,12000),autostart:true})); }catch(_){}
+    location.href="kit.html";
+  });
+
+  applyLang();
+})();
+</script>
+</body>
+</html>
