@@ -24,7 +24,7 @@ const DEFAULT_LABELS = {
   chars: "caratteri",
 };
 
-const AGENT_ICONS = { analista: "🔍", sarto: "✂️", intervistatore: "🎤" };
+const AGENT_ICONS = { analista: "🔍", sarto: "✂️", intervistatore: "🎤", mail: "✉️" };
 
 export function createPlancia(container, opts = {}) {
   const L = Object.assign({}, DEFAULT_LABELS, opts.labels || {});

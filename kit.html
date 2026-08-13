@@ -78,6 +78,7 @@
     <div class="outhead">
       <div class="ds-tabs">
         <button class="ds-tab on" data-tab="sarto" data-i="tabCv"></button>
+        <button class="ds-tab" data-tab="mail" data-i="tabMail"></button>
         <button class="ds-tab" data-tab="intervistatore" data-i="tabQ"></button>
       </div>
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="pdfBtn" data-i="pdf" style="display:none"></button>
@@ -112,6 +113,7 @@ const T = {
     working: "Gli agenti sono al lavoro…",
     planciaH: "L'orchestra al lavoro",
     tabCv: "CV su misura",
+    tabMail: "Mail",
     tabQ: "Domande probabili",
     copy: "⧉ Copia markdown",
     copied: "Copiato ✓",
@@ -141,6 +143,7 @@ const T = {
     working: "The agents are at work…",
     planciaH: "The orchestra at work",
     tabCv: "Tailored CV",
+    tabMail: "Cover email",
     tabQ: "Likely questions",
     copy: "⧉ Copy markdown",
     copied: "Copied ✓",
@@ -342,7 +345,7 @@ async function generate() {
 
   $("goBtn").disabled = true;
   setStatus(t("working"), "");
-  results.sarto = ""; results.intervistatore = ""; results.analista = "";
+  results.sarto = ""; results.mail = ""; results.intervistatore = ""; results.analista = "";
   $("outCard").style.display = "none";
   $("planciaWrap").style.display = "";
   plancia.reset();
