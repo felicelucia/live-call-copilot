@@ -184,6 +184,17 @@
       <div class="fbsec"><h3 id="hModel">Stronger version of your weakest answer</h3><div class="model" id="modelAns"></div></div>
       <div class="raw" id="rawFb" style="display:none"></div>
     </div>
+    <!-- opt-in prontezza: SOLO numeri + ruolo, mai trascrizioni -->
+    <div class="card" id="scoreSaveCard" style="margin-top:14px;display:none">
+      <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;font-size:.86rem">
+        <input type="checkbox" id="scoreSaveChk" style="margin-top:2px">
+        <span id="scoreSaveL">Save the score to my readiness (numbers and role only, on my account)</span>
+      </label>
+      <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="scoreSaveBtn" disabled>Save score</button>
+        <span class="status" id="scoreSaveSt"></span>
+      </div>
+    </div>
     <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn btn-primary" id="againBtn">↻ Practice again</button>
     </div>
@@ -451,6 +462,11 @@
     $('strengths').innerHTML=(d.strengths||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
     $('improvements').innerHTML=(d.improvements||[]).map(x=>'<li>'+esc(x)+'</li>').join('');
     $('modelAns').textContent=d.modelAnswer||'';
+    // opt-in prontezza: compare solo a report valido e se la pagina è servita dal backend
+    if(location.protocol.indexOf('http')===0){
+      $('scoreSaveCard').style.display=''; $('scoreSaveChk').checked=false;
+      $('scoreSaveBtn').disabled=true; const st=$('scoreSaveSt'); st.textContent=''; st.className='status';
+    }
   }
   function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'); }
 
@@ -478,7 +494,23 @@
   $('coachBtn').addEventListener('click',coachLast);
   $('sendType').addEventListener('click',()=>{ const t=$('answerInput').value.trim(); if(t){ $('answerInput').value=''; nextTurn(t); }});
   $('answerInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const t=e.target.value.trim(); if(t){ e.target.value=''; nextTurn(t); }}});
-  $('againBtn').addEventListener('click',()=>{ $('fb').style.display='none'; $('setup').style.display='block'; history=[];qCount=0;lastAnswer=''; $('coachBtn').disabled=true; });
+  $('againBtn').addEventListener('click',()=>{ $('fb').style.display='none'; $('setup').style.display='block'; history=[];qCount=0;lastAnswer=''; $('coachBtn').disabled=true; $('scoreSaveCard').style.display='none'; });
+  /* ---- prontezza: invio punteggio (solo numeri + ruolo) su consenso ---- */
+  $('scoreSaveChk').addEventListener('change',()=>{ $('scoreSaveBtn').disabled=!$('scoreSaveChk').checked; });
+  $('scoreSaveBtn').addEventListener('click',async()=>{
+    const overall=parseInt($('scoreNum').textContent,10);
+    if(isNaN(overall))return;
+    const st=$('scoreSaveSt'); st.textContent='…'; st.className='status work';
+    const base=location.protocol.indexOf('http')===0?location.origin:'http://127.0.0.1:8787';
+    try{
+      const r=await fetch(base+'/v1/practice/score',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({consent:true,role:$('role').value.trim()||undefined,overall})});
+      if(r.status===401){ st.textContent=(L()==='it'?'Serve l\'account dell\'app: accedi prima dall\'app.':'You need the app account: sign in from the app first.'); st.className='status err'; return; }
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      st.textContent=(L()==='it'?'Salvato nella tua prontezza ✔':'Saved to your readiness ✔'); st.className='status ok';
+      $('scoreSaveBtn').disabled=true;
+    }catch(e){ st.textContent='Error: '+e.message; st.className='status err'; }
+  });
   $('lang').addEventListener('change',()=>{ chosenVoice=null; applyLang(); });
   function applyLang(){
     const it=L()==='it';
@@ -497,6 +529,8 @@
     $('hStr').textContent=it?'Punti di forza':'Strengths'; $('hImp').textContent=it?'Cosa migliorare':'What to improve'; $('hModel').textContent=it?'Versione più forte della tua risposta più debole':'Stronger version of your weakest answer';
     $('replayBtn').textContent=it?'🔊 Ripeti':'🔊 Repeat'; $('hintBtn').textContent=it?'💡 Suggerisci una risposta':'💡 Suggest an answer'; $('coachBtn').textContent=it?'✍️ Migliora la mia ultima risposta':'✍️ Improve my last answer';
     $('againBtn').textContent=it?'↻ Riprova':'↻ Practice again';
+    $('scoreSaveL').textContent=it?'Salva il punteggio nella mia prontezza (solo numeri e ruolo, sul mio account)':'Save the score to my readiness (numbers and role only, on my account)';
+    $('scoreSaveBtn').textContent=it?'Salva punteggio':'Save score';
     if(profileSummary) $('profNote').textContent=profNoteText();
   }
   window.addEventListener('pagehide',()=>{ if(window.speechSynthesis)window.speechSynthesis.cancel(); stopListening(); history=[]; });

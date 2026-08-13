@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storico e prontezza — Live Call Copilot</title>
+<meta name="theme-color" content="#3b5bdb">
+<meta name="description" content="Il tuo punteggio di prontezza spiegabile e lo storico dei kit di candidatura — cifrati, esportabili, cancellabili.">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="stylesheet" href="assets/design-system.css">
+<style>
+  .topbar{display:flex;align-items:center;gap:12px;padding-top:var(--ds-s2);}
+  .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--ds-accent),#7048e8);display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 5px 14px rgba(59,91,219,.3);}
+  .brand{font-weight:800;font-size:var(--ds-t-base);letter-spacing:-.01em;}
+  .brand small{display:block;font-weight:600;color:var(--ds-muted);font-size:var(--ds-t-xs);}
+  #langSeg{margin-left:auto;}
+  /* prontezza: stat-tile eroe + barre per componente (una tinta, identità nel testo) */
+  .ready-hero{display:flex;gap:var(--ds-s5);align-items:flex-start;flex-wrap:wrap;}
+  .ready-num{flex:0 0 auto;text-align:center;}
+  .ready-num .n{font-size:3.4rem;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--ds-ink);}
+  .ready-num .of{color:var(--ds-muted);font-size:var(--ds-t-sm);font-weight:600;}
+  .ready-num .role{margin-top:6px;font-size:var(--ds-t-sm);color:var(--ds-accent-deep);font-weight:700;max-width:160px;}
+  .ready-break{flex:1;min-width:260px;display:flex;flex-direction:column;gap:var(--ds-s3);}
+  .comp .row1{display:flex;align-items:baseline;gap:8px;}
+  .comp .lbl{font-weight:700;font-size:var(--ds-t-sm);}
+  .comp .pts{margin-left:auto;font-size:var(--ds-t-sm);color:var(--ds-ink);font-variant-numeric:tabular-nums;}
+  .comp .track{height:8px;background:var(--ds-line);border-radius:4px;overflow:hidden;margin-top:5px;}
+  .comp .fill{height:100%;background:var(--ds-accent);border-radius:4px;transition:width .5s;}
+  .comp .why{font-size:var(--ds-t-xs);color:var(--ds-muted);margin-top:4px;}
+  /* lista kit */
+  .khead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .khead .ds-h2{flex:1;}
+  .krow{display:flex;gap:12px;align-items:center;padding:var(--ds-s3) 0;border-bottom:1px solid var(--ds-line);flex-wrap:wrap;}
+  .krow:last-child{border-bottom:none;}
+  .krow .who{flex:1;min-width:200px;}
+  .krow .who b{font-size:var(--ds-t-base);}
+  .krow .date{color:var(--ds-muted);font-size:var(--ds-t-xs);}
+  .empty{text-align:center;color:var(--ds-muted);padding:var(--ds-s5);line-height:1.7;}
+  .empty a{color:var(--ds-accent);font-weight:700;}
+  .quota{font-size:var(--ds-t-xs);color:var(--ds-muted);}
+</style>
+</head>
+<body class="ds-page">
+<div class="ds-wrap">
+
+  <div class="topbar">
+    <div class="logo">🗂</div>
+    <div class="brand">Live Call Copilot<small data-i="brandSub"></small></div>
+    <a class="ds-btn ds-btn-ghost ds-btn-sm" href="kit.html" data-i="toKit"></a>
+    <div class="ds-seg" id="langSeg">
+      <button data-lang="it" class="on">IT</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+
+  <!-- login richiesto -->
+  <div class="ds-card" id="loginCard" style="display:none;text-align:center">
+    <p class="ds-muted" style="margin:0" data-i="needLogin"></p>
+    <div style="margin-top:var(--ds-s3)"><a class="ds-btn ds-btn-primary" href="index.html" data-i="openApp"></a></div>
+  </div>
+
+  <!-- prontezza (eroe) -->
+  <div class="ds-card" id="readyCard" style="display:none">
+    <h1 class="ds-h2" data-i="readyH" style="margin-bottom:var(--ds-s4)"></h1>
+    <div class="ready-hero">
+      <div class="ready-num">
+        <div class="n" id="readyNum">—</div>
+        <div class="of">/ 100</div>
+        <div class="role" id="readyRole"></div>
+      </div>
+      <div class="ready-break" id="readyBreak"></div>
+    </div>
+  </div>
+
+  <!-- storico -->
+  <div class="ds-card" id="kitsCard" style="display:none">
+    <div class="khead">
+      <h2 class="ds-h2" data-i="kitsH"></h2>
+      <span class="quota" id="quota"></span>
+      <button class="ds-btn ds-btn-ghost ds-btn-sm" id="exportAllBtn" data-i="exportAll"></button>
+      <button class="ds-btn ds-btn-ghost ds-btn-sm" id="deleteAllBtn" data-i="deleteAll"></button>
+    </div>
+    <div id="kitList" style="margin-top:var(--ds-s2)"></div>
+    <div class="ds-status" id="kStatus"></div>
+  </div>
+
+  <!-- dettaglio kit (sola lettura) -->
+  <div class="ds-card" id="detailCard" style="display:none">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="ds-btn ds-btn-ghost ds-btn-sm" id="backBtn" data-i="back"></button>
+      <h2 class="ds-h2" id="detailTitle" style="flex:1"></h2>
+    </div>
+    <div class="ds-tabs" style="margin-top:var(--ds-s3)">
+      <button class="ds-tab on" data-tab="cv" data-i="tabCv"></button>
+      <button class="ds-tab" data-tab="mail" data-i="tabMail"></button>
+      <button class="ds-tab" data-tab="questions" data-i="tabQ"></button>
+    </div>
+    <div class="ds-prose" id="detailBody" style="margin-top:var(--ds-s4)"></div>
+  </div>
+
+  <footer style="text-align:center" class="ds-muted" data-i="foot"></footer>
+</div>
+
+<script type="module">
+import { renderMd } from "./assets/md.js";
+
+const $ = (id) => document.getElementById(id);
+const BACKEND = location.protocol.startsWith("http") ? location.origin : "http://127.0.0.1:8787";
+const api = (p, o = {}) => fetch(BACKEND + p, Object.assign({ credentials: "include" }, o));
+
+const T = {
+  it: {
+    brandSub: "Storico e prontezza", toKit: "✨ Kit", openApp: "Apri l'app per accedere",
+    needLogin: "Lo storico e il punteggio di prontezza vivono sul tuo account: accedi per vederli.",
+    readyH: "La tua prontezza",
+    comp: { training: "Allenamento", profile: "Profilo", kits: "Kit generati", recency: "Attività recente" },
+    kitsH: "Kit salvati", exportAll: "⬇ Esporta tutto", deleteAll: "🗑 Cancella tutto",
+    back: "← Torna allo storico", tabCv: "CV su misura", tabMail: "Mail", tabQ: "Domande",
+    open: "Apri", exportOne: "⬇", deleteOne: "🗑",
+    empty: "Nessun kit salvato ancora — genera un kit e spunta «salva» per costruire la tua prontezza provata.",
+    emptyCta: "Genera il primo kit →",
+    confirmOne: "Eliminare questo kit? L'operazione è definitiva.",
+    confirmAll: "Cancellare TUTTO lo storico? L'operazione è definitiva.",
+    deleted: "Eliminato.", deletedAll: "Storico cancellato.",
+    foot: "Contenuti cifrati a riposo su server UE · esportabili e cancellabili in ogni momento · rimossi dopo 24 mesi.",
+    of: "su", err: "Errore: ",
+  },
+  en: {
+    brandSub: "History & readiness", toKit: "✨ Kit", openApp: "Open the app to sign in",
+    needLogin: "Your history and readiness score live on your account: sign in to see them.",
+    readyH: "Your readiness",
+    comp: { training: "Training", profile: "Profile", kits: "Kits generated", recency: "Recent activity" },
+    kitsH: "Saved kits", exportAll: "⬇ Export all", deleteAll: "🗑 Delete all",
+    back: "← Back to history", tabCv: "Tailored CV", tabMail: "Email", tabQ: "Questions",
+    open: "Open", exportOne: "⬇", deleteOne: "🗑",
+    empty: "No saved kits yet — generate a kit and tick “save” to build your proven readiness.",
+    emptyCta: "Generate your first kit →",
+    confirmOne: "Delete this kit? This cannot be undone.",
+    confirmAll: "Delete your ENTIRE history? This cannot be undone.",
+    deleted: "Deleted.", deletedAll: "History deleted.",
+    foot: "Content encrypted at rest on EU servers · exportable and deletable anytime · removed after 24 months.",
+    of: "of", err: "Error: ",
+  },
+};
+let LANG = (navigator.language || "en").toLowerCase().startsWith("it") ? "it" : "en";
+const t = (k) => T[LANG][k] ?? k;
+function applyLang() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i]").forEach((el) => (el.textContent = t(el.getAttribute("data-i"))));
+}
+$("langSeg").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  LANG = b.getAttribute("data-lang");
+  [...$("langSeg").children].forEach((c) => c.classList.toggle("on", c === b));
+  applyLang(); loadAll();
+});
+
+const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function setK(m, c) { $("kStatus").textContent = m; $("kStatus").className = "ds-status " + (c || ""); }
+
+/* ── prontezza (stat-tile + barre per componente, una tinta, testo = identità) ── */
+async function loadReadiness() {
+  const r = await api("/v1/readiness");
+  if (!r.ok) return false;
+  const d = await r.json();
+  $("readyNum").textContent = d.score;
+  $("readyRole").textContent = d.role || "";
+  const box = $("readyBreak"); box.innerHTML = "";
+  for (const c of d.breakdown) {
+    const div = document.createElement("div");
+    div.className = "comp";
+    div.innerHTML =
+      `<div class="row1"><span class="lbl">${esc(t("comp")[c.key] || c.key)}</span>` +
+      `<span class="pts">${c.points} ${t("of")} ${c.max}</span></div>` +
+      `<div class="track"><div class="fill" style="width:${Math.round((c.points / c.max) * 100)}%"></div></div>` +
+      `<div class="why">${esc(c.why)}</div>`;
+    box.appendChild(div);
+  }
+  $("readyCard").style.display = "";
+  return true;
+}
+
+/* ── lista kit ── */
+let kits = [];
+async function loadKits() {
+  const r = await api("/v1/kits");
+  if (!r.ok) return false;
+  const d = await r.json();
+  kits = d.kits || [];
+  $("quota").textContent = `${d.used} / ${d.limit}`;
+  const box = $("kitList"); box.innerHTML = "";
+  if (!kits.length) {
+    box.innerHTML = `<div class="empty">${esc(t("empty"))}<br><a href="kit.html">${esc(t("emptyCta"))}</a></div>`;
+    $("exportAllBtn").style.display = "none"; $("deleteAllBtn").style.display = "none";
+  } else {
+    $("exportAllBtn").style.display = ""; $("deleteAllBtn").style.display = "";
+    kits.forEach((k, i) => {
+      const who = esc(k.role || "—") + (k.company ? " @ " + esc(k.company) : "");
+      const models = k.meta?.models ? [...new Set(k.meta.models.filter(Boolean))].length : null;
+      const row = document.createElement("div");
+      row.className = "krow";
+      row.innerHTML =
+        `<div class="who"><b>${who}</b>` +
+        `<div class="date">${new Date(k.createdAt).toLocaleDateString(LANG === "it" ? "it-IT" : "en-GB", { day: "numeric", month: "short", year: "numeric" })}` +
+        (models ? ` · ${models} LLM` : "") + `</div></div>` +
+        (k.meta?.allEu ? '<span class="ds-eu">EU</span>' : "") +
+        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-open="${i}">${esc(t("open"))}</button>` +
+        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-exp="${i}" title="export">${t("exportOne")}</button>` +
+        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-del="${i}" title="delete">${t("deleteOne")}</button>`;
+      box.appendChild(row);
+    });
+  }
+  $("kitsCard").style.display = "";
+  return true;
+}
+
+$("kitList").addEventListener("click", async (e) => {
+  const open = e.target.closest("[data-open]"), exp = e.target.closest("[data-exp]"), del = e.target.closest("[data-del]");
+  if (open) return openKit(kits[Number(open.getAttribute("data-open"))]);
+  if (exp) { const k = kits[Number(exp.getAttribute("data-exp"))]; window.open(BACKEND + "/v1/kits/" + k.id + "/export", "_blank"); return; }
+  if (del) {
+    const k = kits[Number(del.getAttribute("data-del"))];
+    if (!confirm(t("confirmOne"))) return;
+    await api("/v1/kits/" + k.id, { method: "DELETE" });
+    setK(t("deleted"), "ok"); loadKits(); loadReadiness();
+  }
+});
+$("exportAllBtn").addEventListener("click", () => window.open(BACKEND + "/v1/kits/export", "_blank"));
+$("deleteAllBtn").addEventListener("click", async () => {
+  if (!confirm(t("confirmAll"))) return;
+  await api("/v1/kits", { method: "DELETE" });
+  setK(t("deletedAll"), "ok"); loadKits(); loadReadiness();
+});
+
+/* ── dettaglio in sola lettura ── */
+let detail = null, activeTab = "cv";
+async function openKit(k) {
+  const r = await api("/v1/kits/" + k.id);
+  if (!r.ok) { setK(t("err") + r.status, "err"); return; }
+  detail = await r.json();
+  $("detailTitle").textContent = (detail.role || "—") + (detail.company ? " @ " + detail.company : "");
+  showTab("cv");
+  $("kitsCard").style.display = "none"; $("readyCard").style.display = "none";
+  $("detailCard").style.display = "";
+  window.scrollTo(0, 0);
+}
+function showTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll("#detailCard .ds-tab").forEach((b) => b.classList.toggle("on", b.getAttribute("data-tab") === tab));
+  $("detailBody").innerHTML = renderMd(detail?.[tab === "questions" ? "questions" : tab] || "");
+}
+document.querySelectorAll("#detailCard .ds-tab").forEach((b) =>
+  b.addEventListener("click", () => showTab(b.getAttribute("data-tab"))));
+$("backBtn").addEventListener("click", () => {
+  $("detailCard").style.display = "none";
+  $("readyCard").style.display = ""; $("kitsCard").style.display = "";
+});
+
+/* ── avvio ── */
+async function loadAll() {
+  const me = await api("/v1/me");
+  if (me.status === 401) { $("loginCard").style.display = ""; $("readyCard").style.display = "none"; $("kitsCard").style.display = "none"; return; }
+  $("loginCard").style.display = "none";
+  await Promise.all([loadReadiness(), loadKits()]);
+}
+applyLang();
+loadAll();
+</script>
+</body>
+</html>

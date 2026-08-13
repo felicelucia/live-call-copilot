@@ -61,6 +61,14 @@
       <textarea class="ds-textarea" id="cvText" rows="6" maxlength="8000" data-i-ph="cvPh"></textarea>
     </div>
 
+    <!-- consenso per-kit al salvataggio: spento a ogni sessione; pre-spuntato
+         solo se la preferenza account autoSaveKits è attiva (sempre togglabile) -->
+    <div id="saveWrap" style="display:none;margin-top:var(--ds-s4)">
+      <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;font-size:var(--ds-t-sm)">
+        <input type="checkbox" id="saveKit" style="margin-top:3px">
+        <span><strong data-i="saveL"></strong><br><span class="ds-muted" data-i="saveNote"></span></span>
+      </label>
+    </div>
     <div style="margin-top:var(--ds-s5)">
       <button class="ds-btn ds-btn-primary" id="goBtn" style="width:100%" data-i="go"></button>
     </div>
@@ -94,6 +102,7 @@
 
 <script type="module">
 import { createPlancia } from "./assets/plancia.js";
+import { cleanMd, renderMd } from "./assets/md.js";
 
 const $ = (id) => document.getElementById(id);
 const BACKEND = location.protocol.startsWith("http") ? location.origin : "http://127.0.0.1:8787";
@@ -120,6 +129,11 @@ const T = {
     pdf: "⬇ Scarica PDF",
     pdfName: "CV-su-misura",
     cvFor: "CV per",
+    saveL: "Salva questo kit nel mio storico",
+    saveNote: "Salvato cifrato su server UE · cancellabile in ogni momento · rimosso dopo 24 mesi.",
+    savedOk: "Kit salvato nello storico",
+    savedLink: "apri lo Storico",
+    savedFull: "Storico pieno — cancella un kit dallo Storico o passa a Pro.",
     foot: "Il kit è effimero: non salviamo nulla sui nostri server. Solo tu hai il risultato.",
     needLogin: "Serve un account (gratis).",
     openApp: "Apri l'app per accedere →",
@@ -150,6 +164,11 @@ const T = {
     pdf: "⬇ Download PDF",
     pdfName: "Tailored-CV",
     cvFor: "CV for",
+    saveL: "Save this kit to my history",
+    saveNote: "Stored encrypted on EU servers · deletable anytime · removed after 24 months.",
+    savedOk: "Kit saved to your history",
+    savedLink: "open History",
+    savedFull: "History full — delete a kit from History or go Pro.",
     foot: "The kit is ephemeral: nothing is stored on our servers. Only you have the result.",
     needLogin: "You need a (free) account.",
     openApp: "Open the app to sign in →",
@@ -194,6 +213,10 @@ async function loadMe() {
     me = r.ok ? await r.json() : null;
   } catch (_) { me = null; }
   renderAccLine();
+  // checkbox salvataggio: visibile da loggati; spenta a ogni sessione,
+  // pre-spuntata SOLO se la preferenza account lo chiede
+  $("saveWrap").style.display = me ? "" : "none";
+  if (me) $("saveKit").checked = !!me.preferences?.autoSaveKits;
 }
 
 /* ── input ────────────────────────────────────────────────────────── */
@@ -206,35 +229,7 @@ $("srcSeg").addEventListener("click", (e) => {
 });
 $("jobAd").addEventListener("input", () => ($("adCount").textContent = $("jobAd").value.length));
 
-/* ── markdown minimo (niente librerie) ────────────────────────────── */
-function cleanMd(raw) {
-  return String(raw).trim().replace(/^```[a-z]*\s*\n/i, "").replace(/\n```\s*$/, "").trim();
-}
-function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-function inline(s) {
-  return s
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>");
-}
-function renderMd(raw) {
-  const lines = cleanMd(esc(raw)).split("\n");
-  let html = "", list = null;
-  const closeList = () => { if (list) { html += `</${list}>`; list = null; } };
-  for (const line of lines) {
-    const h = line.match(/^(#{1,4})\s+(.*)/);
-    const ul = line.match(/^\s*[-*]\s+(.*)/);
-    const ol = line.match(/^\s*\d+[.)]\s+(.*)/);
-    if (/^\s*-{3,}\s*$/.test(line)) { closeList(); html += "<hr>"; continue; }
-    if (h) { closeList(); html += `<h${h[1].length + 1}>${inline(h[2])}</h${h[1].length + 1}>`; }
-    else if (ul) { if (list !== "ul") { closeList(); html += "<ul>"; list = "ul"; } html += `<li>${inline(ul[1])}</li>`; }
-    else if (ol) { if (list !== "ol") { closeList(); html += "<ol>"; list = "ol"; } html += `<li>${inline(ol[1])}</li>`; }
-    else if (!line.trim()) { closeList(); }
-    else { closeList(); html += `<p>${inline(line)}</p>`; }
-  }
-  closeList();
-  return html;
-}
+/* ── markdown: modulo condiviso assets/md.js ─────────────────────── */
 
 /* ── tabs + copia ─────────────────────────────────────────────────── */
 const results = {}; // task → markdown grezzo
@@ -342,6 +337,7 @@ async function generate() {
   if (jobAd.length < 50) { setStatus(t("adShort"), "err"); return; }
   const body = { jobAd, language: t("lang") };
   if (source === "cv" && $("cvText").value.trim()) body.cv = $("cvText").value.trim().slice(0, 8000);
+  if (me && $("saveKit").checked) body.save = true;
 
   $("goBtn").disabled = true;
   setStatus(t("working"), "");
@@ -381,6 +377,14 @@ async function generate() {
           $("outCard").style.display = "";
           showTab(results.sarto ? "sarto" : "intervistatore");
           setStatus("", "");
+        }
+        if (ev.type === "kit-saved") {
+          if (ev.ok) {
+            $("status").className = "ds-status ok";
+            $("status").innerHTML = "✔ " + t("savedOk") + " — <a href=\"storico.html\">" + t("savedLink") + "</a>";
+          } else {
+            setStatus(t("savedFull"), "err");
+          }
         }
       }
     }
