@@ -1,6 +1,12 @@
 (function(){
   const $=id=>document.getElementById(id);
-  const store={get(k){try{return localStorage.getItem(k)}catch(_){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(_){}}};
+  /* Storage OPT-IN agganciato all'interruttore "Ricorda" dell'app (v5_remember):
+     senza opt-in tutto vive in sessionStorage (chiavi e CV muoiono con la scheda). */
+  const persist=()=>{try{return localStorage.getItem('v5_remember')==='1'}catch(_){return false}};
+  const store={
+    get(k){try{const s=sessionStorage.getItem(k);return s!==null?s:localStorage.getItem(k)}catch(_){return null}},
+    set(k,v){try{(persist()?localStorage:sessionStorage).setItem(k,v)}catch(_){}}
+  };
 
   /* ---------- providers ---------- */
   const PROV={
@@ -95,7 +101,7 @@
   /* ---------- unified LLM call (any provider, non-streaming) ---------- */
   function curModel(){ return $('model').value.trim() || (P().def||''); }
   async function resolveGemini(key){
-    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(key));
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models',{headers:{'x-goog-api-key':key}});
     const d=await r.json(); if(!r.ok) throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
     const ms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
       .filter(m=>/gemini/i.test(m.name)&&!/embedding|aqa|imagen|vision/i.test(m.name)).map(m=>m.name.replace('models/',''));
@@ -107,8 +113,8 @@
     try{
       if(p.kind==='gemini'){
         const contents=msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
-        const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+encodeURIComponent(key),
-          {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents,generationConfig:{temperature:0.85,maxOutputTokens:maxTokens||500}})});
+        const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent',
+          {method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents,generationConfig:{temperature:0.85,maxOutputTokens:maxTokens||500}})});
         const d=await r.json(); if(!r.ok) throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
         return ((((d.candidates||[])[0]||{}).content||{}).parts||[]).map(x=>x.text||'').join('').trim();
       }

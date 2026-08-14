@@ -9,7 +9,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   const T={
     it:{heroH:"Il tuo assistente per le videochiamate",heroP:"Ascolta la conversazione (colloquio, riunione, vendita…) e ti suggerisce cosa rispondere, in tempo reale. Con la tua chiave AI gratuita, tutto dentro il browser.",s1:"Scegli come funziona",s2:"Premi Ascolta",s3:"Leggi la risposta",
       startH:"Per iniziare",startSub:"Scegli un'opzione: è questione di un minuto.",freeT:"Gratis con Google Gemini",reco:"consigliato",freeD:"Crei una chiave gratuita in 1 minuto, nessuna carta. Perfetto per provare.",ownT:"Ho già una chiave / altro motore",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… con la tua chiave.",localT:"100% locale (privato)",localD:"Gira tutto sul tuo PC con Ollama. Nessun dato esce. Zero costi.",localNote:"🔒 Modalità locale: apri questo file sul tuo computer (non online) e avvia Ollama sul PC con OLLAMA_ORIGINS=* . Poi premi Verifica per caricare i modelli. Nessuna conversazione lascia il tuo computer.",
-      engine:"Motore AI",apikey:"Chiave API",getkey:"— come ottenerla",verify:"Verifica",model:"Modello",baseurl:"URL endpoint (OpenAI-compatible)",heard:"Lingua di chi parla",answerlang:"Rispondi in",mode:"Tipo di conversazione",context:"Parlami di te (facoltativo) — CV, ruolo, prodotto",ctxph:"Es: Sono Felice, Project Manager fotovoltaico. Mi candido come… Punti di forza:…",remember:"Ricorda tutto su questo computer",forget:"Dimentica",adv:"⚙️ Impostazioni avanzate",
+      engine:"Motore AI",apikey:"Chiave API",getkey:"— come ottenerla",verify:"Verifica",model:"Modello",baseurl:"URL endpoint (OpenAI-compatible)",heard:"Lingua di chi parla",answerlang:"Rispondi in",mode:"Tipo di conversazione",context:"Parlami di te (facoltativo) — CV, ruolo, prodotto",ctxph:"Es: Sono Felice, Project Manager fotovoltaico. Mi candido come… Punti di forza:…",remember:"Ricorda tutto su questo computer",forget:"🗑 Cancella chiavi e dati locali",adv:"⚙️ Impostazioni avanzate",
       listen:"▶ Avvia (ascolta e rispondi)",stop:"⏸ Ferma",auto:"⚡ Risposta automatica",suggest:"💡 Suggerisci ora",float:"🗔 Finestra flottante",clear:"🗑 Pulisci",install:"⬇ Installa app",installed:"App installata ✔",listening:"Cosa sto sentendo",answer:"Cosa puoi rispondere",copy:"Copia",copied:"Copiato ✔",howto:"❔ Come si usa (leggi qui)",manualph:"Oppure scrivi la domanda e premi Invio…",
       paid:"💡 In arrivo: una modalità \"pronta all'uso\" a pagamento, senza chiave API — paghi un piccolo abbonamento e usi subito il modello più potente. Per ora si usa la tua chiave (gratis con Gemini).",
       thinking:"Sto pensando…",ready:"Pronto ✔",onair:"Ti sto ascoltando…",stopped:"Fermato.",autoOn:"Risposta automatica attiva.",autoOff:"Risposta automatica disattivata.",nokey:"Inserisci prima la chiave.",noq:"Non ho ancora sentito una domanda.",valid:"✔ Chiave ok",
@@ -20,7 +20,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       how:"<b>1) Scegli come funziona:</b> \"Gratis con Gemini\" (consigliato) e crea la chiave dal link, oppure usa una tua chiave.<br><br><b>2) Premi 🎙 Ascolta</b> tenendo l'audio della call dagli altoparlanti (non cuffie). Con ⚡ attivo, appena l'altro fa una pausa la risposta compare da sola.<br><br><b>3) Leggi</b> la risposta suggerita. Premi 🗔 per staccarla in una finestrella da mettere di fianco a Zoom.<br><br><b>Etica:</b> usare l'AI in una selezione può violare le regole aziendali; registrare la voce altrui richiede consenso (GDPR)."},
     en:{heroH:"Your assistant for video calls",heroP:"It listens to the conversation (interview, meeting, sales…) and suggests what to say, in real time. With your free AI key, all in your browser.",s1:"Pick how it works",s2:"Press Listen",s3:"Read the answer",
       startH:"Get started",startSub:"Pick one option — it takes a minute.",freeT:"Free with Google Gemini",reco:"recommended",freeD:"Create a free key in 1 minute, no card. Perfect to try.",ownT:"I have a key / another engine",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… with your key.",localT:"100% local (private)",localD:"Runs entirely on your PC with Ollama. No data leaves. Zero cost.",localNote:"🔒 Local mode: open this file on your computer (not online) and run Ollama with OLLAMA_ORIGINS=* . Then press Verify to load models. No conversation leaves your machine.",
-      engine:"AI engine",apikey:"API key",getkey:"— how to get it",verify:"Verify",model:"Model",baseurl:"Endpoint URL (OpenAI-compatible)",heard:"Speaker language",answerlang:"Answer in",mode:"Conversation type",context:"Tell me about you (optional) — CV, role, product",ctxph:"E.g. I'm Felice, a solar Project Manager. Applying for… Strengths:…",remember:"Remember everything on this computer",forget:"Forget",adv:"⚙️ Advanced settings",
+      engine:"AI engine",apikey:"API key",getkey:"— how to get it",verify:"Verify",model:"Model",baseurl:"Endpoint URL (OpenAI-compatible)",heard:"Speaker language",answerlang:"Answer in",mode:"Conversation type",context:"Tell me about you (optional) — CV, role, product",ctxph:"E.g. I'm Felice, a solar Project Manager. Applying for… Strengths:…",remember:"Remember everything on this computer",forget:"🗑 Clear keys & local data",adv:"⚙️ Advanced settings",
       listen:"▶ Start (listen & reply)",stop:"⏸ Stop",auto:"⚡ Auto-answer",suggest:"💡 Suggest now",float:"🗔 Floating window",clear:"🗑 Clear",install:"⬇ Install app",installed:"App installed ✔",listening:"What I'm hearing",answer:"What you can say",copy:"Copy",copied:"Copied ✔",howto:"❔ How to use (read here)",manualph:"Or type the question and press Enter…",
       paid:"💡 Coming soon: a \"ready-to-use\" paid mode with no API key — a small subscription and you use the most powerful model instantly. For now, use your own key (free with Gemini).",
       thinking:"Thinking…",ready:"Ready ✔",onair:"Listening to you…",stopped:"Stopped.",autoOn:"Auto-answer on.",autoOff:"Auto-answer off.",nokey:"Enter the key first.",noq:"No question heard yet.",valid:"✔ Key ok",
@@ -31,7 +31,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       how:"<b>1) Pick how it works:</b> \"Free with Gemini\" (recommended), create the key from the link, or use your own key.<br><br><b>2) Press 🎙 Listen</b> with call audio on speakers (not headphones). With ⚡ on, the answer appears by itself when the other person pauses.<br><br><b>3) Read</b> the suggested answer. Press 🗔 to pop it into a small window beside Zoom.<br><br><b>Ethics:</b> using AI in a hiring process may violate company rules; recording others requires consent (GDPR)."},
     zh:{heroH:"你的视频通话助手",heroP:"实时聆听对话（面试、会议、销售……）并建议你该说什么。使用你的免费 AI 密钥，全部在浏览器中运行。",s1:"选择使用方式",s2:"点击聆听",s3:"阅读回答",
       startH:"开始使用",startSub:"选择一个选项 — 只需一分钟。",freeT:"免费使用 Google Gemini",reco:"推荐",freeD:"1 分钟创建免费密钥，无需银行卡。适合试用。",ownT:"我有密钥 / 其他引擎",ownD:"OpenAI、Claude、DeepSeek、Qwen、Kimi、Groq……使用你的密钥。",localT:"100% 本地（隐私）",localD:"通过 Ollama 完全在本机运行。数据不外传。零成本。",localNote:"🔒 本地模式：在本机打开此文件（非在线），并以 OLLAMA_ORIGINS=* 运行 Ollama，然后点击“验证”加载模型。任何对话都不会离开你的电脑。",
-      engine:"AI 引擎",apikey:"API 密钥",getkey:"— 如何获取",verify:"验证",model:"模型",baseurl:"接口地址（兼容 OpenAI）",heard:"对方语言",answerlang:"回答语言",mode:"对话类型",context:"介绍一下你自己（可选）— 简历、职位、产品",ctxph:"例如：我是 Felice，光伏项目经理，应聘……优势：……",remember:"在本机记住所有内容",forget:"清除",adv:"⚙️ 高级设置",
+      engine:"AI 引擎",apikey:"API 密钥",getkey:"— 如何获取",verify:"验证",model:"模型",baseurl:"接口地址（兼容 OpenAI）",heard:"对方语言",answerlang:"回答语言",mode:"对话类型",context:"介绍一下你自己（可选）— 简历、职位、产品",ctxph:"例如：我是 Felice，光伏项目经理，应聘……优势：……",remember:"在本机记住所有内容",forget:"🗑 清除密钥与本地数据",adv:"⚙️ 高级设置",
       listen:"▶ 开始（聆听并回答）",stop:"⏸ 停止",auto:"⚡ 自动回答",suggest:"💡 立即建议",float:"🗔 悬浮窗口",clear:"🗑 清空",install:"⬇ 安装应用",installed:"已安装 ✔",listening:"我听到的内容",answer:"你可以这样回答",copy:"复制",copied:"已复制 ✔",howto:"❔ 使用方法（点此）",manualph:"或输入问题并按回车…",
       paid:"💡 即将推出：无需 API 密钥的付费“即用”模式 — 小额订阅即可立即使用最强模型。目前请使用你自己的密钥（Gemini 免费）。",
       thinking:"思考中…",ready:"完成 ✔",onair:"正在聆听…",stopped:"已停止。",autoOn:"自动回答已开启。",autoOff:"自动回答已关闭。",nokey:"请先输入密钥。",noq:"还没听到问题。",valid:"✔ 密钥有效",
@@ -42,7 +42,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       how:"<b>1) 选择使用方式：</b>“免费使用 Gemini”（推荐），从链接创建密钥，或使用自己的密钥。<br><br><b>2) 点击 🎙 聆听，</b>让通话声音从扬声器播放（不要用耳机）。开启 ⚡ 后，对方停顿时回答会自动出现。<br><br><b>3) 阅读</b>建议回答。点击 🗔 弹出小窗口放在 Zoom 旁边。<br><br><b>伦理：</b>在招聘中使用 AI 可能违反公司规定；录制他人需征得同意（GDPR）。"},
     es:{heroH:"Tu asistente para videollamadas",heroP:"Escucha la conversación (entrevista, reunión, ventas…) y te sugiere qué responder, en tiempo real. Con tu clave de IA gratuita, todo en el navegador.",s1:"Elige cómo funciona",s2:"Pulsa Escuchar",s3:"Lee la respuesta",
       startH:"Para empezar",startSub:"Elige una opción — es cuestión de un minuto.",freeT:"Gratis con Google Gemini",reco:"recomendado",freeD:"Creas una clave gratis en 1 minuto, sin tarjeta. Ideal para probar.",ownT:"Ya tengo clave / otro motor",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… con tu clave.",localT:"100% local (privado)",localD:"Todo funciona en tu PC con Ollama. Ningún dato sale. Coste cero.",localNote:"🔒 Modo local: abre este archivo en tu ordenador (no online) y ejecuta Ollama con OLLAMA_ORIGINS=* . Luego pulsa Verificar para cargar los modelos. Ninguna conversación sale de tu equipo.",
-      engine:"Motor de IA",apikey:"Clave API",getkey:"— cómo obtenerla",verify:"Verificar",model:"Modelo",baseurl:"URL del endpoint (compatible OpenAI)",heard:"Idioma del interlocutor",answerlang:"Responder en",mode:"Tipo de conversación",context:"Háblame de ti (opcional) — CV, rol, producto",ctxph:"Ej: Soy Felice, Project Manager fotovoltaico. Me postulo para… Fortalezas:…",remember:"Recordar todo en este ordenador",forget:"Olvidar",adv:"⚙️ Ajustes avanzados",
+      engine:"Motor de IA",apikey:"Clave API",getkey:"— cómo obtenerla",verify:"Verificar",model:"Modelo",baseurl:"URL del endpoint (compatible OpenAI)",heard:"Idioma del interlocutor",answerlang:"Responder en",mode:"Tipo de conversación",context:"Háblame de ti (opcional) — CV, rol, producto",ctxph:"Ej: Soy Felice, Project Manager fotovoltaico. Me postulo para… Fortalezas:…",remember:"Recordar todo en este ordenador",forget:"🗑 Borrar claves y datos locales",adv:"⚙️ Ajustes avanzados",
       listen:"▶ Iniciar (escuchar y responder)",stop:"⏸ Parar",auto:"⚡ Respuesta automática",suggest:"💡 Sugerir ahora",float:"🗔 Ventana flotante",clear:"🗑 Limpiar",install:"⬇ Instalar app",installed:"App instalada ✔",listening:"Lo que estoy oyendo",answer:"Lo que puedes decir",copy:"Copiar",copied:"Copiado ✔",howto:"❔ Cómo se usa (lee aquí)",manualph:"O escribe la pregunta y pulsa Enter…",
       paid:"💡 Próximamente: un modo \"listo para usar\" de pago sin clave API — una pequeña suscripción y usas el modelo más potente al instante. Por ahora, usa tu clave (gratis con Gemini).",
       thinking:"Pensando…",ready:"Listo ✔",onair:"Te escucho…",stopped:"Detenido.",autoOn:"Respuesta automática activada.",autoOff:"Respuesta automática desactivada.",nokey:"Introduce primero la clave.",noq:"Aún no he oído una pregunta.",valid:"✔ Clave ok",
@@ -108,15 +108,27 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   const modeEl=$('mode');
   function buildModeOptions(){const cur=modeEl.value||'interview';modeEl.innerHTML='';Object.keys(MODES).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=MODES[k][LANG]||MODES[k].it;modeEl.appendChild(o);});modeEl.value=cur;}
 
-  const store={get(k){try{return localStorage.getItem(k)}catch(_){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(_){}} ,del(k){try{localStorage.removeItem(k)}catch(_){}}};
+  /* Storage OPT-IN (P0 sicurezza): di default tutto vive in sessionStorage
+     (muore con la scheda). Solo con "Ricorda" spuntato si scrive su
+     localStorage. La cancellazione pulisce SEMPRE entrambi. */
+  const persist=()=>{const el=document.getElementById('remember');return !!(el&&el.checked);};
+  const store={
+    get(k){try{const s=sessionStorage.getItem(k);return s!==null?s:localStorage.getItem(k)}catch(_){return null}},
+    set(k,v){try{(persist()?localStorage:sessionStorage).setItem(k,v)}catch(_){}},
+    del(k){try{localStorage.removeItem(k)}catch(_){};try{sessionStorage.removeItem(k)}catch(_){}}
+  };
   const KEYS=['v5_lang','v5_prov','v5_mode','v5_heard','v5_ans','v5_ctx','v5_auto','v5_remember','v6_pro','v6_promodel','v7_role','v7_company','v7_cv','v7_style','v7_obj'];
   // Profilo strutturato: id campo → chiave localStorage (v5_ctx resta solo per migrare il vecchio campo libero)
   const PF_KEYS={pfRole:'v7_role',pfCompany:'v7_company',pfCv:'v7_cv',pfStyle:'v7_style',pfObj:'v7_obj'};
   const PF_IDS=Object.keys(PF_KEYS);
   const keyName=()=>'v5_key_'+providerEl.value;
   function save(){
-    if(!$('remember').checked){KEYS.forEach(store.del);PKEYS.forEach(p=>{store.del('v5_key_'+p);store.del('v5_model_'+p);store.del('v5_base_'+p);});store.set('v5_remember','0');return;}
-    store.set('v5_remember','1');store.set('v5_lang',LANG);store.set('v5_prov',providerEl.value);store.set('v5_mode',modeEl.value);store.set('v6_pro',proMode?'1':'0');
+    if(!$('remember').checked){
+      // opt-out (default): via le copie persistenti; la sessione vive in sessionStorage
+      KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(_){}});
+      PKEYS.forEach(p=>{['v5_key_'+p,'v5_model_'+p,'v5_base_'+p].forEach(k=>{try{localStorage.removeItem(k)}catch(_){}});});
+    } else { store.set('v5_remember','1'); }
+    store.set('v5_lang',LANG);store.set('v5_prov',providerEl.value);store.set('v5_mode',modeEl.value);store.set('v6_pro',proMode?'1':'0');
     store.set('v5_heard',$('lang').value);store.set('v5_ans',$('ansLang').value);store.set('v5_auto',autoMode?'1':'0');
     PF_IDS.forEach(id=>store.set(PF_KEYS[id],$(id).value));
     if($('model').value)store.set('v5_model_'+providerEl.value,$('model').value);
@@ -312,7 +324,8 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     if(p.gemini){
       setS(setupStatus,t('thinking'),'work');
       try{
-        const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(key));
+        // chiave nell'header, mai nell'URL (finisce in log/proxy/referrer)
+        const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models',{headers:{'x-goog-api-key':key}});
         const d=await r.json();if(!r.ok)throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
         const ms=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).filter(m=>/gemini/i.test(m.name)&&!/embedding|aqa|imagen/i.test(m.name)).map(m=>m.name.replace('models/',''));
         const dl=$('modelList');dl.innerHTML='';ms.forEach(m=>{const o=document.createElement('option');o.value=m;dl.appendChild(o);});
@@ -409,7 +422,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     const p=curProv(),key=$('apiKey').value.trim(),model=$('model').value.trim(),q=finalText.trim().slice(-2000),sys=systemPrompt();
     try{
       if(p.kind==='gemini'){
-        const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':streamGenerateContent?alt=sse&key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:'Transcript:\n'+q}]}],generationConfig:{temperature:0.6,maxOutputTokens:800}})});
+        const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':streamGenerateContent?alt=sse',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:'Transcript:\n'+q}]}],generationConfig:{temperature:0.6,maxOutputTokens:800}})});
         if(!res.ok)throw new Error(await errMsg(res));
         await readSSE(res,ln=>{try{const j=JSON.parse(ln);const parts=(((j.candidates||[])[0]||{}).content||{}).parts||[];const tx=parts.map(x=>x.text||'').join('');if(tx)onDelta(tx);}catch(_){}});return;
       }
@@ -456,10 +469,11 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   ['model','baseUrl','lang','ansLang','mode'].forEach(id=>$(id).addEventListener('change',save));
   $('apiKey').addEventListener('input',()=>{suggestBtn.disabled=!$('apiKey').value.trim();save();});
   $('remember').addEventListener('change',save);
-  $('forget').addEventListener('click',e=>{e.preventDefault();KEYS.forEach(store.del);PKEYS.forEach(p=>{store.del('v5_key_'+p);store.del('v5_model_'+p);store.del('v5_base_'+p);});$('apiKey').value='';PF_IDS.forEach(id=>$(id).value='');setS(setupStatus,t('valid'),'ok');});
+  $('forget').addEventListener('click',e=>{e.preventDefault();KEYS.forEach(store.del);PKEYS.forEach(p=>{store.del('v5_key_'+p);store.del('v5_model_'+p);store.del('v5_base_'+p);});$('apiKey').value='';PF_IDS.forEach(id=>$(id).value='');$('remember').checked=false;setS(setupStatus,t('valid'),'ok');});
 
   (function init(){
-    if(store.get('v5_remember')==='0')$('remember').checked=false;
+    // opt-in: spuntato SOLO se l'utente l'ha scelto in passato (persistito)
+    try{$('remember').checked=localStorage.getItem('v5_remember')==='1';}catch(_){$('remember').checked=false;}
     LANG=store.get('v5_lang')|| (function(){var n=(navigator.language||navigator.userLanguage||'en').toLowerCase(); if(n.indexOf('it')===0)return'it'; if(n.indexOf('zh')===0)return'zh'; if(n.indexOf('es')===0)return'es'; return 'en';})();
     [...$('langswitch').children].forEach(c=>c.classList.toggle('on',c.getAttribute('data-lang')===LANG));
     if(store.get('v5_prov')&&PROVIDERS[store.get('v5_prov')])providerEl.value=store.get('v5_prov');
