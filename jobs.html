@@ -90,13 +90,18 @@
   };
   let LANG=(navigator.language||"en").toLowerCase().startsWith("it")?"it":"en";
   const t=k=>T[LANG][k]||k;
-  // attribuzione dinamica per provider (termini Adzuna/Indeed)
+  // Attribuzione guidata dal provider REALE (requisito dei termini Adzuna):
+  // mai una stringa fissa — footer dal provider attivo, riga per riga dal
+  // source del singolo annuncio. Fallback: nome del provider capitalizzato.
   let provider=null;
   const PROVIDER_LABELS={adzuna:"Adzuna",indeed:"Indeed"};
-  function attribText(){const p=PROVIDER_LABELS[provider]||"provider ufficiale";return t("attrib").split("{p}").join(p);}
+  const providerLabel=p=>PROVIDER_LABELS[p]||(p?p.charAt(0).toUpperCase()+p.slice(1):null);
+  function attribText(){const p=providerLabel(provider);return p?t("attrib").split("{p}").join(p):"";}
   function applyLang(){document.documentElement.lang=LANG;
     document.querySelectorAll("[data-i]").forEach(el=>{const k=el.getAttribute("data-i");el.textContent=k==="attrib"?attribText():t(k);});
     document.querySelectorAll("[data-i-ph]").forEach(el=>el.placeholder=t(el.getAttribute("data-i-ph")));}
+  // provider noto fin dal caricamento (non solo dopo la prima ricerca)
+  (async()=>{try{const r=await fetch(BACKEND+"/v1/jobs/meta");if(r.ok){const m=await r.json();if(m.provider){provider=m.provider;applyLang();}}}catch(_){}})();
   $("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...$("langSeg").children].forEach(c=>c.classList.toggle("on",c===b));applyLang();});
 
   const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -112,7 +117,8 @@
       div.innerHTML='<div class="body"><h3><a href="'+esc(j.applyUrl)+'" target="_blank" rel="noopener">'+esc(j.title)+"</a></h3>"
         +'<div class="meta">'+esc(j.company)+(j.location?" · "+esc(j.location):"")
         +(j.salary?' · <span class="ds-badge">'+esc(j.salary)+"</span>":"")
-        +(j.postedAt?' · <span>'+esc(j.postedAt)+"</span>":"")+"</div>"
+        +(j.postedAt?' · <span>'+esc(j.postedAt)+"</span>":"")
+        +(providerLabel(j.source)?' · <a href="'+esc(j.applyUrl)+'" target="_blank" rel="noopener" style="color:var(--ds-muted)">via '+esc(providerLabel(j.source))+"</a>":"")+"</div>"
         +(j.snippet?'<div class="snip">'+esc(j.snippet)+"</div>":"")+"</div>"
         +'<button class="ds-btn ds-btn-ghost ds-btn-sm" data-kit="'+i+'">'+t("kitBtn")+"</button>";
       box.appendChild(div);
@@ -153,7 +159,7 @@
       const r=await fetch(BACKEND+"/v1/jobs/"+encodeURIComponent(j.id));
       if(r.ok){ const d=await r.json(); if(d.description) description=d.description; }
     }catch(_){}
-    const srcLabel=PROVIDER_LABELS[j.source]||j.source||"provider";
+    const srcLabel=providerLabel(j.source)||"provider";
     const jobAd=j.title+"\n"+j.company+(j.location?" — "+j.location:"")+(j.salary?"\n"+j.salary:"")+"\n\n"+description
       +"\n\n[Fonte: "+srcLabel+" — "+j.applyUrl+"]";
     try{ sessionStorage.setItem("lcc_kit_prefill",JSON.stringify({jobAd:jobAd.slice(0,12000),autostart:true})); }catch(_){}

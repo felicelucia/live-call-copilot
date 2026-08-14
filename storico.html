@@ -116,7 +116,7 @@ const T = {
     comp: { training: "Allenamento", profile: "Profilo", kits: "Kit generati", recency: "Attività recente" },
     kitsH: "Kit salvati", exportAll: "⬇ Esporta tutto", deleteAll: "🗑 Cancella tutto",
     back: "← Torna allo storico", tabCv: "CV su misura", tabMail: "Mail", tabQ: "Domande",
-    open: "Apri", exportOne: "⬇", deleteOne: "🗑",
+    open: "Apri", regen: "↻", regenTitle: "Rigenera il kit per questo annuncio", exportOne: "⬇", deleteOne: "🗑",
     empty: "Nessun kit salvato ancora — genera un kit e spunta «salva» per costruire la tua prontezza provata.",
     emptyCta: "Genera il primo kit →",
     confirmOne: "Eliminare questo kit? L'operazione è definitiva.",
@@ -132,7 +132,7 @@ const T = {
     comp: { training: "Training", profile: "Profile", kits: "Kits generated", recency: "Recent activity" },
     kitsH: "Saved kits", exportAll: "⬇ Export all", deleteAll: "🗑 Delete all",
     back: "← Back to history", tabCv: "Tailored CV", tabMail: "Email", tabQ: "Questions",
-    open: "Open", exportOne: "⬇", deleteOne: "🗑",
+    open: "Open", regen: "↻", regenTitle: "Regenerate the kit for this ad", exportOne: "⬇", deleteOne: "🗑",
     empty: "No saved kits yet — generate a kit and tick “save” to build your proven readiness.",
     emptyCta: "Generate your first kit →",
     confirmOne: "Delete this kit? This cannot be undone.",
@@ -205,6 +205,7 @@ async function loadKits() {
         (models ? ` · ${models} LLM` : "") + `</div></div>` +
         (k.meta?.allEu ? '<span class="ds-eu">EU</span>' : "") +
         `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-open="${i}">${esc(t("open"))}</button>` +
+        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-regen="${i}" title="${esc(t("regenTitle"))}">${t("regen")}</button>` +
         `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-exp="${i}" title="export">${t("exportOne")}</button>` +
         `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-del="${i}" title="delete">${t("deleteOne")}</button>`;
       box.appendChild(row);
@@ -215,8 +216,21 @@ async function loadKits() {
 }
 
 $("kitList").addEventListener("click", async (e) => {
-  const open = e.target.closest("[data-open]"), exp = e.target.closest("[data-exp]"), del = e.target.closest("[data-del]");
+  const open = e.target.closest("[data-open]"), exp = e.target.closest("[data-exp]"), del = e.target.closest("[data-del]"), regen = e.target.closest("[data-regen]");
   if (open) return openKit(kits[Number(open.getAttribute("data-open"))]);
+  if (regen) {
+    // Rigenera: l'annuncio viene decifrato dal server (stessa rotta di "Apri")
+    // e passa al Kit via sessionStorage — effimero, mai in URL né in log.
+    const k = kits[Number(regen.getAttribute("data-regen"))];
+    regen.disabled = true;
+    const r = await api("/v1/kits/" + k.id);
+    if (!r.ok) { setK(t("err") + r.status, "err"); regen.disabled = false; return; }
+    const full = await r.json();
+    if (!full.jobAd) { setK(t("err") + "no jobAd", "err"); regen.disabled = false; return; }
+    try { sessionStorage.setItem("lcc_kit_prefill", JSON.stringify({ jobAd: String(full.jobAd).slice(0, 12000), autostart: true })); } catch (_) {}
+    location.href = "kit.html";
+    return;
+  }
   if (exp) { const k = kits[Number(exp.getAttribute("data-exp"))]; window.open(BACKEND + "/v1/kits/" + k.id + "/export", "_blank"); return; }
   if (del) {
     const k = kits[Number(del.getAttribute("data-del"))];
