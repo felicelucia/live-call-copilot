@@ -35,6 +35,8 @@
   $("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...$("langSeg").children].forEach(c=>c.classList.toggle("on",c===b));applyLang();});
 
   const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  // gli URL del provider finiscono in href: solo schemi http/https (mai javascript: ecc.)
+  const safeUrl=u=>/^https?:\/\//i.test(String(u||""))?String(u):"#";
   function setStatus(m,c){$("status").textContent=m;$("status").className="ds-status "+(c||"");}
 
   let lastJobs=[];
@@ -44,11 +46,11 @@
     if(!jobs.length){ box.innerHTML='<p class="ds-muted">'+t("none")+"</p>"; }
     jobs.forEach((j,i)=>{
       const div=document.createElement("div"); div.className="job";
-      div.innerHTML='<div class="body"><h3><a href="'+esc(j.applyUrl)+'" target="_blank" rel="noopener">'+esc(j.title)+"</a></h3>"
+      div.innerHTML='<div class="body"><h3><a href="'+esc(safeUrl(j.applyUrl))+'" target="_blank" rel="noopener">'+esc(j.title)+"</a></h3>"
         +'<div class="meta">'+esc(j.company)+(j.location?" · "+esc(j.location):"")
         +(j.salary?' · <span class="ds-badge">'+esc(j.salary)+"</span>":"")
         +(j.postedAt?' · <span>'+esc(j.postedAt)+"</span>":"")
-        +(providerLabel(j.source)?' · <a href="'+esc(j.applyUrl)+'" target="_blank" rel="noopener" style="color:var(--ds-muted)">via '+esc(providerLabel(j.source))+"</a>":"")+"</div>"
+        +(providerLabel(j.source)?' · <a href="'+esc(safeUrl(j.applyUrl))+'" target="_blank" rel="noopener" style="color:var(--ds-muted)">via '+esc(providerLabel(j.source))+"</a>":"")+"</div>"
         +(j.snippet?'<div class="snip">'+esc(j.snippet)+"</div>":"")+"</div>"
         +'<button class="ds-btn ds-btn-ghost ds-btn-sm" data-kit="'+i+'">'+t("kitBtn")+"</button>";
       box.appendChild(div);
@@ -91,7 +93,7 @@
     }catch(_){}
     const srcLabel=providerLabel(j.source)||"provider";
     const jobAd=j.title+"\n"+j.company+(j.location?" — "+j.location:"")+(j.salary?"\n"+j.salary:"")+"\n\n"+description
-      +"\n\n[Fonte: "+srcLabel+" — "+j.applyUrl+"]";
+      +"\n\n[Fonte: "+srcLabel+" — "+safeUrl(j.applyUrl)+"]";
     try{ sessionStorage.setItem("lcc_kit_prefill",JSON.stringify({jobAd:jobAd.slice(0,12000),autostart:true})); }catch(_){}
     location.href="kit.html";
   });

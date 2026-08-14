@@ -350,7 +350,15 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     try{recognition.start();recognizing=true;listenBtn.classList.add('on');listenBtn.querySelector('span').textContent=t('stop');recDot.classList.add('live');setS(liveStatus,t('onair'),'ok');}catch(_){}
   }
   function stopRec(){recognizing=false;if(recognition)recognition.stop();if(pauseTimer)clearTimeout(pauseTimer);listenBtn.classList.remove('on');listenBtn.querySelector('span').textContent=t('listen');recDot.classList.remove('live');setS(liveStatus,t('stopped'));}
-  function render(itr){transcriptEl.innerHTML=finalText+'<span class="interim">'+(itr||'')+'</span>';transcriptEl.scrollTop=transcriptEl.scrollHeight;}
+  /* XSS: la trascrizione contiene input utente (domanda manuale) e testo del
+     ponte desktop → SOLO nodi di testo, mai innerHTML. */
+  function render(itr){
+    transcriptEl.textContent='';
+    transcriptEl.appendChild(document.createTextNode(finalText));
+    const sp=document.createElement('span');sp.className='interim';sp.textContent=itr||'';
+    transcriptEl.appendChild(sp);
+    transcriptEl.scrollTop=transcriptEl.scrollHeight;
+  }
   function sched(){if(pauseTimer)clearTimeout(pauseTimer);pauseTimer=setTimeout(()=>{if(!busy&&finalText.length-lastLen>14){lastLen=finalText.length;suggest();}},1000);}
   listenBtn.addEventListener('click',()=>recognizing?stopRec():startRec());
   autoBtn.addEventListener('click',()=>{autoMode=!autoMode;autoBtn.classList.toggle('on',autoMode);setS(liveStatus,autoMode?t('autoOn'):t('autoOff'),autoMode?'ok':'');save();});
