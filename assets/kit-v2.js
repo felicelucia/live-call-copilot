@@ -32,6 +32,15 @@ const T = {
     pdf: "⬇ Scarica PDF",
     pdfName: "CV-su-misura",
     cvFor: "CV per",
+    authT: "Account gratuito per il Kit completo",
+    authSub: "L'anteprima dell'analisi è libera; CV su misura, mail, domande, PDF e storico si sbloccano con l'account — 1 minuto, niente carta.",
+    authLogin: "Accedi",
+    authSignup: "Crea account gratis",
+    authFields: "Inserisci email e password.",
+    authDone: "Account attivo ✔ — premi di nuovo Genera per il Kit completo.",
+    pvT: "🔒 Questa è solo l'analisi dell'annuncio.",
+    pvSub: "CV su misura, mail di accompagnamento e domande probabili si sbloccano con l'account gratuito.",
+    pvGo: "Crea l'account gratis →",
     saveL: "Salva questo kit nel mio storico",
     saveNote: "Salvato cifrato su server UE · cancellabile in ogni momento · rimosso dopo 24 mesi.",
     savedOk: "Kit salvato nello storico",
@@ -73,6 +82,15 @@ const T = {
     pdf: "⬇ Download PDF",
     pdfName: "Tailored-CV",
     cvFor: "CV for",
+    authT: "Free account for the full Kit",
+    authSub: "The analysis preview is open; tailored CV, email, questions, PDF and history unlock with an account — 1 minute, no card.",
+    authLogin: "Sign in",
+    authSignup: "Create free account",
+    authFields: "Enter email and password.",
+    authDone: "Account active ✔ — press Generate again for the full Kit.",
+    pvT: "🔒 This is the job-ad analysis only.",
+    pvSub: "Tailored CV, cover email and likely questions unlock with the free account.",
+    pvGo: "Create the free account →",
     saveL: "Save this kit to my history",
     saveNote: "Stored encrypted on EU servers · deletable anytime · removed after 24 months.",
     savedOk: "Kit saved to your history",
@@ -112,10 +130,35 @@ function renderAccLine() {
   if (me) {
     el.innerHTML = "";
     el.appendChild(Object.assign(document.createElement("span"), { textContent: `${t("hello")} ${me.user.name} · ${t("plan")} ${me.plan.toUpperCase()}` }));
+    $("authWrap").style.display = "none";
   } else {
-    el.innerHTML = `<span>${t("needLogin")}</span> <a href="index.html">${t("openApp")}</a>`;
+    el.innerHTML = "";
+    $("authWrap").style.display = ""; // login contestuale: lo stato resta in pagina
   }
 }
+
+/* Auth inline (stessi endpoint better-auth, stessa origine): dopo il login
+   la pagina NON si ricarica — annuncio e anteprima restano dove sono. */
+async function inlineAuth(path) {
+  const email = $("authEmail").value.trim(), password = $("authPass").value;
+  const st = $("authStatus");
+  if (!email || !password) { st.textContent = t("authFields"); st.className = "ds-status err"; return; }
+  st.textContent = "…"; st.className = "ds-status";
+  try {
+    const body = path.indexOf("sign-up") >= 0 ? { name: email.split("@")[0], email, password } : { email, password };
+    const r = await fetch(BACKEND + "/api/auth/" + path, {
+      method: "POST", credentials: "include",
+      headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    });
+    if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.message || ("HTTP " + r.status)); }
+    $("authPass").value = "";
+    await loadMe();
+    setStatus(t("authDone"), "ok");
+  } catch (e) { st.textContent = e.message; st.className = "ds-status err"; }
+}
+$("authLogin").addEventListener("click", () => inlineAuth("sign-in/email"));
+$("authSignup").addEventListener("click", () => inlineAuth("sign-up/email"));
+$("pvGo").addEventListener("click", () => { $("authWrap").scrollIntoView({ behavior: "smooth", block: "center" }); $("authEmail").focus(); });
 async function loadMe() {
   try {
     const r = await fetch(BACKEND + "/v1/me", { credentials: "include" });
@@ -136,7 +179,11 @@ $("srcSeg").addEventListener("click", (e) => {
   [...$("srcSeg").children].forEach((c) => c.classList.toggle("on", c === b));
   $("cvWrap").style.display = source === "cv" ? "" : "none";
 });
-$("jobAd").addEventListener("input", () => ($("adCount").textContent = $("jobAd").value.length));
+$("jobAd").addEventListener("input", () => {
+  $("adCount").textContent = $("jobAd").value.length;
+  // bozza in sessionStorage: l'annuncio sopravvive a login/refresh nella stessa scheda
+  try { sessionStorage.setItem("lcc_kit_draft", $("jobAd").value); } catch (_) {}
+});
 
 /* ── markdown: modulo condiviso assets/md.js ─────────────────────── */
 
@@ -314,6 +361,8 @@ async function generate() {
   lastJobAd = jobAd; lastPastedCv = body.cv || null;
   $("agentBtns").style.display = "none";
   document.querySelectorAll('[data-tab="coach"],[data-tab="critico"]').forEach((b) => (b.style.display = "none"));
+  document.querySelector(".outhead").style.display = "";
+  $("previewCta").style.display = "none";
   $("outCard").style.display = "none";
   $("planciaWrap").style.display = "";
   plancia.reset();
@@ -346,10 +395,19 @@ async function generate() {
         plancia.handleEvent(ev);
         if (ev.type === "task-delta" && ev.task in results) results[ev.task] += ev.text || "";
         if (ev.type === "kit-done") {
-          $("outCard").style.display = "";
-          showTab(results.sarto ? "sarto" : "intervistatore");
-          setStatus("", "");
-          if (me && results.sarto) $("agentBtns").style.display = "flex";
+          if (ev.preview) {
+            // anteprima anonima: solo l'analisi, con lo sblocco in evidenza
+            $("outCard").style.display = "";
+            document.querySelector(".outhead").style.display = "none";
+            $("outBody").innerHTML = renderMd(results.analista || "");
+            $("previewCta").style.display = "";
+            setStatus("", "");
+          } else {
+            $("outCard").style.display = "";
+            showTab(results.sarto ? "sarto" : "intervistatore");
+            setStatus("", "");
+            if (me && results.sarto) $("agentBtns").style.display = "flex";
+          }
         }
         if (ev.type === "kit-saved") {
           if (ev.ok) {
@@ -381,7 +439,16 @@ try {
     if (p.jobAd) {
       $("jobAd").value = String(p.jobAd).slice(0, 12000);
       $("adCount").textContent = $("jobAd").value.length;
+      // il prefill diventa subito bozza: sopravvive anche a un login/refresh
+      try { sessionStorage.setItem("lcc_kit_draft", $("jobAd").value); } catch (_) {}
       if (p.autostart) setTimeout(() => generate(), 500);
+    }
+  } else {
+    // nessun prefill: ripristina l'eventuale bozza della scheda
+    const draft = sessionStorage.getItem("lcc_kit_draft");
+    if (draft && !$("jobAd").value) {
+      $("jobAd").value = draft.slice(0, 12000);
+      $("adCount").textContent = $("jobAd").value.length;
     }
   }
 } catch (_) {}

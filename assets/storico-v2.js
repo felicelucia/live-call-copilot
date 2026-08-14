@@ -169,7 +169,12 @@ $("backBtn").addEventListener("click", () => {
 /* ── avvio ── */
 async function loadAll() {
   const me = await api("/v1/me");
-  if (me.status === 401) { $("loginCard").style.display = ""; $("readyCard").style.display = "none"; $("kitsCard").style.display = "none"; return; }
+  if (me.status === 401) {
+    $("loginCard").style.display = ""; $("readyCard").style.display = "none"; $("kitsCard").style.display = "none";
+    // dopo il login si torna qui (return_to)
+    const a = $("loginCard").querySelector("a"); if (a) a.href = "index.html?return_to=storico";
+    return;
+  }
   $("loginCard").style.display = "none";
   await Promise.all([loadReadiness(), loadKits()]);
 }

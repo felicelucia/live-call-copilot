@@ -200,6 +200,12 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     }catch(_){}
   }
   $('sensToggle').addEventListener('change',()=>store.set('v6_sens',$('sensToggle').checked?'1':'0'));
+  /* return_to: dopo il login si torna alla pagina di provenienza (allowlist
+     di pagine nostre: mai URL arbitrari). */
+  const RETURN_MAP={kit:'kit.html',storico:'storico.html',jobs:'jobs.html',practice:'practice.html'};
+  let RETURN_TO=null;
+  try{const rp=new URLSearchParams(location.search).get('return_to');if(rp&&RETURN_MAP[rp])RETURN_TO=RETURN_MAP[rp];}catch(_){}
+
   async function authCall(path){
     const email=$('acEmail').value.trim(), password=$('acPass').value;
     if(!email||!password){setAc(t('acNeedFields'),'err');return;}
@@ -209,6 +215,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       const r=await api(path,{method:'POST',body:JSON.stringify(body)});
       if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.message||('HTTP '+r.status));}
       setAc('✔','ok'); $('acPass').value=''; await refreshMe();
+      if(RETURN_TO){location.href=RETURN_TO;return;}
     }catch(e){setAc(e.message,'err');}
   }
   $('loginBtn').addEventListener('click',()=>authCall('/api/auth/sign-in/email'));
@@ -497,6 +504,8 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     if(!$('pfCv').value&&store.get('v5_ctx'))$('pfCv').value=store.get('v5_ctx');
     autoMode=store.get('v5_auto')!=='0';autoBtn.classList.toggle('on',autoMode);
     syncProvider();applyLang();
+    // arrivo con return_to: apri direttamente il pannello account (scelta Pro)
+    if(RETURN_TO){$('choicePro').click();showSettings();}
   })();
 
   /* ---- Vista Impostazioni: schermata alternativa alla Live, non un overlay ---- */

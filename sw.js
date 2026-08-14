@@ -1,7 +1,7 @@
 /* Live Call Copilot — service worker
    Purpose: make the app installable and available offline (the UI shell).
    Live AI calls always need the network; only the app itself is cached. */
-const CACHE = 'lcc-v22';
+const CACHE = 'lcc-v23';
 const ASSETS = [
   './',
   './index.html',

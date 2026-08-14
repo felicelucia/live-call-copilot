@@ -47,6 +47,19 @@
   <!-- INPUT -->
   <div class="ds-card" id="formCard">
     <div class="accline" id="accLine"></div>
+    <!-- login/registrazione CONTESTUALE: niente salti di pagina, lo stato
+         (annuncio incollato, anteprima) resta esattamente dov'è -->
+    <div id="authWrap" style="display:none;margin:var(--ds-s3) 0;padding:var(--ds-s4);border:1.5px solid #d5defb;border-radius:var(--ds-r-m);background:var(--ds-accent-soft)">
+      <strong data-i="authT"></strong>
+      <div class="ds-muted" style="font-size:var(--ds-t-xs);margin:4px 0 10px" data-i="authSub"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="ds-input" id="authEmail" type="email" autocomplete="email" placeholder="nome@email.it" style="flex:2;min-width:180px">
+        <input class="ds-input" id="authPass" type="password" autocomplete="current-password" placeholder="········" style="flex:1;min-width:140px">
+        <button class="ds-btn ds-btn-primary ds-btn-sm" id="authLogin" data-i="authLogin"></button>
+        <button class="ds-btn ds-btn-ghost ds-btn-sm" id="authSignup" data-i="authSignup"></button>
+      </div>
+      <div class="ds-status" id="authStatus"></div>
+    </div>
 
     <label class="ds-label" data-i="adL"></label>
     <textarea class="ds-textarea" id="jobAd" rows="7" maxlength="12000"></textarea>
@@ -97,6 +110,11 @@
     <!-- conferma "cucito su misura": solo UI, non entra mai nel PDF -->
     <div class="ds-muted" id="cvSub" style="display:none;margin-top:var(--ds-s3);font-style:italic"></div>
     <div class="ds-prose" id="outBody" style="margin-top:var(--ds-s4)"></div>
+    <!-- anteprima anonima: l'analisi è visibile, il resto si sblocca con l'account -->
+    <div id="previewCta" style="display:none;margin-top:var(--ds-s4);padding:var(--ds-s4);border:1.5px dashed #d5defb;border-radius:var(--ds-r-m);text-align:center">
+      <strong data-i="pvT"></strong><br><span class="ds-muted" data-i="pvSub"></span>
+      <div style="margin-top:10px"><button class="ds-btn ds-btn-primary ds-btn-sm" id="pvGo" data-i="pvGo"></button></div>
+    </div>
     <!-- agenti on-demand: approfondimenti a richiesta sul contesto già generato -->
     <div id="agentBtns" style="display:none;margin-top:var(--ds-s4);gap:10px;flex-wrap:wrap;align-items:center">
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="coachBtn" data-i="agentCoach"></button>
@@ -108,6 +126,6 @@
   <footer data-i="foot"></footer>
 </div>
 
-<script type="module" src="assets/kit-v1.js"></script>
+<script type="module" src="assets/kit-v2.js"></script>
 </body>
 </html>
