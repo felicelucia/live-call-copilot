@@ -88,6 +88,8 @@
         <button class="ds-tab on" data-tab="sarto" data-i="tabCv"></button>
         <button class="ds-tab" data-tab="mail" data-i="tabMail"></button>
         <button class="ds-tab" data-tab="intervistatore" data-i="tabQ"></button>
+        <button class="ds-tab" data-tab="coach" data-i="tabCoach" style="display:none"></button>
+        <button class="ds-tab" data-tab="critico" data-i="tabCritico" style="display:none"></button>
       </div>
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="pdfBtn" data-i="pdf" style="display:none"></button>
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="copyBtn" data-i="copy"></button>
@@ -95,6 +97,12 @@
     <!-- conferma "cucito su misura": solo UI, non entra mai nel PDF -->
     <div class="ds-muted" id="cvSub" style="display:none;margin-top:var(--ds-s3);font-style:italic"></div>
     <div class="ds-prose" id="outBody" style="margin-top:var(--ds-s4)"></div>
+    <!-- agenti on-demand: approfondimenti a richiesta sul contesto già generato -->
+    <div id="agentBtns" style="display:none;margin-top:var(--ds-s4);gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="ds-btn ds-btn-ghost ds-btn-sm" id="coachBtn" data-i="agentCoach"></button>
+      <button class="ds-btn ds-btn-ghost ds-btn-sm" id="criticoBtn" data-i="agentCritico"></button>
+      <span class="ds-muted" style="font-size:var(--ds-t-xs)" data-i="agentHint"></span>
+    </div>
   </div>
 
   <footer data-i="foot"></footer>
@@ -124,6 +132,12 @@ const T = {
     tabCv: "CV su misura",
     tabMail: "Mail",
     tabQ: "Domande probabili",
+    tabCoach: "Coach",
+    tabCritico: "Critico",
+    agentCoach: "🎯 Coach — Come migliorare",
+    agentCritico: "🥊 Critico — Mettimi alla prova",
+    agentHint: "Approfondimenti a richiesta, sugli stessi modelli europei.",
+    agentWorking: "L'agente è al lavoro…",
     copy: "⧉ Copia markdown",
     copied: "Copiato ✓",
     pdf: "⬇ Scarica PDF",
@@ -159,6 +173,12 @@ const T = {
     tabCv: "Tailored CV",
     tabMail: "Cover email",
     tabQ: "Likely questions",
+    tabCoach: "Coach",
+    tabCritico: "Critic",
+    agentCoach: "🎯 Coach — How to improve",
+    agentCritico: "🥊 Critic — Challenge me",
+    agentHint: "On-demand deep dives, on the same European models.",
+    agentWorking: "The agent is at work…",
     copy: "⧉ Copy markdown",
     copied: "Copied ✓",
     pdf: "⬇ Download PDF",
@@ -331,6 +351,65 @@ $("copyBtn").addEventListener("click", () => {
 /* ── generazione ──────────────────────────────────────────────────── */
 const plancia = createPlancia($("plancia"), { labels: T[LANG].labels });
 function setStatus(msg, cls) { $("status").textContent = msg; $("status").className = "ds-status " + (cls || ""); }
+let lastJobAd = "", lastPastedCv = null;
+
+/* Agenti on-demand (Coach/Critico): riusano il contesto già generato —
+   annuncio + CV su misura + profilo (lato server) — senza rigenerare nulla.
+   Card in plancia e riga nel recap arrivano dagli stessi eventi SSE. */
+async function runAgent(agentId) {
+  if (!results.sarto || !lastJobAd) return;
+  $("coachBtn").disabled = true; $("criticoBtn").disabled = true;
+  setStatus(t("agentWorking"), "");
+  results[agentId] = "";
+  const tabBtn = document.querySelector('[data-tab="' + agentId + '"]');
+  try {
+    const res = await fetch(BACKEND + "/v1/kit/agent", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        agent: agentId,
+        jobAd: lastJobAd,
+        tailoredCv: results.sarto.slice(0, 20000),
+        ...(lastPastedCv ? { cv: lastPastedCv } : {}),
+        language: t("lang"),
+      }),
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.detail || d.error || "HTTP " + res.status);
+    }
+    const rd = res.body.getReader(), dec = new TextDecoder();
+    let buf = "";
+    while (true) {
+      const { done, value } = await rd.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        let ln = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!ln.startsWith("data:")) continue;
+        ln = ln.slice(5).trim();
+        if (!ln || ln === "[DONE]") continue;
+        let ev; try { ev = JSON.parse(ln); } catch (_) { continue; }
+        plancia.handleEvent(ev);
+        if (ev.type === "task-start") { tabBtn.style.display = ""; showTab(agentId); }
+        if (ev.type === "task-delta") {
+          results[agentId] += ev.text || "";
+          if (activeTab === agentId) $("outBody").innerHTML = renderMd(results[agentId]);
+        }
+        if (ev.type === "task-done") setStatus("", "");
+        if (ev.type === "task-error") setStatus(ev.message || "errore", "err");
+      }
+    }
+    if (activeTab === agentId) showTab(agentId);
+  } catch (e) {
+    setStatus(e.message, "err");
+  }
+  $("coachBtn").disabled = false; $("criticoBtn").disabled = false;
+}
+$("coachBtn").addEventListener("click", () => runAgent("coach"));
+$("criticoBtn").addEventListener("click", () => runAgent("critico"));
 
 async function generate() {
   const jobAd = $("jobAd").value.trim();
@@ -342,6 +421,10 @@ async function generate() {
   $("goBtn").disabled = true;
   setStatus(t("working"), "");
   results.sarto = ""; results.mail = ""; results.intervistatore = ""; results.analista = "";
+  results.coach = ""; results.critico = "";
+  lastJobAd = jobAd; lastPastedCv = body.cv || null;
+  $("agentBtns").style.display = "none";
+  document.querySelectorAll('[data-tab="coach"],[data-tab="critico"]').forEach((b) => (b.style.display = "none"));
   $("outCard").style.display = "none";
   $("planciaWrap").style.display = "";
   plancia.reset();
@@ -377,6 +460,7 @@ async function generate() {
           $("outCard").style.display = "";
           showTab(results.sarto ? "sarto" : "intervistatore");
           setStatus("", "");
+          if (me && results.sarto) $("agentBtns").style.display = "flex";
         }
         if (ev.type === "kit-saved") {
           if (ev.ok) {
