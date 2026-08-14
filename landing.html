@@ -77,64 +77,6 @@
   </footer>
 </div>
 
-<script>
-(function(){
-  const T={
-    it:{
-      openApp:"Apri l'app",
-      navJobs:"🔎 Offerte",
-      navSal:"📊 Stipendi",
-      heroH:"Il copilota AI europeo per la tua carriera",
-      heroP:"Un'orchestra di agenti AI legge l'annuncio e il tuo percorso, prepara CV su misura, mail e domande di colloquio, e ti allena a rispondere — con i tuoi dati al sicuro in Europa.",
-      ctaKit:"✨ Prova il Kit gratis",
-      ctaApp:"Apri l'app →",
-      p1H:"Orchestrazione multi-LLM sovrana",
-      p1P:"Non un modello solo: il migliore per ogni compito, scelto in trasparenza. Vedi chi lavora, su quale modello e perché — sempre.",
-      p2H:"Prontezza provata",
-      p2P:"Non un CV auto-dichiarato: allenamento con punteggio, kit cuciti sugli annunci veri e gap detti onestamente. Prepararsi si vede.",
-      p3H:"Dati in UE",
-      p3P:"I dati personali viaggiano solo su modelli europei e server in Europa. Consenso esplicito, esportazione e cancellazione totale: GDPR sul serio.",
-      howH:"Come funziona",
-      s1H:"Incolla l'annuncio",
-      s1P:"Oppure entra in chiamata dal vivo: il copilota ascolta e suggerisce cosa dire, in tempo reale.",
-      s2H:"L'orchestra lavora",
-      s2P:"Quattro agenti in parallelo: analisi, CV su misura, mail di accompagnamento, domande probabili. Tutto sotto i tuoi occhi.",
-      s3H:"Candidati e allenati",
-      s3P:"Scarica il CV in PDF, copia la mail, prova il colloquio col simulatore e arriva preparato davvero.",
-      footPriv:"I kit sono effimeri: non salviamo nulla senza il tuo consenso. Il profilo è cifrato a riposo su server europei.",
-      footBeta:"open-core · beta",
-    },
-    en:{
-      openApp:"Open the app",
-      navJobs:"🔎 Jobs",
-      navSal:"📊 Salaries",
-      heroH:"The European career-AI copilot",
-      heroP:"An orchestra of AI agents reads the job ad and your background, crafts a tailored CV, cover email and interview questions, and trains you to answer — with your data safe in Europe.",
-      ctaKit:"✨ Try the Kit for free",
-      ctaApp:"Open the app →",
-      p1H:"Sovereign multi-LLM orchestration",
-      p1P:"Not one model: the best one for each task, chosen transparently. You see who works, on which model, and why — always.",
-      p2H:"Proven readiness",
-      p2P:"Not a self-declared CV: scored training, kits tailored to real ads, gaps stated honestly. Being prepared shows.",
-      p3H:"Data in the EU",
-      p3P:"Personal data travels only on European models and servers in Europe. Explicit consent, export and total deletion: GDPR for real.",
-      howH:"How it works",
-      s1H:"Paste the job ad",
-      s1P:"Or join a live call: the copilot listens and suggests what to say, in real time.",
-      s2H:"The orchestra works",
-      s2P:"Four agents in parallel: analysis, tailored CV, cover email, likely questions. All before your eyes.",
-      s3H:"Apply and train",
-      s3P:"Download the CV as PDF, copy the email, rehearse the interview with the simulator and arrive truly prepared.",
-      footPriv:"Kits are ephemeral: we store nothing without your consent. Your profile is encrypted at rest on European servers.",
-      footBeta:"open-core · beta",
-    }
-  };
-  let LANG=(navigator.language||"en").toLowerCase().startsWith("it")?"it":"en";
-  const t=k=>T[LANG][k]||k;
-  function apply(){document.documentElement.lang=LANG;document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.getAttribute("data-i")));}
-  document.getElementById("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...e.currentTarget.children].forEach(c=>c.classList.toggle("on",c===b));apply();});
-  apply();
-})();
-</script>
+<script src="assets/landing-v1.js"></script>
 </body>
 </html>
