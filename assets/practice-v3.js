@@ -313,6 +313,7 @@
   $('lang').addEventListener('change',()=>{ chosenVoice=null; applyLang(); });
   function applyLang(){
     const it=L()==='it';
+    document.documentElement.lang=it?'it':'en';
     $('heroH').textContent=it?'Prova il colloquio — con un coach che conosce il tuo CV':'Rehearse the interview — with a coach that knows your CV';
     $('heroP').textContent=it?'Un intervistatore AI, cucito sul tuo CV e sull\'offerta. Parli a mani libere, ricevi coaching dal vivo e finisci con un report a punteggio.':'A realistic AI interviewer, tailored to your résumé and the job. Talk hands-free, get live coaching, and finish with a scored report.';
     $('setupH').textContent=it?'Imposta la sessione':'Set up your session';
