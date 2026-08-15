@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -10,7 +10,7 @@
 <!-- SITE-BASE: aggiornare al cambio dominio -->
 <link rel="canonical" href="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/jobs.html">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="stylesheet" href="assets/design-system.css">
+<link rel="stylesheet" href="assets/design-system-v2.css">
 <style>
   .topbar{display:flex;align-items:center;gap:12px;padding-top:var(--ds-s2);}
   .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--ds-accent),#7048e8);display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 5px 14px rgba(59,91,219,.3);}
@@ -32,24 +32,26 @@
 </style>
 </head>
 <body class="ds-page">
+<a href="#main" class="skip-link" data-i="skipLink">Salta al contenuto</a>
 <div class="ds-wrap">
 
-  <div class="topbar">
-    <div class="logo">🔎</div>
+  <header class="topbar">
+    <div class="logo" aria-hidden="true">🔎</div>
     <div class="brand">Live Call Copilot<small data-i="brandSub"></small></div>
-    <div class="ds-seg" id="langSeg">
-      <button data-lang="it" class="on">IT</button>
-      <button data-lang="en">EN</button>
+    <div class="ds-seg" id="langSeg" role="group" aria-label="Lingua / Language">
+      <button data-lang="it" class="on" aria-pressed="true">IT</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
     </div>
-  </div>
+  </header>
 
+  <main id="main">
   <div class="ds-card">
     <h1 class="ds-h2" data-i="h1" style="margin-bottom:var(--ds-s2)"></h1>
     <p class="ds-muted" data-i="sub" style="margin:0 0 var(--ds-s3)"></p>
     <div class="searchrow">
-      <div><label class="ds-label" data-i="qL"></label><input class="ds-input" id="q" data-i-ph="qPh"></div>
-      <div><label class="ds-label" data-i="lL"></label><input class="ds-input" id="loc" data-i-ph="lPh"></div>
-      <div><label class="ds-label" data-i="cL"></label><select class="ds-select" id="country">
+      <div><label class="ds-label" for="q" data-i="qL"></label><input class="ds-input" id="q" data-i-ph="qPh"></div>
+      <div><label class="ds-label" for="loc" data-i="lL"></label><input class="ds-input" id="loc" data-i-ph="lPh"></div>
+      <div><label class="ds-label" for="country" data-i="cL"></label><select class="ds-select" id="country">
         <option value="it" selected>Italia</option><option value="fr">France</option>
         <option value="de">Deutschland</option><option value="es">España</option>
         <option value="nl">Nederland</option><option value="be">Belgique</option>
@@ -58,18 +60,21 @@
       </select></div>
       <div><button class="ds-btn ds-btn-primary" id="goBtn" data-i="go"></button></div>
     </div>
-    <div class="ds-status" id="status" style="margin-top:var(--ds-s2)"></div>
+    <div class="ds-status" id="status" role="status" style="margin-top:var(--ds-s2)"></div>
+    <div class="visually-hidden" id="a11yAlert" role="alert"></div>
   </div>
 
   <div class="ds-card" id="resultsCard" style="display:none">
+    <h2 class="visually-hidden" data-i="resultsH">Risultati della ricerca</h2>
     <div id="results"></div>
   </div>
 
   <div id="notConf" class="infocard" style="display:none"></div>
+  </main>
 
   <footer data-i="attrib"></footer>
 </div>
 
-<script src="assets/jobs-v2.js"></script>
+<script src="assets/jobs-v3.js"></script>
 </body>
 </html>

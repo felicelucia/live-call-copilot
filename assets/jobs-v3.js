@@ -3,14 +3,14 @@
   const BACKEND=location.protocol.startsWith("http")?location.origin:"http://127.0.0.1:8787";
 
   const T={
-    it:{brandSub:"Cerca offerte · beta",h1:"Cerca offerte reali",
+    it:{skipLink:"Salta al contenuto",resultsH:"Risultati della ricerca",brandSub:"Cerca offerte · beta",h1:"Cerca offerte reali",
       sub:"Trova l'annuncio giusto e genera in un click il Kit su misura: CV, mail e domande probabili.",
       qL:"Cosa cerchi",qPh:"Es: account executive, project manager…",lL:"Dove",lPh:"Es: Milano, remoto…",
       cL:"Paese",go:"🔎 Cerca",searching:"Cerco…",none:"Nessuna offerta trovata: prova con altre parole.",
       kitBtn:"✨ Genera Kit",kitPrep:"Preparo il Kit…",
       notConf:"🔌 La ricerca offerte non è ancora attiva: stiamo completando l'accesso all'API ufficiale del provider. Nel frattempo puoi incollare qualunque annuncio direttamente nel Kit di candidatura.",
       openKit:"→ Apri il Kit",results:"offerte",attrib:"Ricerca offerte fornita da {p}. I link di candidatura portano a {p}."},
-    en:{brandSub:"Job search · beta",h1:"Search real job ads",
+    en:{skipLink:"Skip to content",resultsH:"Search results",brandSub:"Job search · beta",h1:"Search real job ads",
       sub:"Find the right ad and generate the tailored Kit in one click: CV, email and likely questions.",
       qL:"What",qPh:"E.g. account executive, project manager…",lL:"Where",lPh:"E.g. Milan, remote…",
       cL:"Country",go:"🔎 Search",searching:"Searching…",none:"No jobs found: try different words.",
@@ -29,15 +29,16 @@
   function attribText(){const p=providerLabel(provider);return p?t("attrib").split("{p}").join(p):"";}
   function applyLang(){document.documentElement.lang=LANG;
     document.querySelectorAll("[data-i]").forEach(el=>{const k=el.getAttribute("data-i");el.textContent=k==="attrib"?attribText():t(k);});
-    document.querySelectorAll("[data-i-ph]").forEach(el=>el.placeholder=t(el.getAttribute("data-i-ph")));}
+    document.querySelectorAll("[data-i-ph]").forEach(el=>{el.placeholder=t(el.getAttribute("data-i-ph"));});}
   // provider noto fin dal caricamento (non solo dopo la prima ricerca)
   (async()=>{try{const r=await fetch(BACKEND+"/v1/jobs/meta");if(r.ok){const m=await r.json();if(m.provider){provider=m.provider;applyLang();}}}catch(_){}})();
-  $("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...$("langSeg").children].forEach(c=>c.classList.toggle("on",c===b));applyLang();});
+  $("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...$("langSeg").children].forEach(c=>{const on=c===b;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});applyLang();});
 
   const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   // gli URL del provider finiscono in href: solo schemi http/https (mai javascript: ecc.)
   const safeUrl=u=>/^https?:\/\//i.test(String(u||""))?String(u):"#";
-  function setStatus(m,c){$("status").textContent=m;$("status").className="ds-status "+(c||"");}
+  function setStatus(m,c){$("status").textContent=m;$("status").className="ds-status "+(c||"");
+    if(c==="err"&&m){const a=$("a11yAlert");if(a){a.textContent="";a.textContent=m;}}}
 
   let lastJobs=[];
   function render(jobs){
@@ -52,7 +53,7 @@
         +(j.postedAt?' · <span>'+esc(j.postedAt)+"</span>":"")
         +(providerLabel(j.source)?' · <a href="'+esc(safeUrl(j.applyUrl))+'" target="_blank" rel="noopener" style="color:var(--ds-muted)">via '+esc(providerLabel(j.source))+"</a>":"")+"</div>"
         +(j.snippet?'<div class="snip">'+esc(j.snippet)+"</div>":"")+"</div>"
-        +'<button class="ds-btn ds-btn-ghost ds-btn-sm" data-kit="'+i+'">'+t("kitBtn")+"</button>";
+        +'<button class="ds-btn ds-btn-ghost ds-btn-sm" data-kit="'+i+'" aria-label="'+esc(t("kitBtn"))+' — '+esc(j.title)+'">'+t("kitBtn")+"</button>";
       box.appendChild(div);
     });
     $("resultsCard").style.display="";

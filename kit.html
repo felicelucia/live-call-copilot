@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -10,7 +10,7 @@
 <!-- SITE-BASE: aggiornare al cambio dominio -->
 <link rel="canonical" href="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/kit.html">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="stylesheet" href="assets/design-system.css">
+<link rel="stylesheet" href="assets/design-system-v2.css">
 <style>
   /* solo layout locale della pagina: tutto il resto viene dal design system */
   .topbar{display:flex;align-items:center;gap:12px;padding-top:var(--ds-s2);}
@@ -31,17 +31,19 @@
 </style>
 </head>
 <body class="ds-page">
+<a href="#main" class="skip-link" data-i="skipLink">Salta al contenuto</a>
 <div class="ds-wrap">
 
-  <div class="topbar">
-    <div class="logo">🧩</div>
+  <header class="topbar">
+    <div class="logo" aria-hidden="true">🧩</div>
     <div class="brand">Live Call Copilot<small data-i="brandSub"></small></div>
-    <div class="ds-seg" id="langSeg">
-      <button data-lang="it" class="on">IT</button>
-      <button data-lang="en">EN</button>
+    <div class="ds-seg" id="langSeg" role="group" aria-label="Lingua / Language">
+      <button data-lang="it" class="on" aria-pressed="true">IT</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
     </div>
-  </div>
+  </header>
 
+  <main id="main">
   <div class="hero">
     <h1 class="ds-h1" data-i="heroH"></h1>
     <p data-i="heroP"></p>
@@ -56,22 +58,22 @@
       <strong data-i="authT"></strong>
       <div class="ds-muted" style="font-size:var(--ds-t-xs);margin:4px 0 10px" data-i="authSub"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input class="ds-input" id="authEmail" type="email" autocomplete="email" placeholder="nome@email.it" style="flex:2;min-width:180px">
-        <input class="ds-input" id="authPass" type="password" autocomplete="current-password" placeholder="········" style="flex:1;min-width:140px">
+        <input class="ds-input" id="authEmail" type="email" autocomplete="email" placeholder="nome@email.it" aria-label="Email" aria-required="true" style="flex:2;min-width:180px">
+        <input class="ds-input" id="authPass" type="password" autocomplete="current-password" placeholder="········" aria-label="Password" aria-required="true" style="flex:1;min-width:140px">
         <button class="ds-btn ds-btn-primary ds-btn-sm" id="authLogin" data-i="authLogin"></button>
         <button class="ds-btn ds-btn-ghost ds-btn-sm" id="authSignup" data-i="authSignup"></button>
       </div>
-      <div class="ds-status" id="authStatus"></div>
+      <div class="ds-status" id="authStatus" role="status"></div>
     </div>
 
-    <label class="ds-label" data-i="adL"></label>
-    <textarea class="ds-textarea" id="jobAd" rows="7" maxlength="12000"></textarea>
-    <div class="counter"><span id="adCount">0</span> / 12000</div>
+    <label class="ds-label" for="jobAd" data-i="adL"></label>
+    <textarea class="ds-textarea" id="jobAd" rows="7" maxlength="12000" aria-required="true" aria-describedby="adCountWrap"></textarea>
+    <div class="counter" id="adCountWrap"><span id="adCount">0</span> / 12000</div>
 
-    <label class="ds-label" data-i="srcL"></label>
-    <div class="ds-seg" id="srcSeg">
-      <button data-src="profile" class="on" data-i="srcProfile"></button>
-      <button data-src="cv" data-i="srcCv"></button>
+    <span class="ds-label" id="srcLabel" data-i="srcL"></span>
+    <div class="ds-seg" id="srcSeg" role="group" aria-labelledby="srcLabel">
+      <button data-src="profile" class="on" aria-pressed="true" data-i="srcProfile"></button>
+      <button data-src="cv" aria-pressed="false" data-i="srcCv"></button>
     </div>
     <div class="srcwrap" id="cvWrap" style="display:none">
       <textarea class="ds-textarea" id="cvText" rows="6" maxlength="8000" data-i-ph="cvPh"></textarea>
@@ -88,11 +90,12 @@
     <div style="margin-top:var(--ds-s5)">
       <button class="ds-btn ds-btn-primary" id="goBtn" style="width:100%" data-i="go"></button>
     </div>
-    <div class="ds-status" id="status" style="margin-top:var(--ds-s2)"></div>
+    <div class="ds-status" id="status" role="status" style="margin-top:var(--ds-s2)"></div>
+    <div class="visually-hidden" id="a11yAlert" role="alert"></div>
   </div>
 
-  <!-- PLANCIA -->
-  <div id="planciaWrap" style="display:none">
+  <!-- PLANCIA: stati discreti (partito/finito per agente), annuncio educato -->
+  <div id="planciaWrap" style="display:none" aria-live="polite">
     <h2 class="ds-h2" data-i="planciaH" style="margin-bottom:var(--ds-s3)"></h2>
     <div id="plancia"></div>
   </div>
@@ -100,19 +103,19 @@
   <!-- OUTPUT -->
   <div class="ds-card" id="outCard" style="display:none">
     <div class="outhead">
-      <div class="ds-tabs">
-        <button class="ds-tab on" data-tab="sarto" data-i="tabCv"></button>
-        <button class="ds-tab" data-tab="mail" data-i="tabMail"></button>
-        <button class="ds-tab" data-tab="intervistatore" data-i="tabQ"></button>
-        <button class="ds-tab" data-tab="coach" data-i="tabCoach" style="display:none"></button>
-        <button class="ds-tab" data-tab="critico" data-i="tabCritico" style="display:none"></button>
+      <div class="ds-tabs" role="tablist" aria-label="Contenuti del kit">
+        <button class="ds-tab on" data-tab="sarto" id="tab-sarto" role="tab" aria-selected="true" aria-controls="outBody" data-i="tabCv"></button>
+        <button class="ds-tab" data-tab="mail" id="tab-mail" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabMail"></button>
+        <button class="ds-tab" data-tab="intervistatore" id="tab-intervistatore" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabQ"></button>
+        <button class="ds-tab" data-tab="coach" id="tab-coach" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabCoach" style="display:none"></button>
+        <button class="ds-tab" data-tab="critico" id="tab-critico" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabCritico" style="display:none"></button>
       </div>
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="pdfBtn" data-i="pdf" style="display:none"></button>
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="copyBtn" data-i="copy"></button>
     </div>
     <!-- conferma "cucito su misura": solo UI, non entra mai nel PDF -->
     <div class="ds-muted" id="cvSub" style="display:none;margin-top:var(--ds-s3);font-style:italic"></div>
-    <div class="ds-prose" id="outBody" style="margin-top:var(--ds-s4)"></div>
+    <div class="ds-prose" id="outBody" role="tabpanel" tabindex="0" aria-labelledby="tab-sarto" style="margin-top:var(--ds-s4)"></div>
     <!-- anteprima anonima: l'analisi è visibile, il resto si sblocca con l'account -->
     <div id="previewCta" style="display:none;margin-top:var(--ds-s4);padding:var(--ds-s4);border:1.5px dashed #d5defb;border-radius:var(--ds-r-m);text-align:center">
       <strong data-i="pvT"></strong><br><span class="ds-muted" data-i="pvSub"></span>
@@ -125,10 +128,11 @@
       <span class="ds-muted" style="font-size:var(--ds-t-xs)" data-i="agentHint"></span>
     </div>
   </div>
+  </main>
 
   <footer data-i="foot"></footer>
 </div>
 
-<script type="module" src="assets/kit-v2.js"></script>
+<script type="module" src="assets/kit-v3.js"></script>
 </body>
 </html>

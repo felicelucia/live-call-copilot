@@ -56,7 +56,24 @@
   let state='idle', handsFree=true, recognition=null, recognizing=false, silenceTimer=null, chosenVoice=null;
   const SILENCE_MS=1900;
   const L=()=>$('lang').value;
-  const setSt=(el,m,c)=>{$(el).textContent=m;$(el).className='status '+(c||'');};
+  const setSt=(el,m,c)=>{$(el).textContent=m;$(el).className='status '+(c||'');
+    if(c==='err'&&m){const a=$('a11yAlert');if(a){a.textContent='';a.textContent=m;}}};
+  /* conferma accessibile via <dialog> nativo (focus trap + Esc dal browser) */
+  function askConfirm(msg){
+    return new Promise(resolve=>{
+      const dlg=$('confirmDlg');
+      $('confirmDlgT').textContent=(L()==='it'?'Conferma':'Confirm');
+      $('confirmDlgP').textContent=msg;
+      $('confirmDlgYes').textContent=(L()==='it'?'Sì':'Yes');
+      $('confirmDlgNo').textContent=(L()==='it'?'Annulla':'Cancel');
+      const opener=document.activeElement;
+      let result=false;
+      $('confirmDlgYes').onclick=()=>{result=true;dlg.close();};
+      $('confirmDlgNo').onclick=()=>dlg.close();
+      dlg.onclose=()=>{resolve(result);if(opener&&opener.focus)opener.focus();};
+      dlg.showModal();
+    });
+  }
   const IT=k=>({listen:L()==='it'?'🎙 Ti ascolto — parla pure':'🎙 Listening — just talk',
                 speak:L()==='it'?'🧑‍💼 L\'intervistatore parla…':'🧑‍💼 Interviewer speaking…',
                 think:L()==='it'?'💭 Sto pensando…':'💭 Thinking…',
@@ -199,7 +216,7 @@
   function askQuestion(msg){
     lastQ=msg;
     $('prog').textContent=(L()==='it'?'Domanda ':'Question ')+qCount+' / '+maxQ;
-    $('pbarFill').style.width=Math.round((qCount-1)/maxQ*100)+'%';
+    const pv1=Math.round((qCount-1)/maxQ*100); $('pbarFill').style.width=pv1+'%'; $('pbar').setAttribute('aria-valuenow',String(pv1));
     $('qtext').textContent=msg; $('coachbox').style.display='none'; $('youtext').textContent=''; setSt('liveStatus','','');
     setState('speaking');
     speak(msg, ()=>{ if(handsFree) startListening(); else setState('ready'); });
@@ -207,7 +224,7 @@
   async function nextTurn(answer){
     stopListening(); lastAnswer=answer; $('coachBtn').disabled=false;
     history.push({role:'user',content:answer});
-    setState('thinking'); $('youtext').textContent=answer; $('pbarFill').style.width=Math.round(qCount/maxQ*100)+'%';
+    setState('thinking'); $('youtext').textContent=answer; const pv2=Math.round(qCount/maxQ*100); $('pbarFill').style.width=pv2+'%'; $('pbar').setAttribute('aria-valuenow',String(pv2));
     if(qCount>=maxQ){ return endInterview(); }
     try{
       const msg=await chat(interviewerSystem(),history,320);
@@ -287,7 +304,7 @@
   $('startBtn').addEventListener('click',startInterview);
   $('handsBtn').addEventListener('click',()=>{ handsFree=!handsFree; $('handsBtn').classList.toggle('on',handsFree); $('handsBtn').textContent=handsFree?'✋ Hands-free: ON':'✋ Hands-free: OFF'; if(handsFree&&state==='ready')startListening(); if(!handsFree)stopListening(); });
   $('micBtn').addEventListener('click',()=>{ if(state==='listening'){ const t=$('youtext').textContent.trim(); if(t.length>1) nextTurn(t); else {stopListening();setState('ready');} } else startListening(); });
-  $('endBtn').addEventListener('click',()=>{ if(confirm(L()==='it'?'Termino e genero il report?':'End now and get the report?')) endInterview(); });
+  $('endBtn').addEventListener('click',async()=>{ if(await askConfirm(L()==='it'?'Termino e genero il report?':'End now and get the report?')) endInterview(); });
   $('replayBtn').addEventListener('click',()=>{ const was=handsFree; stopListening(); speak(lastQ,()=>{ if(was)startListening(); }); });
   $('hintBtn').addEventListener('click',suggest);
   $('coachBtn').addEventListener('click',coachLast);
@@ -314,6 +331,8 @@
   function applyLang(){
     const it=L()==='it';
     document.documentElement.lang=it?'it':'en';
+    $('skipLink').textContent=it?'Salta al contenuto':'Skip to content';
+    $('pbar').setAttribute('aria-label',it?'Avanzamento del colloquio':'Interview progress');
     $('heroH').textContent=it?'Prova il colloquio — con un coach che conosce il tuo CV':'Rehearse the interview — with a coach that knows your CV';
     $('heroP').textContent=it?'Un intervistatore AI, cucito sul tuo CV e sull\'offerta. Parli a mani libere, ricevi coaching dal vivo e finisci con un report a punteggio.':'A realistic AI interviewer, tailored to your résumé and the job. Talk hands-free, get live coaching, and finish with a scored report.';
     $('setupH').textContent=it?'Imposta la sessione':'Set up your session';

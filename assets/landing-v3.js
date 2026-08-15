@@ -24,6 +24,8 @@
       s3P:"Scarica il CV in PDF, copia la mail, prova il colloquio col simulatore e arriva preparato davvero.",
       footPriv:"I kit sono effimeri: non salviamo nulla senza il tuo consenso. Il profilo è cifrato a riposo su server europei.",
       footBeta:"open-core · beta",
+      skipLink:"Salta al contenuto",
+      pillarsH:"Perché Live Call Copilot",
     },
     en:{
       openApp:"Open the app",
@@ -49,11 +51,13 @@
       s3P:"Download the CV as PDF, copy the email, rehearse the interview with the simulator and arrive truly prepared.",
       footPriv:"Kits are ephemeral: we store nothing without your consent. Your profile is encrypted at rest on European servers.",
       footBeta:"open-core · beta",
+      skipLink:"Skip to content",
+      pillarsH:"Why Live Call Copilot",
     }
   };
   let LANG=(navigator.language||"en").toLowerCase().startsWith("it")?"it":"en";
   const t=k=>T[LANG][k]||k;
   function apply(){document.documentElement.lang=LANG;document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.getAttribute("data-i")));}
-  document.getElementById("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...e.currentTarget.children].forEach(c=>c.classList.toggle("on",c===b));apply();});
+  document.getElementById("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...e.currentTarget.children].forEach(c=>{const on=c===b;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});apply();});
   apply();
 })();

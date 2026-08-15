@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -10,7 +10,7 @@
 <!-- SITE-BASE: aggiornare al cambio dominio -->
 <link rel="canonical" href="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/storico.html">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="stylesheet" href="assets/design-system.css">
+<link rel="stylesheet" href="assets/design-system-v2.css">
 <style>
   .topbar{display:flex;align-items:center;gap:12px;padding-top:var(--ds-s2);}
   .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--ds-accent),#7048e8);display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 5px 14px rgba(59,91,219,.3);}
@@ -44,18 +44,22 @@
 </style>
 </head>
 <body class="ds-page">
+<a href="#main" class="skip-link" data-i="skipLink">Salta al contenuto</a>
 <div class="ds-wrap">
 
-  <div class="topbar">
-    <div class="logo">🗂</div>
+  <header class="topbar">
+    <div class="logo" aria-hidden="true">🗂</div>
     <div class="brand">Live Call Copilot<small data-i="brandSub"></small></div>
-    <a class="ds-btn ds-btn-ghost ds-btn-sm" href="kit.html" data-i="toKit"></a>
-    <div class="ds-seg" id="langSeg">
-      <button data-lang="it" class="on">IT</button>
-      <button data-lang="en">EN</button>
+    <nav aria-label="Sezioni del sito" style="display:contents">
+      <a class="ds-btn ds-btn-ghost ds-btn-sm" href="kit.html" data-i="toKit"></a>
+    </nav>
+    <div class="ds-seg" id="langSeg" role="group" aria-label="Lingua / Language">
+      <button data-lang="it" class="on" aria-pressed="true">IT</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
     </div>
-  </div>
+  </header>
 
+  <main id="main">
   <!-- login richiesto -->
   <div class="ds-card" id="loginCard" style="display:none;text-align:center">
     <p class="ds-muted" style="margin:0" data-i="needLogin"></p>
@@ -84,7 +88,8 @@
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="deleteAllBtn" data-i="deleteAll"></button>
     </div>
     <div id="kitList" style="margin-top:var(--ds-s2)"></div>
-    <div class="ds-status" id="kStatus"></div>
+    <div class="ds-status" id="kStatus" role="status"></div>
+    <div class="visually-hidden" id="a11yAlert" role="alert"></div>
   </div>
 
   <!-- dettaglio kit (sola lettura) -->
@@ -93,17 +98,28 @@
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="backBtn" data-i="back"></button>
       <h2 class="ds-h2" id="detailTitle" style="flex:1"></h2>
     </div>
-    <div class="ds-tabs" style="margin-top:var(--ds-s3)">
-      <button class="ds-tab on" data-tab="cv" data-i="tabCv"></button>
-      <button class="ds-tab" data-tab="mail" data-i="tabMail"></button>
-      <button class="ds-tab" data-tab="questions" data-i="tabQ"></button>
+    <div class="ds-tabs" role="tablist" aria-label="Contenuti del kit" style="margin-top:var(--ds-s3)">
+      <button class="ds-tab on" data-tab="cv" id="tab-cv" role="tab" aria-selected="true" aria-controls="detailBody" data-i="tabCv"></button>
+      <button class="ds-tab" data-tab="mail" id="tab-mail" role="tab" aria-selected="false" tabindex="-1" aria-controls="detailBody" data-i="tabMail"></button>
+      <button class="ds-tab" data-tab="questions" id="tab-questions" role="tab" aria-selected="false" tabindex="-1" aria-controls="detailBody" data-i="tabQ"></button>
     </div>
-    <div class="ds-prose" id="detailBody" style="margin-top:var(--ds-s4)"></div>
+    <div class="ds-prose" id="detailBody" role="tabpanel" tabindex="0" aria-labelledby="tab-cv" style="margin-top:var(--ds-s4)"></div>
   </div>
+  </main>
 
   <footer style="text-align:center" class="ds-muted" data-i="foot"></footer>
 </div>
 
-<script type="module" src="assets/storico-v2.js"></script>
+<!-- conferma accessibile (al posto dei confirm() nativi) -->
+<dialog class="ds-dialog" id="confirmDlg" aria-labelledby="confirmDlgT">
+  <h2 id="confirmDlgT"></h2>
+  <p id="confirmDlgP"></p>
+  <div class="ds-dialog-btns">
+    <button class="ds-btn ds-btn-ghost ds-btn-sm" id="confirmDlgNo"></button>
+    <button class="ds-btn ds-btn-primary ds-btn-sm" id="confirmDlgYes"></button>
+  </div>
+</dialog>
+
+<script type="module" src="assets/storico-v3.js"></script>
 </body>
 </html>

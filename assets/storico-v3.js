@@ -17,6 +17,9 @@ const T = {
     emptyCta: "Genera il primo kit →",
     confirmOne: "Eliminare questo kit? L'operazione è definitiva.",
     confirmAll: "Cancellare TUTTO lo storico? L'operazione è definitiva.",
+    dlgT: "Conferma", dlgYes: "Sì, elimina", dlgNo: "Annulla",
+    skipLink: "Salta al contenuto",
+    exportTitle: "Esporta questo kit", deleteTitle: "Elimina questo kit",
     deleted: "Eliminato.", deletedAll: "Storico cancellato.",
     foot: "Contenuti cifrati a riposo su server UE · esportabili e cancellabili in ogni momento · rimossi dopo 24 mesi.",
     of: "su", err: "Errore: ",
@@ -33,6 +36,9 @@ const T = {
     emptyCta: "Generate your first kit →",
     confirmOne: "Delete this kit? This cannot be undone.",
     confirmAll: "Delete your ENTIRE history? This cannot be undone.",
+    dlgT: "Confirm", dlgYes: "Yes, delete", dlgNo: "Cancel",
+    skipLink: "Skip to content",
+    exportTitle: "Export this kit", deleteTitle: "Delete this kit",
     deleted: "Deleted.", deletedAll: "History deleted.",
     foot: "Content encrypted at rest on EU servers · exportable and deletable anytime · removed after 24 months.",
     of: "of", err: "Error: ",
@@ -47,12 +53,33 @@ function applyLang() {
 $("langSeg").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
   LANG = b.getAttribute("data-lang");
-  [...$("langSeg").children].forEach((c) => c.classList.toggle("on", c === b));
+  [...$("langSeg").children].forEach((c) => { const on = c === b; c.classList.toggle("on", on); c.setAttribute("aria-pressed", String(on)); });
   applyLang(); loadAll();
 });
 
-const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-function setK(m, c) { $("kStatus").textContent = m; $("kStatus").className = "ds-status " + (c || ""); }
+const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function setK(m, c) {
+  $("kStatus").textContent = m; $("kStatus").className = "ds-status " + (c || "");
+  if (c === "err" && m) { const a = $("a11yAlert"); a.textContent = ""; a.textContent = m; }
+}
+
+/* conferma accessibile via <dialog> nativo: focus trap ed Esc dal browser,
+   ritorno del focus a chi ha aperto. Sostituisce confirm(). */
+function askConfirm(msg) {
+  return new Promise((resolve) => {
+    const dlg = $("confirmDlg");
+    $("confirmDlgT").textContent = t("dlgT");
+    $("confirmDlgP").textContent = msg;
+    $("confirmDlgYes").textContent = t("dlgYes");
+    $("confirmDlgNo").textContent = t("dlgNo");
+    const opener = document.activeElement;
+    let result = false;
+    $("confirmDlgYes").onclick = () => { result = true; dlg.close(); };
+    $("confirmDlgNo").onclick = () => dlg.close();
+    dlg.onclose = () => { resolve(result); if (opener && opener.focus) opener.focus(); };
+    dlg.showModal();
+  });
+}
 
 /* ── prontezza (stat-tile + barre per componente, una tinta, testo = identità) ── */
 async function loadReadiness() {
@@ -68,7 +95,7 @@ async function loadReadiness() {
     div.innerHTML =
       `<div class="row1"><span class="lbl">${esc(t("comp")[c.key] || c.key)}</span>` +
       `<span class="pts">${c.points} ${t("of")} ${c.max}</span></div>` +
-      `<div class="track"><div class="fill" style="width:${Math.round((c.points / c.max) * 100)}%"></div></div>` +
+      `<div class="track" aria-hidden="true"><div class="fill" style="width:${Math.round((c.points / c.max) * 100)}%"></div></div>` +
       `<div class="why">${esc(c.why)}</div>`;
     box.appendChild(div);
   }
@@ -101,9 +128,9 @@ async function loadKits() {
         (models ? ` · ${models} LLM` : "") + `</div></div>` +
         (k.meta?.allEu ? '<span class="ds-eu">EU</span>' : "") +
         `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-open="${i}">${esc(t("open"))}</button>` +
-        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-regen="${i}" title="${esc(t("regenTitle"))}">${t("regen")}</button>` +
-        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-exp="${i}" title="export">${t("exportOne")}</button>` +
-        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-del="${i}" title="delete">${t("deleteOne")}</button>`;
+        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-regen="${i}" title="${esc(t("regenTitle"))}" aria-label="${esc(t("regenTitle"))} — ${who}">${t("regen")}</button>` +
+        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-exp="${i}" title="${esc(t("exportTitle"))}" aria-label="${esc(t("exportTitle"))} — ${who}">${t("exportOne")}</button>` +
+        `<button class="ds-btn ds-btn-ghost ds-btn-sm" data-del="${i}" title="${esc(t("deleteTitle"))}" aria-label="${esc(t("deleteTitle"))} — ${who}">${t("deleteOne")}</button>`;
       box.appendChild(row);
     });
   }
@@ -130,14 +157,14 @@ $("kitList").addEventListener("click", async (e) => {
   if (exp) { const k = kits[Number(exp.getAttribute("data-exp"))]; window.open(BACKEND + "/v1/kits/" + k.id + "/export", "_blank"); return; }
   if (del) {
     const k = kits[Number(del.getAttribute("data-del"))];
-    if (!confirm(t("confirmOne"))) return;
+    if (!(await askConfirm(t("confirmOne")))) return;
     await api("/v1/kits/" + k.id, { method: "DELETE" });
     setK(t("deleted"), "ok"); loadKits(); loadReadiness();
   }
 });
 $("exportAllBtn").addEventListener("click", () => window.open(BACKEND + "/v1/kits/export", "_blank"));
 $("deleteAllBtn").addEventListener("click", async () => {
-  if (!confirm(t("confirmAll"))) return;
+  if (!(await askConfirm(t("confirmAll")))) return;
   await api("/v1/kits", { method: "DELETE" });
   setK(t("deletedAll"), "ok"); loadKits(); loadReadiness();
 });
@@ -156,11 +183,28 @@ async function openKit(k) {
 }
 function showTab(tab) {
   activeTab = tab;
-  document.querySelectorAll("#detailCard .ds-tab").forEach((b) => b.classList.toggle("on", b.getAttribute("data-tab") === tab));
+  document.querySelectorAll("#detailCard .ds-tab").forEach((b) => {
+    const on = b.getAttribute("data-tab") === tab;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-selected", String(on));
+    if (on) { b.removeAttribute("tabindex"); $("detailBody").setAttribute("aria-labelledby", b.id); }
+    else b.setAttribute("tabindex", "-1");
+  });
   $("detailBody").innerHTML = renderMd(detail?.[tab === "questions" ? "questions" : tab] || "");
 }
 document.querySelectorAll("#detailCard .ds-tab").forEach((b) =>
   b.addEventListener("click", () => showTab(b.getAttribute("data-tab"))));
+/* pattern tab WAI-ARIA: frecce per muoversi tra i tab */
+document.querySelector("#detailCard .ds-tabs").addEventListener("keydown", (e) => {
+  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+  const tabs = [...document.querySelectorAll('#detailCard .ds-tab')];
+  const i = tabs.indexOf(document.activeElement);
+  if (i < 0) return;
+  e.preventDefault();
+  const next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+  next.focus();
+  showTab(next.getAttribute("data-tab"));
+});
 $("backBtn").addEventListener("click", () => {
   $("detailCard").style.display = "none";
   $("readyCard").style.display = ""; $("kitsCard").style.display = "";

@@ -67,12 +67,21 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   };
   Object.keys(T2).forEach(l=>Object.assign(T[l],T2[l]));
   Object.keys(T3).forEach(l=>Object.assign(T[l],T3[l]));
+  /* accessibilità: skip link + dialog di conferma */
+  const T4={
+    it:{skipLink:"Salta al contenuto",dlgT:"Conferma",dlgYes:"Sì",dlgNo:"Annulla"},
+    en:{skipLink:"Skip to content",dlgT:"Confirm",dlgYes:"Yes",dlgNo:"Cancel"},
+    zh:{skipLink:"跳到主要内容",dlgT:"确认",dlgYes:"是",dlgNo:"取消"},
+    es:{skipLink:"Saltar al contenido",dlgT:"Confirmar",dlgYes:"Sí",dlgNo:"Cancelar"}
+  };
+  Object.keys(T4).forEach(l=>Object.assign(T[l],T4[l]));
   let LANG='en';
   function t(k){ return (T[LANG]&&T[LANG][k])||T.it[k]||k; }
   function applyLang(){
     document.documentElement.lang=LANG;
     document.querySelectorAll('[data-i18n]').forEach(el=>el.innerHTML=t(el.getAttribute('data-i18n')));
-    document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.placeholder=t(el.getAttribute('data-i18n-ph')));
+    // il placeholder diventa nome accessibile SOLO per i campi senza label associata
+    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.getAttribute('data-i18n-ph'));if(!(el.labels&&el.labels.length))el.setAttribute('aria-label',el.placeholder);});
     $('howtoBody').innerHTML=t('how'); buildModeOptions(); refreshProviderLabels(); renderProfileWhere();
     listenBtn.querySelector('span').textContent = recognizing? t('stop'):t('listen');
   }
@@ -139,11 +148,37 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   let finalText='',recognizing=false,recognition=null,autoMode=true,busy=false,pauseTimer=null,lastLen=0,lastAnswer='';
   const setupStatus=$('setupStatus'),liveStatus=$('liveStatus'),transcriptEl=$('transcript'),answerEl=$('answer');
   const listenBtn=$('listenBtn'),autoBtn=$('autoBtn'),suggestBtn=$('suggestBtn'),recDot=$('recDot');
-  function setS(el,msg,cls){el.textContent=msg;el.className='status '+(cls||'');}
+  function setS(el,msg,cls){el.textContent=msg;el.className='status '+(cls||'');
+    if(cls==='err'&&msg){const a=$('a11yAlert');if(a){a.textContent='';a.textContent=msg;}}}
 
-  /* onboarding choice */
+  /* conferma accessibile via <dialog> nativo (focus trap + Esc dal browser) */
+  function askConfirm(msg){
+    return new Promise(resolve=>{
+      const dlg=$('confirmDlg');
+      $('confirmDlgT').textContent=t('dlgT'); $('confirmDlgP').textContent=msg;
+      $('confirmDlgYes').textContent=t('dlgYes'); $('confirmDlgNo').textContent=t('dlgNo');
+      const opener=document.activeElement;
+      let result=false;
+      $('confirmDlgYes').onclick=()=>{result=true;dlg.close();};
+      $('confirmDlgNo').onclick=()=>dlg.close();
+      dlg.onclose=()=>{resolve(result);if(opener&&opener.focus)opener.focus();};
+      dlg.showModal();
+    });
+  }
+
+  /* onboarding choice: gruppo radio ARIA con roving tabindex */
   let proMode=false;
-  function selChoice(which){ ['choiceFree','choiceOwn','choiceLocal','choicePro'].forEach(c=>$(c).classList.toggle('sel',c===which)); }
+  const CHOICES=['choiceFree','choiceOwn','choiceLocal','choicePro'];
+  function selChoice(which){ CHOICES.forEach(c=>{const on=c===which;$(c).classList.toggle('sel',on);$(c).setAttribute('aria-checked',String(on));$(c).setAttribute('tabindex',on?'0':'-1');}); }
+  CHOICES.forEach((c,idx)=>$(c).addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();$(c).click();return;}
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key==='ArrowLeft'||e.key==='ArrowUp'){
+      e.preventDefault();
+      const dir=(e.key==='ArrowRight'||e.key==='ArrowDown')?1:CHOICES.length-1;
+      const next=$(CHOICES[(idx+dir)%CHOICES.length]);
+      next.focus(); next.click();
+    }
+  }));
   $('choiceFree').addEventListener('click',()=>{ proMode=false; providerEl.value='gemini'; selChoice('choiceFree'); $('ownWrap').style.display='none'; syncProvider(); save(); });
   $('choiceOwn').addEventListener('click',()=>{ proMode=false; if(providerEl.value==='gemini'||providerEl.value==='ollama')providerEl.value='openai'; selChoice('choiceOwn'); $('ownWrap').style.display=''; syncProvider(); save(); });
   $('choiceLocal').addEventListener('click',()=>{ proMode=false; providerEl.value='ollama'; selChoice('choiceLocal'); $('ownWrap').style.display='none'; syncProvider(); save(); });
@@ -294,7 +329,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   });
   $('profExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/profile/export','_blank'));
   $('profDeleteBtn').addEventListener('click',async()=>{
-    if(!confirm(t('profDeleteConfirm')))return;
+    if(!(await askConfirm(t('profDeleteConfirm'))))return;
     try{ await api('/v1/profile',{method:'DELETE',body:'{}'}); }catch(_){}
     PF_IDS.forEach(id=>{$(id).value='';store.del(PF_KEYS[id]);});
     $('profConsent').checked=false; renderProfileWhere(); setPf(t('profDeleted'),'ok');
@@ -309,7 +344,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   });
   $('histExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/kits/export','_blank'));
   $('histDeleteBtn').addEventListener('click',async()=>{
-    if(!confirm(t('histConfirm')))return;
+    if(!(await askConfirm(t('histConfirm'))))return;
     try{ await api('/v1/kits',{method:'DELETE',body:'{}'}); setPf(t('histDeleted'),'ok'); }
     catch(e){ setPf(e.message,'err'); }
   });
@@ -354,21 +389,22 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     recognition.onresult=e=>{let itr='';for(let i=e.resultIndex;i<e.results.length;i++){const x=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=x+' ';else itr+=x;}render(itr);if(autoMode)sched();};
     recognition.onerror=e=>setS(liveStatus,'Mic: '+e.error,'err');
     recognition.onend=()=>{if(recognizing){try{recognition.start()}catch(_){}}};
-    try{recognition.start();recognizing=true;listenBtn.classList.add('on');listenBtn.querySelector('span').textContent=t('stop');recDot.classList.add('live');setS(liveStatus,t('onair'),'ok');}catch(_){}
+    try{recognition.start();recognizing=true;listenBtn.classList.add('on');listenBtn.setAttribute('aria-pressed','true');listenBtn.querySelector('span').textContent=t('stop');recDot.classList.add('live');setS(liveStatus,t('onair'),'ok');}catch(_){}
   }
-  function stopRec(){recognizing=false;if(recognition)recognition.stop();if(pauseTimer)clearTimeout(pauseTimer);listenBtn.classList.remove('on');listenBtn.querySelector('span').textContent=t('listen');recDot.classList.remove('live');setS(liveStatus,t('stopped'));}
+  function stopRec(){recognizing=false;if(recognition)recognition.stop();if(pauseTimer)clearTimeout(pauseTimer);listenBtn.classList.remove('on');listenBtn.setAttribute('aria-pressed','false');listenBtn.querySelector('span').textContent=t('listen');recDot.classList.remove('live');setS(liveStatus,t('stopped'));}
   /* XSS: la trascrizione contiene input utente (domanda manuale) e testo del
      ponte desktop → SOLO nodi di testo, mai innerHTML. */
   function render(itr){
     transcriptEl.textContent='';
     transcriptEl.appendChild(document.createTextNode(finalText));
-    const sp=document.createElement('span');sp.className='interim';sp.textContent=itr||'';
+    // la parte interim cambia di continuo: nascosta allo screen reader per non spammare
+    const sp=document.createElement('span');sp.className='interim';sp.setAttribute('aria-hidden','true');sp.textContent=itr||'';
     transcriptEl.appendChild(sp);
     transcriptEl.scrollTop=transcriptEl.scrollHeight;
   }
   function sched(){if(pauseTimer)clearTimeout(pauseTimer);pauseTimer=setTimeout(()=>{if(!busy&&finalText.length-lastLen>14){lastLen=finalText.length;suggest();}},1000);}
   listenBtn.addEventListener('click',()=>recognizing?stopRec():startRec());
-  autoBtn.addEventListener('click',()=>{autoMode=!autoMode;autoBtn.classList.toggle('on',autoMode);setS(liveStatus,autoMode?t('autoOn'):t('autoOff'),autoMode?'ok':'');save();});
+  autoBtn.addEventListener('click',()=>{autoMode=!autoMode;autoBtn.classList.toggle('on',autoMode);autoBtn.setAttribute('aria-pressed',String(autoMode));setS(liveStatus,autoMode?t('autoOn'):t('autoOff'),autoMode?'ok':'');save();});
   $('clearBtn').addEventListener('click',()=>{finalText='';lastLen=0;render('');answerEl.innerHTML='';lastAnswer='';hideFeedback();});
 
   function systemPrompt(){
@@ -480,7 +516,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     }catch(e){setS(liveStatus,'Float: '+e.message,'err');}
   });
 
-  $('langswitch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;LANG=b.getAttribute('data-lang');[...$('langswitch').children].forEach(c=>c.classList.toggle('on',c===b));applyLang();save();});
+  $('langswitch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;LANG=b.getAttribute('data-lang');[...$('langswitch').children].forEach(c=>{const on=c===b;c.classList.toggle('on',on);c.setAttribute('aria-pressed',String(on));});applyLang();save();});
   ['model','baseUrl','lang','ansLang','mode'].forEach(id=>$(id).addEventListener('change',save));
   $('apiKey').addEventListener('input',()=>{suggestBtn.disabled=!$('apiKey').value.trim();save();});
   $('remember').addEventListener('change',save);
@@ -490,7 +526,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     // opt-in: spuntato SOLO se l'utente l'ha scelto in passato (persistito)
     try{$('remember').checked=localStorage.getItem('v5_remember')==='1';}catch(_){$('remember').checked=false;}
     LANG=store.get('v5_lang')|| (function(){var n=(navigator.language||navigator.userLanguage||'en').toLowerCase(); if(n.indexOf('it')===0)return'it'; if(n.indexOf('zh')===0)return'zh'; if(n.indexOf('es')===0)return'es'; return 'en';})();
-    [...$('langswitch').children].forEach(c=>c.classList.toggle('on',c.getAttribute('data-lang')===LANG));
+    [...$('langswitch').children].forEach(c=>{const on=c.getAttribute('data-lang')===LANG;c.classList.toggle('on',on);c.setAttribute('aria-pressed',String(on));});
     if(store.get('v5_prov')&&PROVIDERS[store.get('v5_prov')])providerEl.value=store.get('v5_prov');
     proMode=store.get('v6_pro')==='1';
     $('sensToggle').checked=store.get('v6_sens')==='1';

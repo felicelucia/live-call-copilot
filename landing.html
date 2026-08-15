@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -25,7 +25,7 @@
 <meta name="twitter:image" content="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/assets/social-card-v1.png">
 <!-- ═══ fine SITE-BASE ═══ -->
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="stylesheet" href="assets/design-system.css">
+<link rel="stylesheet" href="assets/design-system-v2.css">
 <style>
   /* layout locale: tutto il linguaggio viene dal design system */
   .topbar{display:flex;align-items:center;gap:12px;padding-top:var(--ds-s2);}
@@ -53,20 +53,24 @@
 </style>
 </head>
 <body class="ds-page">
+<a href="#main" class="skip-link" data-i="skipLink">Salta al contenuto</a>
 <div class="ds-wrap" style="max-width:960px">
 
-  <div class="topbar">
-    <div class="logo">🎧</div>
+  <header class="topbar">
+    <div class="logo" aria-hidden="true">🎧</div>
     <div class="brand">Live Call Copilot</div>
-    <a class="ds-btn ds-btn-ghost ds-btn-sm" href="/stipendi" data-i="navSal"></a>
-    <a class="ds-btn ds-btn-ghost ds-btn-sm" href="jobs.html" data-i="navJobs"></a>
-    <a class="ds-btn ds-btn-ghost ds-btn-sm" href="index.html" data-i="openApp"></a>
-    <div class="ds-seg" id="langSeg">
-      <button data-lang="it" class="on">IT</button>
-      <button data-lang="en">EN</button>
+    <nav aria-label="Sezioni del sito" style="display:contents">
+      <a class="ds-btn ds-btn-ghost ds-btn-sm" href="/stipendi" data-i="navSal"></a>
+      <a class="ds-btn ds-btn-ghost ds-btn-sm" href="jobs.html" data-i="navJobs"></a>
+      <a class="ds-btn ds-btn-ghost ds-btn-sm" href="index.html" data-i="openApp"></a>
+    </nav>
+    <div class="ds-seg" id="langSeg" role="group" aria-label="Lingua / Language">
+      <button data-lang="it" class="on" aria-pressed="true">IT</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
     </div>
-  </div>
+  </header>
 
+  <main id="main">
   <div class="hero">
     <h1 data-i="heroH"></h1>
     <p data-i="heroP"></p>
@@ -77,9 +81,10 @@
     <div class="ds-muted" style="font-size:var(--ds-t-xs);margin-top:10px" data-i="ctaNote"></div>
   </div>
 
+  <h2 class="visually-hidden" data-i="pillarsH">Perché Live Call Copilot</h2>
   <div class="pillars">
-    <div class="pillar"><div class="ic">🎛️</div><h3 data-i="p1H"></h3><p data-i="p1P"></p></div>
-    <div class="pillar"><div class="ic">✅</div><h3 data-i="p2H"></h3><p data-i="p2P"></p></div>
+    <div class="pillar"><div class="ic" aria-hidden="true">🎛️</div><h3 data-i="p1H"></h3><p data-i="p1P"></p></div>
+    <div class="pillar"><div class="ic" aria-hidden="true">✅</div><h3 data-i="p2H"></h3><p data-i="p2P"></p></div>
     <div class="pillar"><div class="ic"><span class="ds-eu">EU</span></div><h3 data-i="p3H"></h3><p data-i="p3P"></p></div>
   </div>
 
@@ -89,6 +94,7 @@
     <div class="step"><b data-i="s2H"></b><span data-i="s2P"></span></div>
     <div class="step"><b data-i="s3H"></b><span data-i="s3P"></span></div>
   </div>
+  </main>
 
   <footer>
     <span data-i="footPriv"></span><br>
@@ -96,6 +102,6 @@
   </footer>
 </div>
 
-<script src="assets/landing-v2.js"></script>
+<script src="assets/landing-v3.js"></script>
 </body>
 </html>

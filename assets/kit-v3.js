@@ -7,6 +7,7 @@ const BACKEND = location.protocol.startsWith("http") ? location.origin : "http:/
 /* ── i18n ─────────────────────────────────────────────────────────── */
 const T = {
   it: {
+    skipLink: "Salta al contenuto",
     brandSub: "Kit di candidatura · beta",
     heroH: "Un annuncio. Il tuo profilo. Il kit completo.",
     heroP: "Tre agenti AI leggono l'annuncio e il tuo percorso, e preparano un CV su misura e le probabili domande del colloquio. I tuoi dati restano su modelli europei <span class=\"ds-eu\">EU</span> — sempre.",
@@ -57,6 +58,7 @@ const T = {
     lang: "italiano",
   },
   en: {
+    skipLink: "Skip to content",
     brandSub: "Application Kit · beta",
     heroH: "One job ad. Your profile. The full kit.",
     heroP: "Three AI agents read the ad and your background, then craft a tailored CV and the likely interview questions. Your data stays on European models <span class=\"ds-eu\">EU</span> — always.",
@@ -113,15 +115,19 @@ function applyLang() {
   document.documentElement.lang = LANG;
   // innerHTML (stringhe nostre, non input utente): serve per il mini-badge UE nella prosa
   document.querySelectorAll("[data-i]").forEach((el) => (el.innerHTML = t(el.getAttribute("data-i"))));
-  document.querySelectorAll("[data-i-ph]").forEach((el) => (el.placeholder = t(el.getAttribute("data-i-ph"))));
+  // placeholder anche come nome accessibile: questi campi non hanno label visiva
+  document.querySelectorAll("[data-i-ph]").forEach((el) => { el.placeholder = t(el.getAttribute("data-i-ph")); el.setAttribute("aria-label", el.placeholder); });
   renderAccLine();
 }
 $("langSeg").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
   LANG = b.getAttribute("data-lang");
-  [...$("langSeg").children].forEach((c) => c.classList.toggle("on", c === b));
+  [...$("langSeg").children].forEach((c) => { const on = c === b; c.classList.toggle("on", on); c.setAttribute("aria-pressed", String(on)); });
   applyLang();
 });
+
+/* errori/limiti: oltre allo status visivo, annuncio assertivo per screen reader */
+function announceAlert(msg) { const a = $("a11yAlert"); if (a) { a.textContent = ""; a.textContent = msg; } }
 
 /* ── account ──────────────────────────────────────────────────────── */
 let me = null;
@@ -176,7 +182,7 @@ let source = "profile";
 $("srcSeg").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
   source = b.getAttribute("data-src");
-  [...$("srcSeg").children].forEach((c) => c.classList.toggle("on", c === b));
+  [...$("srcSeg").children].forEach((c) => { const on = c === b; c.classList.toggle("on", on); c.setAttribute("aria-pressed", String(on)); });
   $("cvWrap").style.display = source === "cv" ? "" : "none";
 });
 $("jobAd").addEventListener("input", () => {
@@ -192,7 +198,13 @@ const results = {}; // task → markdown grezzo
 let activeTab = "sarto";
 function showTab(tab) {
   activeTab = tab;
-  document.querySelectorAll(".ds-tab").forEach((b) => b.classList.toggle("on", b.getAttribute("data-tab") === tab));
+  document.querySelectorAll(".ds-tab").forEach((b) => {
+    const on = b.getAttribute("data-tab") === tab;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-selected", String(on));
+    if (on) { b.removeAttribute("tabindex"); $("outBody").setAttribute("aria-labelledby", b.id); }
+    else b.setAttribute("tabindex", "-1");
+  });
   $("outBody").innerHTML = renderMd(results[tab] || "");
   // il PDF esiste solo per il CV su misura
   $("pdfBtn").style.display = tab === "sarto" && results.sarto ? "" : "none";
@@ -210,6 +222,17 @@ function showTab(tab) {
 }
 document.querySelectorAll(".ds-tab").forEach((b) =>
   b.addEventListener("click", () => showTab(b.getAttribute("data-tab"))));
+/* pattern tab WAI-ARIA: frecce per muoversi tra i tab visibili */
+document.querySelector(".ds-tabs").addEventListener("keydown", (e) => {
+  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+  const tabs = [...document.querySelectorAll('.ds-tab[role="tab"]')].filter((b) => b.style.display !== "none");
+  const i = tabs.indexOf(document.activeElement);
+  if (i < 0) return;
+  e.preventDefault();
+  const next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+  next.focus();
+  showTab(next.getAttribute("data-tab"));
+});
 /* Nome file PDF dinamico: l'Analista apre SEMPRE con due righe a chiavi fisse
    (RUOLO: / AZIENDA:, identiche in ogni lingua — contratto col backend).
    Da lì: CV-<Ruolo>-<Azienda>-<AAAA-MM>.pdf, sanitizzato; AZIENDA "n/d" → solo
@@ -286,7 +309,10 @@ $("copyBtn").addEventListener("click", () => {
 
 /* ── generazione ──────────────────────────────────────────────────── */
 const plancia = createPlancia($("plancia"), { labels: T[LANG].labels });
-function setStatus(msg, cls) { $("status").textContent = msg; $("status").className = "ds-status " + (cls || ""); }
+function setStatus(msg, cls) {
+  $("status").textContent = msg; $("status").className = "ds-status " + (cls || "");
+  if (cls === "err" && msg) announceAlert(msg);
+}
 let lastJobAd = "", lastPastedCv = null;
 
 /* Agenti on-demand (Coach/Critico): riusano il contesto già generato —

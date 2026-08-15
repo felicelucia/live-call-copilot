@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -10,7 +10,7 @@
 <!-- SITE-BASE: aggiornare al cambio dominio -->
 <link rel="canonical" href="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/practice.html">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="stylesheet" href="assets/design-system.css">
+<link rel="stylesheet" href="assets/design-system-v2.css">
 <style>
   /* Variabili rimappate sui token del design system (assets/design-system.css):
      stessa lingua visiva del Kit, zero cambi a selettori/id/DOM. */
@@ -75,7 +75,7 @@
   @keyframes blink{50%{opacity:.35;}}
   .statepill.think{color:#8a6d2f;background:#fff7ec;border-color:#f2dcb0;}
   .youtext{margin-top:14px;min-height:2.2em;font-size:1.06rem;color:#3a332e;}
-  .youtext:empty::before{content:attr(data-ph);color:#bcafa0;font-size:.9rem;}
+  .youtext:empty::before{content:attr(data-ph);color:var(--muted);font-size:.9rem;}
   .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:14px;}
 
   .fb{display:none;}
@@ -101,13 +101,15 @@
 </style>
 </head>
 <body>
+<a href="#main" class="skip-link" id="skipLink">Skip to content</a>
 <div class="wrap">
 
-  <div class="top">
-    <div class="logo">🎤</div>
+  <header class="top">
+    <div class="logo" aria-hidden="true">🎤</div>
     <div class="name">Live Call Copilot · Practice<span class="tag">BETA</span></div>
-  </div>
+  </header>
 
+  <main id="main">
   <div class="hero">
     <h1 id="heroH">Rehearse the interview — with a coach that knows your CV</h1>
     <p id="heroP">A realistic AI interviewer, tailored to your résumé and the job. Talk hands-free, get live coaching, and finish with a scored report.</p>
@@ -119,49 +121,50 @@
     <p class="sub" id="setupSub">The more you give it, the sharper the interview.</p>
     <div class="note" id="profNote" style="display:none"></div>
 
-    <label id="lRole">Role / position</label>
+    <label id="lRole" for="role">Role / position</label>
     <input id="role" placeholder="e.g. Project Manager — solar / renewables">
 
-    <label id="lJob">Job description <span style="color:var(--muted);font-weight:400">(paste it — optional but recommended)</span></label>
+    <label id="lJob" for="job">Job description <span style="color:var(--muted);font-weight:400">(paste it — optional but recommended)</span></label>
     <textarea id="job" placeholder="Paste the job ad or key requirements…"></textarea>
 
-    <label id="lCv">Your CV / background <span style="color:var(--muted);font-weight:400">(paste key points — optional)</span></label>
+    <label id="lCv" for="cv">Your CV / background <span style="color:var(--muted);font-weight:400">(paste key points — optional)</span></label>
     <textarea id="cv" placeholder="Paste your résumé or a few bullet points about your experience…"></textarea>
 
     <div class="row">
-      <div><label id="lLang">Language</label><select id="lang"><option value="en">English</option><option value="it">Italiano</option></select></div>
-      <div><label id="lVoice">Interviewer voice</label><select id="voiceSel"><option value="female">Female</option><option value="male">Male</option></select></div>
-      <div><label id="lStyle">Style</label><select id="style"><option value="friendly">Friendly</option><option value="neutral">Neutral</option><option value="tough">Tough / challenging</option></select></div>
-      <div><label id="lNq">Questions</label><select id="nq"><option>4</option><option selected>5</option><option>6</option><option>8</option></select></div>
+      <div><label id="lLang" for="lang">Language</label><select id="lang"><option value="en">English</option><option value="it">Italiano</option></select></div>
+      <div><label id="lVoice" for="voiceSel">Interviewer voice</label><select id="voiceSel"><option value="female">Female</option><option value="male">Male</option></select></div>
+      <div><label id="lStyle" for="style">Style</label><select id="style"><option value="friendly">Friendly</option><option value="neutral">Neutral</option><option value="tough">Tough / challenging</option></select></div>
+      <div><label id="lNq" for="nq">Questions</label><select id="nq"><option>4</option><option selected>5</option><option>6</option><option>8</option></select></div>
     </div>
 
-    <label id="lEngine">AI engine <span style="color:var(--muted);font-weight:400">— for real quality use Claude or Groq, not only free Gemini</span></label>
+    <label id="lEngine" for="engine">AI engine <span style="color:var(--muted);font-weight:400">— for real quality use Claude or Groq, not only free Gemini</span></label>
     <select id="engine"></select>
     <div class="row" style="margin-top:2px">
-      <div style="flex:3"><label id="lKey">API key <a class="hintlink" id="keyLink" target="_blank">— get one</a></label><input type="password" id="key" placeholder="..." autocomplete="off"></div>
-      <div style="flex:2"><label id="lModel">Model</label><input id="model" list="modelList" placeholder="(auto)"><datalist id="modelList"></datalist></div>
+      <div style="flex:3"><label id="lKey" for="key">API key <a class="hintlink" id="keyLink" target="_blank">— get one</a></label><input type="password" id="key" placeholder="..." autocomplete="off"></div>
+      <div style="flex:2"><label id="lModel" for="model">Model</label><input id="model" list="modelList" placeholder="(auto)"><datalist id="modelList"></datalist></div>
     </div>
 
     <div class="note" id="privacyNote">🎧 Use headphones so the interviewer's voice isn't picked up by your mic. 🔒 Everything runs in your browser on your key — nothing is saved on a server. In the full product this routes through our sovereign European backend (no key needed) and can run several specialised agents in parallel.</div>
     <div style="margin-top:16px"><button class="btn btn-primary" id="startBtn" style="width:100%">▶ Start the interview</button></div>
-    <div class="status" id="setupStatus"></div>
+    <div class="status" id="setupStatus" role="status"></div>
+    <div class="visually-hidden" id="a11yAlert" role="alert"></div>
   </div>
 
   <!-- STAGE -->
   <div class="stage" id="stage">
-    <div class="pbar"><i id="pbarFill"></i></div>
+    <div class="pbar" id="pbar" role="progressbar" aria-label="Interview progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="pbarFill"></i></div>
     <div class="interviewer">
-      <div class="who"><span class="avatar" id="avatar">🧑‍💼</span><span id="whoName">Interviewer</span><span class="prog" id="prog"></span></div>
-      <div class="qtext" id="qtext">…</div>
+      <div class="who"><span class="avatar" id="avatar" aria-hidden="true">🧑‍💼</span><span id="whoName">Interviewer</span><span class="prog" id="prog"></span></div>
+      <div class="qtext" id="qtext" aria-live="polite">…</div>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
         <button class="smallbtn" id="replayBtn">🔊 Repeat</button>
         <button class="smallbtn" id="hintBtn">💡 Suggest an answer</button>
         <button class="smallbtn" id="coachBtn" disabled>✍️ Improve my last answer</button>
       </div>
-      <div class="coachbox" id="coachbox" style="display:none"></div>
+      <div class="coachbox" id="coachbox" style="display:none" aria-live="polite"></div>
     </div>
     <div class="card">
-      <span class="statepill" id="statepill">…</span>
+      <span class="statepill" id="statepill" role="status">…</span>
       <div class="youtext" id="youtext" data-ph="Your words appear here as you speak…"></div>
       <div class="bar">
         <button class="btn on" id="handsBtn">✋ Hands-free: ON</button>
@@ -169,14 +172,15 @@
         <button class="btn btn-danger" id="endBtn">End &amp; get report</button>
       </div>
       <details class="more" style="margin-top:10px"><summary>⌨ Type instead</summary>
-        <div style="margin-top:8px;display:flex;gap:8px"><input id="answerInput" placeholder="Type your answer, press Enter"><button class="btn btn-ghost" id="sendType">Send</button></div>
+        <div style="margin-top:8px;display:flex;gap:8px"><input id="answerInput" aria-label="Type your answer" placeholder="Type your answer, press Enter"><button class="btn btn-ghost" id="sendType">Send</button></div>
       </details>
-      <div class="status" id="liveStatus"></div>
+      <div class="status" id="liveStatus" role="status"></div>
     </div>
   </div>
 
   <!-- REPORT -->
   <div class="fb" id="fb">
+    <h2 class="visually-hidden" id="reportH">Report</h2>
     <div class="score">
       <div class="ring" id="ring"><div><div class="n" id="scoreNum">—</div><div class="u">/ 100</div></div></div>
       <div class="sum" id="scoreWhy"></div>
@@ -196,18 +200,29 @@
       </label>
       <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn btn-ghost" id="scoreSaveBtn" disabled>Save score</button>
-        <span class="status" id="scoreSaveSt"></span>
+        <span class="status" id="scoreSaveSt" role="status"></span>
       </div>
     </div>
     <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn btn-primary" id="againBtn">↻ Practice again</button>
     </div>
   </div>
+  </main>
 
-  <div class="foot">Beta · your data stays in your browser · sovereign multi-agent backend coming next.</div>
+  <footer class="foot" id="footNote">Beta · your data stays in your browser · sovereign multi-agent backend coming next.</footer>
 
 </div>
 
-<script src="assets/practice-v3.js"></script>
+<!-- conferma accessibile (al posto del confirm() nativo) -->
+<dialog class="ds-dialog" id="confirmDlg" aria-labelledby="confirmDlgT">
+  <h2 id="confirmDlgT"></h2>
+  <p id="confirmDlgP"></p>
+  <div class="ds-dialog-btns">
+    <button class="btn btn-ghost" id="confirmDlgNo"></button>
+    <button class="btn btn-primary" id="confirmDlgYes"></button>
+  </div>
+</dialog>
+
+<script src="assets/practice-v4.js"></script>
 </body>
 </html>
