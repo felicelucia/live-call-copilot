@@ -26,31 +26,7 @@
 <!-- ═══ fine SITE-BASE ═══ -->
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="stylesheet" href="assets/design-system-v2.css">
-<style>
-  /* layout locale: tutto il linguaggio viene dal design system */
-  .topbar{display:flex;align-items:center;gap:12px;padding-top:var(--ds-s2);}
-  .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--ds-accent),#7048e8);display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 5px 14px rgba(59,91,219,.3);}
-  .brand{font-weight:800;font-size:var(--ds-t-base);letter-spacing:-.01em;}
-  .topbar .ds-btn{margin-left:auto;}
-  .hero{text-align:center;padding:var(--ds-s6) 0 var(--ds-s4);}
-  .hero h1{font-size:2.3rem;font-weight:800;letter-spacing:-.03em;margin:0;line-height:1.2;}
-  .hero p{max-width:600px;margin:14px auto 0;color:var(--ds-muted);font-size:1.05rem;}
-  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:var(--ds-s5);}
-  .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--ds-s4);}
-  .pillar{background:var(--ds-surface);border:1px solid var(--ds-line);border-radius:var(--ds-r-l);padding:var(--ds-s5);box-shadow:var(--ds-sh-s);}
-  .pillar .ic{font-size:1.6rem;}
-  .pillar h3{margin:10px 0 6px;font-size:var(--ds-t-lg);letter-spacing:-.01em;}
-  .pillar p{margin:0;color:var(--ds-muted);font-size:var(--ds-t-sm);line-height:1.6;}
-  .steps{counter-reset:step;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--ds-s4);margin-top:var(--ds-s3);}
-  .step{position:relative;background:var(--ds-surface);border:1px solid var(--ds-line);border-radius:var(--ds-r-m);padding:var(--ds-s4) var(--ds-s4) var(--ds-s4) 56px;}
-  .step::before{counter-increment:step;content:counter(step);position:absolute;left:16px;top:16px;width:28px;height:28px;border-radius:50%;background:var(--ds-accent-soft);color:var(--ds-accent-deep);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:var(--ds-t-sm);}
-  .step b{display:block;margin-bottom:3px;}
-  .step span{color:var(--ds-muted);font-size:var(--ds-t-sm);line-height:1.55;}
-  .sect-title{text-align:center;margin:var(--ds-s6) 0 var(--ds-s3);}
-  footer{text-align:center;font-size:var(--ds-t-xs);color:var(--ds-muted);margin-top:var(--ds-s6);line-height:1.7;}
-  footer a{color:var(--ds-accent);}
-  #langSeg{margin-left:12px;}
-</style>
+<link rel="stylesheet" href="assets/page-landing-v1.css">
 </head>
 <body class="ds-page">
 <a href="#main" class="skip-link" data-i="skipLink">Salta al contenuto</a>
