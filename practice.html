@@ -57,7 +57,9 @@
       <div style="flex:2"><label id="lModel" for="model">Model</label><input id="model" list="modelList" placeholder="(auto)"><datalist id="modelList"></datalist></div>
     </div>
 
-    <div class="note" id="privacyNote">🎧 Use headphones so the interviewer's voice isn't picked up by your mic. 🔒 Everything runs in your browser on your key — nothing is saved on a server. In the full product this routes through our sovereign European backend (no key needed) and can run several specialised agents in parallel.</div>
+    <!-- claim onesti: BYOK = provider scelto dall'utente; STT dipende dal browser -->
+    <div class="note" id="privacyNote">🎧 Use headphones so the interviewer's voice isn't picked up by your mic. 🔑 BYOK mode: text goes to the provider you choose, with your key and its terms (Google, Anthropic, Groq are non-EU; Mistral is EU). Nothing is saved on our servers. 🎙 Speech recognition depends on the browser (see note below).</div>
+    <div class="status" id="sttNote" style="margin-top:6px"></div>
     <div style="margin-top:16px"><button class="btn btn-primary" id="startBtn" style="width:100%">▶ Start the interview</button></div>
     <div class="status" id="setupStatus" role="status"></div>
     <div class="visually-hidden" id="a11yAlert" role="alert"></div>
@@ -136,6 +138,6 @@
   </div>
 </dialog>
 
-<script src="assets/practice-v4.js"></script>
+<script src="assets/practice-v5.js"></script>
 </body>
 </html>

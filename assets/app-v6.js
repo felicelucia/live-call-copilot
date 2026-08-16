@@ -8,7 +8,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   const $=id=>document.getElementById(id);
   const T={
     it:{heroH:"Il tuo assistente per le videochiamate",heroP:"Ascolta la conversazione (colloquio, riunione, vendita…) e ti suggerisce cosa rispondere, in tempo reale. Con la tua chiave AI gratuita, tutto dentro il browser.",s1:"Scegli come funziona",s2:"Premi Ascolta",s3:"Leggi la risposta",
-      startH:"Per iniziare",startSub:"Scegli un'opzione: è questione di un minuto.",freeT:"Gratis con Google Gemini",reco:"consigliato",freeD:"Crei una chiave gratuita in 1 minuto, nessuna carta. Perfetto per provare.",ownT:"Ho già una chiave / altro motore",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… con la tua chiave.",localT:"100% locale (privato)",localD:"Gira tutto sul tuo PC con Ollama. Nessun dato esce. Zero costi.",localNote:"🔒 Modalità locale: apri questo file sul tuo computer (non online) e avvia Ollama sul PC con OLLAMA_ORIGINS=* . Poi premi Verifica per caricare i modelli. Nessuna conversazione lascia il tuo computer.",
+      startH:"Per iniziare",startSub:"Scegli un'opzione: è questione di un minuto.",freeT:"Gratis con Google Gemini",reco:"consigliato",freeD:"Crei una chiave gratuita in 1 minuto, nessuna carta. Perfetto per provare.",ownT:"Ho già una chiave / altro motore",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… con la tua chiave.",
       engine:"Motore AI",apikey:"Chiave API",getkey:"— come ottenerla",verify:"Verifica",model:"Modello",baseurl:"URL endpoint (OpenAI-compatible)",heard:"Lingua di chi parla",answerlang:"Rispondi in",mode:"Tipo di conversazione",context:"Parlami di te (facoltativo) — CV, ruolo, prodotto",ctxph:"Es: Sono Felice, Project Manager fotovoltaico. Mi candido come… Punti di forza:…",remember:"Ricorda tutto su questo computer",forget:"🗑 Cancella chiavi e dati locali",adv:"⚙️ Impostazioni avanzate",
       listen:"▶ Avvia (ascolta e rispondi)",stop:"⏸ Ferma",auto:"⚡ Risposta automatica",suggest:"💡 Suggerisci ora",float:"🗔 Finestra flottante",clear:"🗑 Pulisci",install:"⬇ Installa app",installed:"App installata ✔",listening:"Cosa sto sentendo",answer:"Cosa puoi rispondere",copy:"Copia",copied:"Copiato ✔",howto:"❔ Come si usa (leggi qui)",manualph:"Oppure scrivi la domanda e premi Invio…",
       paid:"💡 In arrivo: una modalità \"pronta all'uso\" a pagamento, senza chiave API — paghi un piccolo abbonamento e usi subito il modello più potente. Per ora si usa la tua chiave (gratis con Gemini).",
@@ -19,7 +19,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       acNeedLogin:"Accedi (o registrati) per usare la modalità Pro.",acNeedFields:"Inserisci email e password.",acWorking:"Un attimo…",acHello:"Ciao",acPlan:"piano",acRpm:"richieste/min",acFree:"Sei sul piano Free: per usare i modelli senza chiave serve Pro.",acPaid:"Si apre Stripe in un'altra scheda. Dopo il pagamento torna qui e premi \"Ho pagato — aggiorna\".",acBackendDown:"Backend non raggiungibile: controlla che sia acceso.",
       how:"<b>1) Scegli come funziona:</b> \"Gratis con Gemini\" (consigliato) e crea la chiave dal link, oppure usa una tua chiave.<br><br><b>2) Premi 🎙 Ascolta</b> tenendo l'audio della call dagli altoparlanti (non cuffie). Con ⚡ attivo, appena l'altro fa una pausa la risposta compare da sola.<br><br><b>3) Leggi</b> la risposta suggerita. Premi 🗔 per staccarla in una finestrella da mettere di fianco a Zoom.<br><br><b>Etica:</b> usare l'AI in una selezione può violare le regole aziendali; registrare la voce altrui richiede consenso (GDPR)."},
     en:{heroH:"Your assistant for video calls",heroP:"It listens to the conversation (interview, meeting, sales…) and suggests what to say, in real time. With your free AI key, all in your browser.",s1:"Pick how it works",s2:"Press Listen",s3:"Read the answer",
-      startH:"Get started",startSub:"Pick one option — it takes a minute.",freeT:"Free with Google Gemini",reco:"recommended",freeD:"Create a free key in 1 minute, no card. Perfect to try.",ownT:"I have a key / another engine",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… with your key.",localT:"100% local (private)",localD:"Runs entirely on your PC with Ollama. No data leaves. Zero cost.",localNote:"🔒 Local mode: open this file on your computer (not online) and run Ollama with OLLAMA_ORIGINS=* . Then press Verify to load models. No conversation leaves your machine.",
+      startH:"Get started",startSub:"Pick one option — it takes a minute.",freeT:"Free with Google Gemini",reco:"recommended",freeD:"Create a free key in 1 minute, no card. Perfect to try.",ownT:"I have a key / another engine",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… with your key.",
       engine:"AI engine",apikey:"API key",getkey:"— how to get it",verify:"Verify",model:"Model",baseurl:"Endpoint URL (OpenAI-compatible)",heard:"Speaker language",answerlang:"Answer in",mode:"Conversation type",context:"Tell me about you (optional) — CV, role, product",ctxph:"E.g. I'm Felice, a solar Project Manager. Applying for… Strengths:…",remember:"Remember everything on this computer",forget:"🗑 Clear keys & local data",adv:"⚙️ Advanced settings",
       listen:"▶ Start (listen & reply)",stop:"⏸ Stop",auto:"⚡ Auto-answer",suggest:"💡 Suggest now",float:"🗔 Floating window",clear:"🗑 Clear",install:"⬇ Install app",installed:"App installed ✔",listening:"What I'm hearing",answer:"What you can say",copy:"Copy",copied:"Copied ✔",howto:"❔ How to use (read here)",manualph:"Or type the question and press Enter…",
       paid:"💡 Coming soon: a \"ready-to-use\" paid mode with no API key — a small subscription and you use the most powerful model instantly. For now, use your own key (free with Gemini).",
@@ -30,7 +30,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       acNeedLogin:"Log in (or sign up) to use Pro mode.",acNeedFields:"Enter email and password.",acWorking:"One moment…",acHello:"Hi",acPlan:"plan",acRpm:"requests/min",acFree:"You're on the Free plan: Pro is required to use models without a key.",acPaid:"Stripe opens in a new tab. After paying, come back and press \"I've paid — refresh\".",acBackendDown:"Backend unreachable: make sure it's running.",
       how:"<b>1) Pick how it works:</b> \"Free with Gemini\" (recommended), create the key from the link, or use your own key.<br><br><b>2) Press 🎙 Listen</b> with call audio on speakers (not headphones). With ⚡ on, the answer appears by itself when the other person pauses.<br><br><b>3) Read</b> the suggested answer. Press 🗔 to pop it into a small window beside Zoom.<br><br><b>Ethics:</b> using AI in a hiring process may violate company rules; recording others requires consent (GDPR)."},
     zh:{heroH:"你的视频通话助手",heroP:"实时聆听对话（面试、会议、销售……）并建议你该说什么。使用你的免费 AI 密钥，全部在浏览器中运行。",s1:"选择使用方式",s2:"点击聆听",s3:"阅读回答",
-      startH:"开始使用",startSub:"选择一个选项 — 只需一分钟。",freeT:"免费使用 Google Gemini",reco:"推荐",freeD:"1 分钟创建免费密钥，无需银行卡。适合试用。",ownT:"我有密钥 / 其他引擎",ownD:"OpenAI、Claude、DeepSeek、Qwen、Kimi、Groq……使用你的密钥。",localT:"100% 本地（隐私）",localD:"通过 Ollama 完全在本机运行。数据不外传。零成本。",localNote:"🔒 本地模式：在本机打开此文件（非在线），并以 OLLAMA_ORIGINS=* 运行 Ollama，然后点击“验证”加载模型。任何对话都不会离开你的电脑。",
+      startH:"开始使用",startSub:"选择一个选项 — 只需一分钟。",freeT:"免费使用 Google Gemini",reco:"推荐",freeD:"1 分钟创建免费密钥，无需银行卡。适合试用。",ownT:"我有密钥 / 其他引擎",ownD:"OpenAI、Claude、DeepSeek、Qwen、Kimi、Groq……使用你的密钥。",
       engine:"AI 引擎",apikey:"API 密钥",getkey:"— 如何获取",verify:"验证",model:"模型",baseurl:"接口地址（兼容 OpenAI）",heard:"对方语言",answerlang:"回答语言",mode:"对话类型",context:"介绍一下你自己（可选）— 简历、职位、产品",ctxph:"例如：我是 Felice，光伏项目经理，应聘……优势：……",remember:"在本机记住所有内容",forget:"🗑 清除密钥与本地数据",adv:"⚙️ 高级设置",
       listen:"▶ 开始（聆听并回答）",stop:"⏸ 停止",auto:"⚡ 自动回答",suggest:"💡 立即建议",float:"🗔 悬浮窗口",clear:"🗑 清空",install:"⬇ 安装应用",installed:"已安装 ✔",listening:"我听到的内容",answer:"你可以这样回答",copy:"复制",copied:"已复制 ✔",howto:"❔ 使用方法（点此）",manualph:"或输入问题并按回车…",
       paid:"💡 即将推出：无需 API 密钥的付费“即用”模式 — 小额订阅即可立即使用最强模型。目前请使用你自己的密钥（Gemini 免费）。",
@@ -41,7 +41,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       acNeedLogin:"请先登录（或注册）以使用 Pro 模式。",acNeedFields:"请输入邮箱和密码。",acWorking:"请稍候…",acHello:"你好",acPlan:"套餐",acRpm:"次/分钟",acFree:"你当前是免费套餐：无密钥使用模型需要 Pro。",acPaid:"将在新标签页打开 Stripe。付款后回到这里，点击“已付款 — 刷新”。",acBackendDown:"无法连接后端：请确认它正在运行。",
       how:"<b>1) 选择使用方式：</b>“免费使用 Gemini”（推荐），从链接创建密钥，或使用自己的密钥。<br><br><b>2) 点击 🎙 聆听，</b>让通话声音从扬声器播放（不要用耳机）。开启 ⚡ 后，对方停顿时回答会自动出现。<br><br><b>3) 阅读</b>建议回答。点击 🗔 弹出小窗口放在 Zoom 旁边。<br><br><b>伦理：</b>在招聘中使用 AI 可能违反公司规定；录制他人需征得同意（GDPR）。"},
     es:{heroH:"Tu asistente para videollamadas",heroP:"Escucha la conversación (entrevista, reunión, ventas…) y te sugiere qué responder, en tiempo real. Con tu clave de IA gratuita, todo en el navegador.",s1:"Elige cómo funciona",s2:"Pulsa Escuchar",s3:"Lee la respuesta",
-      startH:"Para empezar",startSub:"Elige una opción — es cuestión de un minuto.",freeT:"Gratis con Google Gemini",reco:"recomendado",freeD:"Creas una clave gratis en 1 minuto, sin tarjeta. Ideal para probar.",ownT:"Ya tengo clave / otro motor",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… con tu clave.",localT:"100% local (privado)",localD:"Todo funciona en tu PC con Ollama. Ningún dato sale. Coste cero.",localNote:"🔒 Modo local: abre este archivo en tu ordenador (no online) y ejecuta Ollama con OLLAMA_ORIGINS=* . Luego pulsa Verificar para cargar los modelos. Ninguna conversación sale de tu equipo.",
+      startH:"Para empezar",startSub:"Elige una opción — es cuestión de un minuto.",freeT:"Gratis con Google Gemini",reco:"recomendado",freeD:"Creas una clave gratis en 1 minuto, sin tarjeta. Ideal para probar.",ownT:"Ya tengo clave / otro motor",ownD:"OpenAI, Claude, DeepSeek, Qwen, Kimi, Groq… con tu clave.",
       engine:"Motor de IA",apikey:"Clave API",getkey:"— cómo obtenerla",verify:"Verificar",model:"Modelo",baseurl:"URL del endpoint (compatible OpenAI)",heard:"Idioma del interlocutor",answerlang:"Responder en",mode:"Tipo de conversación",context:"Háblame de ti (opcional) — CV, rol, producto",ctxph:"Ej: Soy Felice, Project Manager fotovoltaico. Me postulo para… Fortalezas:…",remember:"Recordar todo en este ordenador",forget:"🗑 Borrar claves y datos locales",adv:"⚙️ Ajustes avanzados",
       listen:"▶ Iniciar (escuchar y responder)",stop:"⏸ Parar",auto:"⚡ Respuesta automática",suggest:"💡 Sugerir ahora",float:"🗔 Ventana flotante",clear:"🗑 Limpiar",install:"⬇ Instalar app",installed:"App instalada ✔",listening:"Lo que estoy oyendo",answer:"Lo que puedes decir",copy:"Copiar",copied:"Copiado ✔",howto:"❔ Cómo se usa (lee aquí)",manualph:"O escribe la pregunta y pulsa Enter…",
       paid:"💡 Próximamente: un modo \"listo para usar\" de pago sin clave API — una pequeña suscripción y usas el modelo más potente al instante. Por ahora, usa tu clave (gratis con Gemini).",
@@ -53,10 +53,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       how:"<b>1) Elige cómo funciona:</b> \"Gratis con Gemini\" (recomendado), crea la clave desde el enlace, o usa tu clave.<br><br><b>2) Pulsa 🎙 Escuchar</b> con el audio por altavoces (no auriculares). Con ⚡ activo, la respuesta aparece sola cuando la otra persona hace una pausa.<br><br><b>3) Lee</b> la respuesta sugerida. Pulsa 🗔 para separarla en una ventana junto a Zoom.<br><br><b>Ética:</b> usar IA en una selección puede violar reglas de la empresa; grabar a otros requiere consentimiento (RGPD)."}
   };
   const T2={
-    it:{settings:"⚙︎ Impostazioni",drawerH:"Impostazioni e avvio",close:"Chiudi",doneBack:"← Fatto",desktopMic:"Su desktop la cattura nativa (pannello in basso a destra) sostituisce l'ascolto del browser.",privacyChip:"🔒 Niente viene salvato — la trascrizione resta nel tuo browser",consentLine:"Assistente <b>AI</b> · registrare la voce altrui richiede il loro <b>consenso</b> (GDPR/AI Act).",capsTitle:"Cosa puoi fare",capsBody:"<b>Skill</b>: colloquio, vendita, assistenza, riunione, negoziazione, traduzione dal vivo, studio, o un profilo su misura.<br><br><b>Come usarlo</b>: 🆓 gratis con Gemini · 🔑 la tua chiave (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 100% locale con Ollama (niente esce dal PC) · ⭐ Pro senza chiave (la mettiamo noi).<br><br><b>Extra</b>: risposta automatica quando l'altro fa una pausa · 🗔 finestra flottante di fianco a Zoom · ⬇ installabile come app · lingua automatica per zona.<br><br><b>Privacy</b>: le conversazioni non vengono salvate sui nostri server. In modalità locale non lasciano nemmeno il tuo computer."},
-    en:{settings:"⚙︎ Settings",drawerH:"Settings & start",close:"Close",doneBack:"← Done",desktopMic:"On desktop, native capture (bottom-right panel) replaces browser listening.",privacyChip:"🔒 Nothing is saved — the transcript stays in your browser",consentLine:"<b>AI</b> assistant · recording other people requires their <b>consent</b> (GDPR/AI Act).",capsTitle:"What you can do",capsBody:"<b>Skills</b>: interview, sales, support, meeting, negotiation, live translation, study, or your own custom profile.<br><br><b>How to use it</b>: 🆓 free with Gemini · 🔑 your own key (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 100% local with Ollama (nothing leaves your PC) · ⭐ Pro with no key (we provide it).<br><br><b>Extras</b>: auto-answer when the other person pauses · 🗔 floating window to dock next to Zoom · ⬇ installable as an app · language auto-detected by region.<br><br><b>Privacy</b>: conversations are not stored on our servers. In local mode they never even leave your computer."},
-    zh:{settings:"⚙︎ 设置",drawerH:"设置与开始",close:"关闭",doneBack:"← 完成",desktopMic:"在桌面版中，原生捕获（右下角面板）取代浏览器聆听。",privacyChip:"🔒 不保存任何内容 — 转录仅留在你的浏览器中",consentLine:"<b>AI</b> 助手 · 录制他人语音需征得其<b>同意</b>（GDPR/AI 法案）。",capsTitle:"你可以做什么",capsBody:"<b>技能</b>：面试、销售、客服、会议、谈判、实时翻译、学习，或自定义。<br><br><b>使用方式</b>：🆓 免费使用 Gemini · 🔑 你自己的密钥（OpenAI、Claude、Mistral 🇪🇺、DeepSeek、Qwen、Kimi、Groq）· 🔒 通过 Ollama 100% 本地（数据不出电脑）· ⭐ Pro 无需密钥（由我们提供）。<br><br><b>额外</b>：对方停顿时自动回答 · 🗔 可贴在 Zoom 旁的悬浮窗 · ⬇ 可安装为应用 · 按地区自动选择语言。<br><br><b>隐私</b>：对话不会存储在我们的服务器上。本地模式下甚至不会离开你的电脑。"},
-    es:{settings:"⚙︎ Ajustes",drawerH:"Ajustes e inicio",close:"Cerrar",doneBack:"← Hecho",desktopMic:"En escritorio, la captura nativa (panel inferior derecho) sustituye la escucha del navegador.",privacyChip:"🔒 No se guarda nada — la transcripción se queda en tu navegador",consentLine:"Asistente <b>IA</b> · grabar la voz de otros requiere su <b>consentimiento</b> (RGPD/Ley IA).",capsTitle:"Qué puedes hacer",capsBody:"<b>Skills</b>: entrevista, ventas, soporte, reunión, negociación, traducción en vivo, estudio, o tu perfil a medida.<br><br><b>Cómo usarlo</b>: 🆓 gratis con Gemini · 🔑 tu propia clave (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 100% local con Ollama (nada sale del PC) · ⭐ Pro sin clave (la ponemos nosotros).<br><br><b>Extras</b>: respuesta automática cuando la otra persona hace una pausa · 🗔 ventana flotante junto a Zoom · ⬇ instalable como app · idioma automático por región.<br><br><b>Privacidad</b>: las conversaciones no se guardan en nuestros servidores. En modo local ni siquiera salen de tu ordenador."}
+    it:{settings:"⚙︎ Impostazioni",drawerH:"Impostazioni e avvio",close:"Chiudi",doneBack:"← Fatto",desktopMic:"Su desktop la cattura nativa (pannello in basso a destra) sostituisce l'ascolto del browser.",privacyChip:"🔒 Niente viene salvato — la trascrizione resta nel tuo browser",consentLine:"Assistente <b>AI</b> · registrare la voce altrui richiede il loro <b>consenso</b> (GDPR/AI Act).",capsTitle:"Cosa puoi fare",capsBody:"<b>Skill</b>: colloquio, vendita, assistenza, riunione, negoziazione, traduzione dal vivo, studio, o un profilo su misura.<br><br><b>Come usarlo</b>: 🆓 gratis con Gemini · 🔑 la tua chiave (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 LLM locale con Ollama dal client desktop (niente testo esce dal PC) · ⭐ Pro senza chiave, solo modelli e server UE.<br><br><b>Extra</b>: risposta automatica quando l'altro fa una pausa · 🗔 finestra flottante di fianco a Zoom · ⬇ installabile come app · lingua automatica per zona.<br><br><b>Privacy</b>: le conversazioni non vengono salvate sui nostri server. In modalità locale non lasciano nemmeno il tuo computer."},
+    en:{settings:"⚙︎ Settings",drawerH:"Settings & start",close:"Close",doneBack:"← Done",desktopMic:"On desktop, native capture (bottom-right panel) replaces browser listening.",privacyChip:"🔒 Nothing is saved — the transcript stays in your browser",consentLine:"<b>AI</b> assistant · recording other people requires their <b>consent</b> (GDPR/AI Act).",capsTitle:"What you can do",capsBody:"<b>Skills</b>: interview, sales, support, meeting, negotiation, live translation, study, or your own custom profile.<br><br><b>How to use it</b>: 🆓 free with Gemini · 🔑 your own key (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 Local LLM with Ollama from the desktop client (no text leaves your PC) · ⭐ Pro with no key, EU models and servers only.<br><br><b>Extras</b>: auto-answer when the other person pauses · 🗔 floating window to dock next to Zoom · ⬇ installable as an app · language auto-detected by region.<br><br><b>Privacy</b>: conversations are not stored on our servers. In local mode they never even leave your computer."},
+    zh:{settings:"⚙︎ 设置",drawerH:"设置与开始",close:"关闭",doneBack:"← 完成",desktopMic:"在桌面版中，原生捕获（右下角面板）取代浏览器聆听。",privacyChip:"🔒 不保存任何内容 — 转录仅留在你的浏览器中",consentLine:"<b>AI</b> 助手 · 录制他人语音需征得其<b>同意</b>（GDPR/AI 法案）。",capsTitle:"你可以做什么",capsBody:"<b>技能</b>：面试、销售、客服、会议、谈判、实时翻译、学习，或自定义。<br><br><b>使用方式</b>：🆓 免费使用 Gemini · 🔑 你自己的密钥（OpenAI、Claude、Mistral 🇪🇺、DeepSeek、Qwen、Kimi、Groq）· 🔒 通过桌面客户端使用 Ollama 本地 LLM（文本不出电脑）· ⭐ Pro 无需密钥，仅使用欧盟模型与服务器。<br><br><b>额外</b>：对方停顿时自动回答 · 🗔 可贴在 Zoom 旁的悬浮窗 · ⬇ 可安装为应用 · 按地区自动选择语言。<br><br><b>隐私</b>：对话不会存储在我们的服务器上。本地模式下甚至不会离开你的电脑。"},
+    es:{settings:"⚙︎ Ajustes",drawerH:"Ajustes e inicio",close:"Cerrar",doneBack:"← Hecho",desktopMic:"En escritorio, la captura nativa (panel inferior derecho) sustituye la escucha del navegador.",privacyChip:"🔒 No se guarda nada — la transcripción se queda en tu navegador",consentLine:"Asistente <b>IA</b> · grabar la voz de otros requiere su <b>consentimiento</b> (RGPD/Ley IA).",capsTitle:"Qué puedes hacer",capsBody:"<b>Skills</b>: entrevista, ventas, soporte, reunión, negociación, traducción en vivo, estudio, o tu perfil a medida.<br><br><b>Cómo usarlo</b>: 🆓 gratis con Gemini · 🔑 tu propia clave (OpenAI, Claude, Mistral 🇪🇺, DeepSeek, Qwen, Kimi, Groq) · 🔒 LLM local con Ollama desde el cliente de escritorio (ningún texto sale del PC) · ⭐ Pro sin clave, solo modelos y servidores UE.<br><br><b>Extras</b>: respuesta automática cuando la otra persona hace una pausa · 🗔 ventana flotante junto a Zoom · ⬇ instalable como app · idioma automático por región.<br><br><b>Privacidad</b>: las conversaciones no se guardan en nuestros servidores. En modo local ni siquiera salen de tu ordenador."}
   };
   /* Profilo (memoria persistente): i18n della sezione strutturata. */
   const T3={
@@ -75,6 +75,85 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     es:{skipLink:"Saltar al contenido",dlgT:"Confirmar",dlgYes:"Sí",dlgNo:"Cancelar"}
   };
   Object.keys(T4).forEach(l=>Object.assign(T[l],T4[l]));
+  /* Claim onesti (revisione esterna): "100% locale" è riservato al client
+     desktop; sulla pagina web Ollama non è raggiungibile (CSP senza loopback)
+     e il riconoscimento vocale dipende dal browser. La promessa UE vale per la
+     modalità sovrana (Pro/Kit), non per BYOK. Queste stringhe SOVRASCRIVONO
+     le precedenti. */
+  const T5={
+    it:{
+      localT:"LLM locale (Ollama)",localD:"Solo dal client desktop o aprendo il file in locale: la pagina web non può parlare con Ollama. Lì nessun testo lascia il PC.",
+      localNoteWeb:"🔒 Da questa pagina web Ollama NON è raggiungibile (la policy di sicurezza del sito non autorizza chiamate a localhost — di proposito). Per l'LLM locale: scarica il file index.html e aprilo dal PC, oppure usa l'app desktop; Ollama accetta già le origini file:// e tauri:// senza configurazione. Nota: il riconoscimento vocale dipende comunque dal browser.",
+      localNoteLocal:"🔒 Esecuzione locale: Ollama gira sul tuo PC e riceve solo la trascrizione. Se servi la pagina da un'altra origine locale, imposta OLLAMA_ORIGINS sull'origine esatta (es. http://localhost:8080), mai *. Il riconoscimento vocale dipende dal browser (vedi nota sotto i comandi).",
+      proD:"Accedi: i tuoi dati vanno solo su modelli e server UE (Mistral). Chiave nostra, €9/mese.",
+      sensNote:"🔒 Le trascrizioni sono dati sensibili: in Pro il server le instrada <b>sempre e solo</b> su modelli e server in <b>UE</b>. Non è un interruttore: vale anche se il client chiedesse altro.",
+      nonEuWarn:"⚠️ Hai scelto un modello <b>extra-UE</b>: prima di ogni invio ti verrà chiesto un consenso esplicito e ti diremo esattamente cosa uscirebbe dall'UE.",
+      nonEuT:"Dati sensibili fuori dall'UE",nonEuP:"Il modello che hai scelto ({model}, provider {provider}) è {region}. Verrebbero trasmessi: {data}. Il profilo del tuo account NON viene mai incluso. Vuoi inviare comunque?",nonEuYes:"Invia fuori UE",nonEuNo:"Annulla",
+      dataTranscript:"la trascrizione della conversazione",dataProfile:"il profilo",
+      mxCap:"Dove vanno i dati per ogni modalità",mxMode:"Modalità",mxWhere:"Dove vanno i tuoi dati",
+      mxLocalT:"🔒 Locale / Ollama",mxLocalD:"Solo sul tuo dispositivo (client desktop o file aperto in locale). Il riconoscimento vocale dipende dal browser.",
+      mxByokT:"🔑 BYOK",mxByokD:"Al provider che scegli tu, con la tua chiave e le sue condizioni. Google, OpenAI, Anthropic, Groq, DeepSeek, Qwen, Kimi sono extra-UE; Mistral è UE.",
+      mxEuT:"⭐ Pro / Kit europeo",mxEuD:"Solo modelli e server in <span class=\"ds-eu\">EU</span> (Mistral, Parigi), imposto dal server. Effimero, oppure salvato cifrato solo col tuo consenso.",
+      sttLocal:"🎙 Riconoscimento vocale sul dispositivo (on-device).",
+      sttBrowser:"🎙 Riconoscimento vocale del browser: può usare un servizio remoto del produttore del browser (non nostro). On-device non disponibile qui.",
+      sttLocalRequired:"Modalità locale: il riconoscimento vocale on-device non è disponibile in questo browser, quindi non avvio (l'audio andrebbe a un servizio remoto). Usa Chrome recente con il pacchetto lingua, oppure scrivi la domanda a mano.",
+    },
+    en:{
+      localT:"Local LLM (Ollama)",localD:"Only from the desktop client or by opening the file locally: this web page cannot talk to Ollama. There, no text leaves your PC.",
+      localNoteWeb:"🔒 From this web page Ollama is NOT reachable (the site's security policy blocks calls to localhost — on purpose). For a local LLM: download index.html and open it from your PC, or use the desktop app; Ollama already accepts file:// and tauri:// origins with no configuration. Note: speech recognition still depends on the browser.",
+      localNoteLocal:"🔒 Local run: Ollama runs on your PC and only receives the transcript. If you serve the page from another local origin, set OLLAMA_ORIGINS to that exact origin (e.g. http://localhost:8080), never *. Speech recognition depends on the browser (see the note under the controls).",
+      proD:"Sign in: your data goes only to EU models and servers (Mistral). Our key, €9/month.",
+      sensNote:"🔒 Transcripts are sensitive data: in Pro the server routes them <b>always and only</b> to models and servers in the <b>EU</b>. It is not a switch: it holds even if the client asked otherwise.",
+      nonEuWarn:"⚠️ You picked a <b>non-EU</b> model: before each send you'll be asked for explicit consent and told exactly what would leave the EU.",
+      nonEuT:"Sensitive data outside the EU",nonEuP:"The model you chose ({model}, provider {provider}) is {region}. This would be sent: {data}. Your account profile is NEVER included. Send anyway?",nonEuYes:"Send outside EU",nonEuNo:"Cancel",
+      dataTranscript:"the conversation transcript",dataProfile:"the profile",
+      mxCap:"Where your data goes in each mode",mxMode:"Mode",mxWhere:"Where your data goes",
+      mxLocalT:"🔒 Local / Ollama",mxLocalD:"Only on your device (desktop client or file opened locally). Speech recognition depends on the browser.",
+      mxByokT:"🔑 BYOK",mxByokD:"To the provider you choose, with your key and its terms. Google, OpenAI, Anthropic, Groq, DeepSeek, Qwen, Kimi are non-EU; Mistral is EU.",
+      mxEuT:"⭐ Pro / European Kit",mxEuD:"Only models and servers in the <span class=\"ds-eu\">EU</span> (Mistral, Paris), enforced by the server. Ephemeral, or stored encrypted only with your consent.",
+      sttLocal:"🎙 On-device speech recognition.",
+      sttBrowser:"🎙 Browser speech recognition: it may use a remote service run by the browser vendor (not us). On-device is not available here.",
+      sttLocalRequired:"Local mode: on-device speech recognition is not available in this browser, so I won't start (audio would go to a remote service). Use a recent Chrome with the language pack, or type the question.",
+    },
+    zh:{
+      localT:"本地 LLM（Ollama）",localD:"仅限桌面客户端或本地打开文件：此网页无法连接 Ollama。在那里，文本不会离开你的电脑。",
+      localNoteWeb:"🔒 从此网页无法访问 Ollama（站点安全策略有意阻止对 localhost 的调用）。要使用本地 LLM：下载 index.html 并从电脑打开，或使用桌面应用；Ollama 默认接受 file:// 与 tauri:// 来源。注意：语音识别仍取决于浏览器。",
+      localNoteLocal:"🔒 本地运行：Ollama 在你的电脑上运行，只接收转录。若从其他本地来源提供页面，请将 OLLAMA_ORIGINS 设为该确切来源（如 http://localhost:8080），切勿使用 *。语音识别取决于浏览器。",
+      proD:"登录：你的数据只发送到欧盟的模型与服务器（Mistral）。我们提供密钥，€9/月。",
+      sensNote:"🔒 转录属于敏感数据：在 Pro 模式下服务器<b>始终且仅</b>路由到<b>欧盟</b>的模型与服务器。这不是开关：即使客户端另有要求也同样适用。",
+      nonEuWarn:"⚠️ 你选择了<b>非欧盟</b>模型：每次发送前都会请求明确同意，并告知哪些数据会离开欧盟。",
+      nonEuT:"敏感数据将离开欧盟",nonEuP:"你选择的模型（{model}，提供商 {provider}）位于{region}。将发送：{data}。你的账户档案绝不会包含在内。仍要发送吗？",nonEuYes:"发送到欧盟以外",nonEuNo:"取消",
+      dataTranscript:"对话转录",dataProfile:"档案",
+      mxCap:"各模式下数据的去向",mxMode:"模式",mxWhere:"数据去向",
+      mxLocalT:"🔒 本地 / Ollama",mxLocalD:"仅在你的设备上（桌面客户端或本地打开的文件）。语音识别取决于浏览器。",
+      mxByokT:"🔑 自带密钥",mxByokD:"发送到你选择的提供商，使用你的密钥与其条款。Google、OpenAI、Anthropic、Groq、DeepSeek、Qwen、Kimi 为非欧盟；Mistral 为欧盟。",
+      mxEuT:"⭐ Pro / 欧洲版申请包",mxEuD:"仅使用<span class=\"ds-eu\">EU</span>内的模型与服务器（Mistral，巴黎），由服务器强制执行。临时处理，或仅在你同意时加密保存。",
+      sttLocal:"🎙 设备端语音识别。",
+      sttBrowser:"🎙 浏览器语音识别：可能使用浏览器厂商的远程服务（非我们）。此处无法使用设备端识别。",
+      sttLocalRequired:"本地模式：此浏览器不支持设备端语音识别，因此不会启动（音频会发送到远程服务）。请使用带语言包的新版 Chrome，或手动输入问题。",
+    },
+    es:{
+      localT:"LLM local (Ollama)",localD:"Solo desde el cliente de escritorio o abriendo el archivo en local: esta página web no puede hablar con Ollama. Allí ningún texto sale de tu PC.",
+      localNoteWeb:"🔒 Desde esta página web Ollama NO es accesible (la política de seguridad del sitio bloquea llamadas a localhost — a propósito). Para el LLM local: descarga index.html y ábrelo desde tu PC, o usa la app de escritorio; Ollama ya acepta los orígenes file:// y tauri:// sin configuración. Nota: el reconocimiento de voz sigue dependiendo del navegador.",
+      localNoteLocal:"🔒 Ejecución local: Ollama corre en tu PC y solo recibe la transcripción. Si sirves la página desde otro origen local, pon OLLAMA_ORIGINS en ese origen exacto (p. ej. http://localhost:8080), nunca *. El reconocimiento de voz depende del navegador.",
+      proD:"Inicia sesión: tus datos van solo a modelos y servidores de la UE (Mistral). Clave nuestra, 9 €/mes.",
+      sensNote:"🔒 Las transcripciones son datos sensibles: en Pro el servidor las envía <b>siempre y solo</b> a modelos y servidores de la <b>UE</b>. No es un interruptor: vale aunque el cliente pidiera otra cosa.",
+      nonEuWarn:"⚠️ Has elegido un modelo <b>fuera de la UE</b>: antes de cada envío se te pedirá consentimiento explícito y te diremos qué saldría de la UE.",
+      nonEuT:"Datos sensibles fuera de la UE",nonEuP:"El modelo elegido ({model}, proveedor {provider}) está {region}. Se enviaría: {data}. El perfil de tu cuenta NUNCA se incluye. ¿Enviar igualmente?",nonEuYes:"Enviar fuera de la UE",nonEuNo:"Cancelar",
+      dataTranscript:"la transcripción de la conversación",dataProfile:"el perfil",
+      mxCap:"Adónde van los datos en cada modo",mxMode:"Modo",mxWhere:"Adónde van tus datos",
+      mxLocalT:"🔒 Local / Ollama",mxLocalD:"Solo en tu dispositivo (cliente de escritorio o archivo abierto en local). El reconocimiento de voz depende del navegador.",
+      mxByokT:"🔑 BYOK",mxByokD:"Al proveedor que elijas, con tu clave y sus condiciones. Google, OpenAI, Anthropic, Groq, DeepSeek, Qwen, Kimi están fuera de la UE; Mistral es UE.",
+      mxEuT:"⭐ Pro / Kit europeo",mxEuD:"Solo modelos y servidores en la <span class=\"ds-eu\">EU</span> (Mistral, París), impuesto por el servidor. Efímero, o guardado cifrado solo con tu consentimiento.",
+      sttLocal:"🎙 Reconocimiento de voz en el dispositivo.",
+      sttBrowser:"🎙 Reconocimiento de voz del navegador: puede usar un servicio remoto del fabricante del navegador (no nuestro). En el dispositivo no está disponible aquí.",
+      sttLocalRequired:"Modo local: el reconocimiento de voz en el dispositivo no está disponible en este navegador, así que no inicio (el audio iría a un servicio remoto). Usa un Chrome reciente con el paquete de idioma, o escribe la pregunta.",
+    }
+  };
+  Object.keys(T5).forEach(l=>Object.assign(T[l],T5[l]));
+  /* La pagina è "web" se servita via http(s): lì la CSP vieta il loopback e
+     Ollama non è raggiungibile. file:// e tauri:// = esecuzione locale. */
+  const IS_WEB=/^https?:$/.test(location.protocol);
   let LANG='en';
   function t(k){ return (T[LANG]&&T[LANG][k])||T.it[k]||k; }
   function applyLang(){
@@ -84,6 +163,8 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.getAttribute('data-i18n-ph'));if(!(el.labels&&el.labels.length))el.setAttribute('aria-label',el.placeholder);});
     $('howtoBody').innerHTML=t('how'); buildModeOptions(); refreshProviderLabels(); renderProfileWhere();
     listenBtn.querySelector('span').textContent = recognizing? t('stop'):t('listen');
+    if(typeof renderSttNote==='function') renderSttNote();
+    if($('localNote').style.display!=='none') $('localNote').innerHTML=t(IS_WEB?'localNoteWeb':'localNoteLocal');
   }
 
   const PROVIDERS={
@@ -190,8 +271,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     $('proWrap').style.display=proMode?'':'none';
     $('keyLabel').style.display=proMode?'none':'';
     $('keyRow').style.display=proMode?'none':'';
+    // nota "locale" onesta: sul web spiega che Ollama non è raggiungibile e come fare davvero
+    $('localNote').innerHTML=t(IS_WEB?'localNoteWeb':'localNoteLocal');
     $('localNote').style.display=(local)?'':'none';
-    if(proMode){ $('baseWrap').style.display='none'; suggestBtn.disabled=!meUser; setS(setupStatus,'',''); return; }
+    if(proMode){ $('baseWrap').style.display='none'; suggestBtn.disabled=!meUser; setS(setupStatus,'',''); refreshNonEuWarn(); return; }
     $('keyLink').href=p.keyUrl||'#'; $('apiKey').placeholder=local?'(nessuna chiave — locale)':(p.hint||'API key');
     $('apiKey').disabled=local;
     $('baseWrap').style.display=(providerEl.value==='custom'||local)?'':'none';
@@ -199,7 +282,8 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     $('apiKey').value=local?'':(store.get(keyName())||'');
     $('model').value=store.get('v5_model_'+providerEl.value)||(p.models&&p.models[0])||'';
     $('baseUrl').value=store.get('v5_base_'+providerEl.value)||(p.base||'');
-    suggestBtn.disabled = local? false : !$('apiKey').value.trim(); setS(setupStatus,'','');
+    // sul web la modalità Ollama non può funzionare (CSP): il pulsante resta spento
+    suggestBtn.disabled = local? IS_WEB : !$('apiKey').value.trim(); setS(setupStatus,'','');
   }
 
   /* ---- Account & piano Pro (nostro backend) ---- */
@@ -230,11 +314,30 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       const sel=$('proModel'); const saved=store.get('v6_promodel'); sel.innerHTML='';
       // Prima scelta: routing automatico (M2) — il backend sceglie e spiega perché.
       const auto=document.createElement('option'); auto.value='auto'; auto.textContent=t('autoOpt'); sel.appendChild(auto);
-      d.models.filter(m=>m.available).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.label;sel.appendChild(o);});
+      // etichetta onesta: si vede subito quali modelli sono UE e quali no
+      d.models.filter(m=>m.available).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.label+(m.eu?' · EU':' · extra-UE');o.dataset.eu=m.eu?'1':'0';o.dataset.provider=m.provider||'';sel.appendChild(o);});
       sel.value=(saved && [...sel.options].some(o=>o.value===saved))? saved : 'auto';
+      refreshNonEuWarn();
     }catch(_){}
   }
-  $('sensToggle').addEventListener('change',()=>store.set('v6_sens',$('sensToggle').checked?'1':'0'));
+  /* Modello extra-UE scelto a mano: avviso subito e consenso PRIMA di ogni invio.
+     Il server rifiuta comunque (409) senza nonEuConsent: qui si raccoglie il
+     consenso informato mostrando provider, regione e dati trasmessi. */
+  function refreshNonEuWarn(){ const o=$('proModel').selectedOptions[0]; $('nonEuWarn').style.display=(o&&o.dataset.eu==='0')?'':'none'; }
+  $('proModel').addEventListener('change',()=>{refreshNonEuWarn();store.set('v6_promodel',$('proModel').value);});
+  async function askNonEuConsent(disc){
+    const dataLabels=(disc.data||[]).map(k=>k==='transcript'?t('dataTranscript'):k==='profile'?t('dataProfile'):k).join(', ');
+    const msg=t('nonEuP').replace('{model}',disc.model||'').replace('{provider}',disc.provider||'').replace('{region}',disc.region||'extra-UE').replace('{data}',dataLabels||'—');
+    return new Promise(resolve=>{
+      const dlg=$('confirmDlg');
+      $('confirmDlgT').textContent=t('nonEuT'); $('confirmDlgP').textContent=msg;
+      $('confirmDlgYes').textContent=t('nonEuYes'); $('confirmDlgNo').textContent=t('nonEuNo');
+      const opener=document.activeElement; let ok=false;
+      $('confirmDlgYes').onclick=()=>{ok=true;dlg.close();}; $('confirmDlgNo').onclick=()=>dlg.close();
+      dlg.onclose=()=>{resolve(ok);if(opener&&opener.focus)opener.focus();};
+      dlg.showModal();
+    });
+  }
   /* return_to: dopo il login si torna alla pagina di provenienza (allowlist
      di pagine nostre: mai URL arbitrari). */
   const RETURN_MAP={kit:'kit.html',storico:'storico.html',jobs:'jobs.html',practice:'practice.html'};
@@ -272,7 +375,6 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     try{ await api('/v1/billing/sync',{method:'POST',body:'{}'}); setAc('✔','ok'); await refreshMe(); }
     catch(e){setAc(e.message,'err');}
   });
-  $('proModel').addEventListener('change',()=>store.set('v6_promodel',$('proModel').value));
 
   /* ---- Profilo (memoria persistente, M2) ----
      Sempre salvato in locale. Se l'utente è loggato E ha dato il consenso,
@@ -352,6 +454,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   $('verifyBtn').addEventListener('click',async()=>{
     const p=curProv(),key=$('apiKey').value.trim();
     if(p.local){
+      if(IS_WEB){ setS(setupStatus,t('localNoteWeb').replace(/<[^>]+>/g,''),'err'); return; }
       setS(setupStatus,t('thinking'),'work');
       try{
         const base=($('baseUrl').value.trim()||p.base).replace(/\/v1$/,'');
@@ -359,7 +462,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
         const ms=(d.models||[]).map(m=>m.name); const dl=$('modelList');dl.innerHTML='';ms.forEach(m=>{const o=document.createElement('option');o.value=m;dl.appendChild(o);});
         if(ms.length&&!$('model').value)$('model').value=ms[0];
         setS(setupStatus,'✔ Ollama '+(ms.length?('— '+ms.length+' modelli'):'raggiunto'),'ok');save();
-      }catch(e){ setS(setupStatus,'Ollama non raggiungibile. Apri questo file in locale e avvia Ollama con OLLAMA_ORIGINS=* (vedi nota).','err'); }
+      }catch(e){ setS(setupStatus,t('localNoteWeb').replace(/<[^>]+>/g,''),'err'); }
       return;
     }
     if(!key){setS(setupStatus,t('nokey'),'err');return;}
@@ -377,15 +480,41 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     }else{setS(setupStatus,t('valid'),'ok');save();}
   });
 
-  function canRun(){ return proMode? !!meUser : ($('apiKey').value.trim()||curProv().local); }
-  function cantRunMsg(){ return proMode? t('acNeedLogin') : t('nokey'); }
+  // sul web Ollama non è raggiungibile (CSP): la modalità locale non "gira"
+  function canRun(){ return proMode? !!meUser : ($('apiKey').value.trim()||(curProv().local&&!IS_WEB)); }
+  function cantRunMsg(){ return proMode? t('acNeedLogin') : (curProv().local&&IS_WEB? t('localNoteWeb').replace(/<[^>]+>/g,'') : t('nokey')); }
 
+  /* Riconoscimento vocale ONESTO. Web Speech API senza processLocally può
+     mandare l'audio a un servizio remoto del produttore del browser. Dove il
+     browser lo supporta (Chrome ≥139: SpeechRecognition.available/install)
+     chiediamo l'elaborazione on-device; in modalità locale è fail-closed:
+     senza on-device NON si avvia. Altrove si etichetta, non si promette. */
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  function startRec(){
+  let sttMode='unknown'; // 'local' | 'browser' | 'none'
+  async function probeStt(){
+    if(!SR){ sttMode='none'; renderSttNote(); return sttMode; }
+    let mode='browser';
+    try{
+      if(typeof SR.available==='function'){
+        const lang=$('lang').value||'en-US';
+        let st=await SR.available({langs:[lang],processLocally:true});
+        if(st==='downloadable'&&typeof SR.install==='function'){ try{ if(await SR.install({langs:[lang],processLocally:true})) st='available'; }catch(_){} }
+        if(st==='available') mode='local';
+      }
+    }catch(_){}
+    sttMode=mode; renderSttNote(); return mode;
+  }
+  function renderSttNote(){ const n=$('sttNote'); if(!n)return; n.textContent= sttMode==='local'? t('sttLocal') : (sttMode==='browser'? t('sttBrowser') : ''); }
+  $('lang').addEventListener('change',()=>{ sttMode='unknown'; probeStt(); });
+  async function startRec(){
     if(!canRun()){ setS(liveStatus,cantRunMsg(),'err'); showSettings(); return; }
     if(!SR){setS(liveStatus,'Chrome required for speech.','err');return;}
+    if(sttMode==='unknown') await probeStt();
+    const wantsLocal=!proMode&&!!curProv().local;
+    if(wantsLocal&&sttMode!=='local'){ setS(liveStatus,t('sttLocalRequired'),'err'); return; } // fail-closed
     autoMode=true; autoBtn.classList.add('on');
     recognition=new SR();recognition.lang=$('lang').value;recognition.continuous=true;recognition.interimResults=true;
+    if(sttMode==='local'){ try{ recognition.processLocally=true; }catch(_){} }
     recognition.onresult=e=>{let itr='';for(let i=e.resultIndex;i<e.results.length;i++){const x=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=x+' ';else itr+=x;}render(itr);if(autoMode)sched();};
     recognition.onerror=e=>setS(liveStatus,'Mic: '+e.error,'err');
     recognition.onend=()=>{if(recognizing){try{recognition.start()}catch(_){}}};
@@ -457,11 +586,23 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   $('fbEdited').addEventListener('click',()=>{ $('fbEditWrap').style.display=''; $('fbEditText').value=lastAnswer; });
   $('fbEditSend').addEventListener('click',()=>sendFeedback('edited',$('fbEditText').value.trim().slice(0,4000)));
 
-  async function callProStream(onDelta){
+  /* Sovranità: la sensibilità NON parte più dal client — il server la deriva
+     dal tipo di dato (trascrizione → high, sempre). Il client dichiara "high"
+     per coerenza, ma anche mandasse "low" il backend non declasserebbe.
+     Modello extra-UE scelto a mano → il server risponde 409 finché non c'è
+     consenso: si mostra il dialog informativo e si ritenta con nonEuConsent. */
+  async function callProStream(onDelta,consented){
     const q=finalText.trim().slice(-2000);
-    const sens=$('sensToggle').checked?'high':'low';
     const res=await fetch(BACKEND_URL+'/v1/complete',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:($('proModel').value||'auto'),sensitivity:sens,mode:backendMode(),tier:'cloud',system:systemPrompt(),messages:[{role:'user',content:'Transcript:\n'+q}],maxTokens:800})});
+      body:JSON.stringify({model:($('proModel').value||'auto'),sensitivity:'high',nonEuConsent:!!consented,mode:backendMode(),tier:'cloud',system:systemPrompt(),messages:[{role:'user',content:'Transcript:\n'+q}],maxTokens:800})});
+    if(res.status===409){
+      const d=await res.json().catch(()=>({}));
+      if(d.error==='non_eu_consent_required'&&!consented){
+        if(await askNonEuConsent(d)) return callProStream(onDelta,true);
+        throw new Error(t('nonEuNo'));
+      }
+      throw new Error(d.detail||d.error||'HTTP 409');
+    }
     if(!res.ok){const d=await res.json().catch(()=>({}));throw new Error(d.detail||d.error||('HTTP '+res.status));}
     let apiErr=null;
     await readSSE(res,ln=>{try{const j=JSON.parse(ln);if(j.type==='routing')showRouting(j);else if(j.type==='delta'&&j.text)onDelta(j.text);else if(j.type==='error')apiErr=j.message||'errore dal backend';}catch(_){}});
@@ -529,7 +670,6 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     [...$('langswitch').children].forEach(c=>{const on=c.getAttribute('data-lang')===LANG;c.classList.toggle('on',on);c.setAttribute('aria-pressed',String(on));});
     if(store.get('v5_prov')&&PROVIDERS[store.get('v5_prov')])providerEl.value=store.get('v5_prov');
     proMode=store.get('v6_pro')==='1';
-    $('sensToggle').checked=store.get('v6_sens')==='1';
     const pv=providerEl.value; const which=proMode?'choicePro':(pv==='gemini'?'choiceFree':(pv==='ollama'?'choiceLocal':'choiceOwn')); selChoice(which); $('ownWrap').style.display=(which==='choiceOwn')?'':'none';
     if(proMode)refreshMe();
     buildModeOptions();if(store.get('v5_mode'))modeEl.value=store.get('v5_mode');
@@ -540,6 +680,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     if(!$('pfCv').value&&store.get('v5_ctx'))$('pfCv').value=store.get('v5_ctx');
     autoMode=store.get('v5_auto')!=='0';autoBtn.classList.toggle('on',autoMode);
     syncProvider();applyLang();
+    probeStt(); // etichetta onesta sul riconoscimento vocale, subito visibile
     // arrivo con return_to: apri direttamente il pannello account (scelta Pro)
     if(RETURN_TO){$('choicePro').click();showSettings();}
   })();

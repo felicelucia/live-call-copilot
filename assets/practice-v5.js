@@ -288,11 +288,36 @@
 
   /* ---------- STT ---------- */
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  /* Riconoscimento vocale onesto: on-device (processLocally) dove il browser
+     lo garantisce, altrimenti etichetta chiara "dipende dal browser" — la
+     Web Speech API può inviare l'audio a un servizio remoto del produttore. */
+  let sttMode='unknown';
+  async function probeStt(){
+    if(!SR){ sttMode='none'; renderSttNote(); return; }
+    let mode='browser';
+    try{
+      if(typeof SR.available==='function'){
+        const lang=L()==='it'?'it-IT':'en-US';
+        let st=await SR.available({langs:[lang],processLocally:true});
+        if(st==='downloadable'&&typeof SR.install==='function'){ try{ if(await SR.install({langs:[lang],processLocally:true})) st='available'; }catch(_){} }
+        if(st==='available') mode='local';
+      }
+    }catch(_){}
+    sttMode=mode; renderSttNote();
+  }
+  function renderSttNote(){
+    const n=$('sttNote'); if(!n) return;
+    const it=L()==='it';
+    n.textContent= sttMode==='local' ? (it?'🎙 Riconoscimento vocale sul dispositivo (on-device).':'🎙 On-device speech recognition.')
+      : sttMode==='browser' ? (it?'🎙 Riconoscimento vocale del browser: può usare un servizio remoto del produttore del browser (non nostro).':'🎙 Browser speech recognition: it may use a remote service run by the browser vendor (not us).')
+      : '';
+  }
   function armSilence(){ clearTimeout(silenceTimer); silenceTimer=setTimeout(()=>{ if(state==='listening'){ const t=$('youtext').textContent.trim(); if(t.length>1) nextTurn(t); } }, SILENCE_MS); }
   function startListening(){
     if(!SR){ setState('ready'); setSt('liveStatus',(L()==='it'?'Il microfono richiede Chrome. Usa "Scrivi" qui sotto.':'Mic needs Chrome. Use "Type instead" below.'),'err'); return; }
     setState('listening'); $('youtext').textContent='';
     recognition=new SR(); recognition.lang=L()==='it'?'it-IT':'en-US'; recognition.continuous=true; recognition.interimResults=true;
+    if(sttMode==='local'){ try{ recognition.processLocally=true; }catch(_){} }
     recognition.onresult=e=>{ let s=''; for(let i=0;i<e.results.length;i++) s+=e.results[i][0].transcript; $('youtext').textContent=s; armSilence(); };
     recognition.onerror=e=>{ if(e.error==='not-allowed'||e.error==='service-not-allowed') setSt('liveStatus',(L()==='it'?'Permesso microfono negato. Usa "Scrivi".':'Mic permission denied. Use "Type instead".'),'err'); };
     recognition.onend=()=>{ if(state==='listening'&&recognizing){ try{recognition.start()}catch(_){} } };
@@ -332,6 +357,10 @@
     const it=L()==='it';
     document.documentElement.lang=it?'it':'en';
     $('skipLink').textContent=it?'Salta al contenuto':'Skip to content';
+    $('privacyNote').textContent=it
+      ?'🎧 Usa le cuffie, così la voce dell\'intervistatore non entra nel microfono. 🔑 Modalità BYOK: il testo va al provider che scegli tu, con la tua chiave e le sue condizioni (Google, Anthropic, Groq sono extra-UE; Mistral è UE). Nulla viene salvato sui nostri server. 🎙 Il riconoscimento vocale dipende dal browser (vedi nota sotto).'
+      :'🎧 Use headphones so the interviewer\'s voice isn\'t picked up by your mic. 🔑 BYOK mode: text goes to the provider you choose, with your key and its terms (Google, Anthropic, Groq are non-EU; Mistral is EU). Nothing is saved on our servers. 🎙 Speech recognition depends on the browser (see note below).';
+    renderSttNote();
     $('pbar').setAttribute('aria-label',it?'Avanzamento del colloquio':'Interview progress');
     $('heroH').textContent=it?'Prova il colloquio — con un coach che conosce il tuo CV':'Rehearse the interview — with a coach that knows your CV';
     $('heroP').textContent=it?'Un intervistatore AI, cucito sul tuo CV e sull\'offerta. Parli a mani libere, ricevi coaching dal vivo e finisci con un report a punteggio.':'A realistic AI interviewer, tailored to your résumé and the job. Talk hands-free, get live coaching, and finish with a scored report.';
@@ -353,5 +382,6 @@
     if(profileSummary) $('profNote').textContent=profNoteText();
   }
   window.addEventListener('pagehide',()=>{ if(window.speechSynthesis)window.speechSynthesis.cancel(); stopListening(); history=[]; });
-  if(L()==='it') applyLang();
+  applyLang(); // (anche in EN: aggiorna nota privacy onesta + skip link)
+  probeStt(); $('lang').addEventListener('change',()=>{ sttMode='unknown'; probeStt(); });
 })();

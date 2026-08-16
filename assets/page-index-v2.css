@@ -122,3 +122,12 @@
   .caps h3{margin:0 0 8px;font-size:1rem;font-weight:800;}
   .caps .capsbody{font-size:.86rem;color:#5f564e;line-height:1.62;}
   .caps .capsbody b{color:var(--ink);}
+
+/* matrice modalità: dove vanno i dati (v2) */
+.matrix{width:100%;border-collapse:collapse;margin-top:14px;font-size:.8rem;}
+.matrix th,.matrix td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;}
+.matrix thead th{font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:700;}
+.matrix tbody th{font-weight:800;color:var(--ink);white-space:nowrap;width:1%;}
+.matrix td{color:var(--muted);}
+.matrix .ds-eu{font-size:.62rem;}
+.stt-note{font-size:.74rem;color:var(--muted);text-align:center;margin-top:4px;}

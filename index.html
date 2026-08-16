@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Copilot">
-<link rel="stylesheet" href="assets/page-index-v1.css">
+<link rel="stylesheet" href="assets/page-index-v2.css">
 </head>
 <body>
 <a href="#main" class="skip-link" data-i18n="skipLink">Salta al contenuto</a>
@@ -62,6 +62,8 @@
     <button class="btn btn-soft" id="installBtn" style="display:none" data-i18n="install"></button>
   </div>
   <div class="consent" data-i18n="consentLine"></div>
+  <!-- onestà sul riconoscimento vocale: on-device se il browser lo garantisce, altrimenti detto -->
+  <div class="stt-note" id="sttNote"></div>
   <div class="status" id="liveStatus" role="status" style="text-align:center"></div>
   <div class="visually-hidden" id="a11yAlert" role="alert"></div>
 
@@ -144,15 +146,29 @@
           <label for="proModel" data-i18n="proModelL"></label>
           <select id="proModel"></select>
         </div>
-        <div class="checkbox" style="margin-top:10px">
-          <input type="checkbox" id="sensToggle">
-          <label for="sensToggle" style="margin:0" data-i18n="sensL"></label>
-        </div>
+        <!-- Sovranità: NON è un interruttore. La trascrizione è un dato sensibile
+             per natura → il server la instrada SEMPRE su modelli/server UE
+             (pavimento). Un modello extra-UE si può scegliere a mano, ma il
+             backend lo rifiuta finché non c'è consenso esplicito (dialog). -->
+        <div class="paidnote" id="sensNote" style="margin-top:10px" data-i18n="sensNote"></div>
+        <div class="paidnote" id="nonEuWarn" style="display:none;margin-top:8px;background:#fff7ec;border-color:#f2dcb0;color:#8a6d2f" data-i18n="nonEuWarn"></div>
         <div style="margin-top:10px"><button class="btn btn-ghost" id="logoutBtn" data-i18n="acLogout"></button></div>
       </div>
       <div class="status" id="acStatus" role="status"></div>
     </div>
-    <div class="paidnote" id="localNote" style="display:none;background:#fff7ec;border-color:#f2dcb0;color:#8a6d2f" data-i18n="localNote"></div>
+    <div class="paidnote" id="localNote" style="display:none;background:#fff7ec;border-color:#f2dcb0;color:#8a6d2f"></div>
+
+    <!-- Matrice modalità: dove vanno i dati, detto chiaro per ognuna delle
+         tre strade. La promessa "UE" vale per la modalità sovrana, non per tutte. -->
+    <table class="matrix" id="modeMatrix">
+      <caption class="visually-hidden" data-i18n="mxCap"></caption>
+      <thead><tr><th scope="col" data-i18n="mxMode"></th><th scope="col" data-i18n="mxWhere"></th></tr></thead>
+      <tbody>
+        <tr><th scope="row" data-i18n="mxLocalT"></th><td data-i18n="mxLocalD"></td></tr>
+        <tr><th scope="row" data-i18n="mxByokT"></th><td data-i18n="mxByokD"></td></tr>
+        <tr><th scope="row" data-i18n="mxEuT"></th><td data-i18n="mxEuD"></td></tr>
+      </tbody>
+    </table>
 
     <div id="ownWrap" style="display:none">
       <label for="provider" data-i18n="engine"></label>
@@ -279,6 +295,6 @@
   </div>
 </dialog>
 
-<script src="assets/app-v5.js"></script>
+<script src="assets/app-v6.js"></script>
 </body>
 </html>
