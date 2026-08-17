@@ -19,7 +19,7 @@ const BRAND=window.LCC.BRAND;
       notConf:"🔌 Job search is not active yet: we are completing access to the provider's official API. Meanwhile you can paste any job ad directly into the Application Kit.",
       openKit:"→ Open the Kit",results:"jobs",attrib:"Job search powered by {p}. Apply links go to {p}."}
   };
-  let LANG=(navigator.language||"en").toLowerCase().startsWith("it")?"it":"en";
+  let LANG=window.LCC.getLang(["it","en"],"en");
   const t=k=>T[LANG][k]||k;
   // Attribuzione guidata dal provider REALE (requisito dei termini Adzuna):
   // mai una stringa fissa — footer dal provider attivo, riga per riga dal
@@ -28,12 +28,13 @@ const BRAND=window.LCC.BRAND;
   const PROVIDER_LABELS={adzuna:"Adzuna",indeed:"Indeed"};
   const providerLabel=p=>PROVIDER_LABELS[p]||(p?p.charAt(0).toUpperCase()+p.slice(1):null);
   function attribText(){const p=providerLabel(provider);return p?t("attrib").split("{p}").join(p):"";}
-  function applyLang(){document.documentElement.lang=LANG;document.title=t("docTitle");const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute("content",t("docDesc"));
+  function applyLang(){document.documentElement.lang=LANG;
+  const __ls=document.getElementById("langSeg"); if(__ls){[...__ls.querySelectorAll("button")].forEach((c)=>{const on=c.getAttribute("data-lang")===LANG;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});}document.title=t("docTitle");const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute("content",t("docDesc"));
     document.querySelectorAll("[data-i]").forEach(el=>{const k=el.getAttribute("data-i");el.textContent=k==="attrib"?attribText():t(k);});
     document.querySelectorAll("[data-i-ph]").forEach(el=>{el.placeholder=t(el.getAttribute("data-i-ph"));});}
   // provider noto fin dal caricamento (non solo dopo la prima ricerca)
   (async()=>{try{const r=await fetch(BACKEND+"/v1/jobs/meta");if(r.ok){const m=await r.json();if(m.provider){provider=m.provider;applyLang();}}}catch(_){}})();
-  $("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...$("langSeg").children].forEach(c=>{const on=c===b;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});applyLang();});
+  $("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");window.LCC.setLang(LANG);[...$("langSeg").children].forEach(c=>{const on=c===b;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});applyLang();});
 
   const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   // gli URL del provider finiscono in href: solo schemi http/https (mai javascript: ecc.)

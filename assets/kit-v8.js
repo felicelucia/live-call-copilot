@@ -114,10 +114,11 @@ const T = {
     lang: "english",
   },
 };
-let LANG = (navigator.language || "en").toLowerCase().startsWith("it") ? "it" : "en";
+let LANG = window.LCC.getLang(["it","en"], "en");
 const t = (k) => T[LANG][k] ?? k;
 function applyLang() {
   document.documentElement.lang = LANG;
+  const __ls=document.getElementById("langSeg"); if(__ls){[...__ls.querySelectorAll("button")].forEach((c)=>{const on=c.getAttribute("data-lang")===LANG;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});}
   document.title = t("docTitle"); const md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute("content", t("docDesc"));
   // innerHTML (stringhe nostre, non input utente): serve per il mini-badge UE nella prosa
   document.querySelectorAll("[data-i]").forEach((el) => (el.innerHTML = t(el.getAttribute("data-i"))));
@@ -127,7 +128,7 @@ function applyLang() {
 }
 $("langSeg").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
-  LANG = b.getAttribute("data-lang");
+  LANG = b.getAttribute("data-lang"); window.LCC.setLang(LANG);
   [...$("langSeg").children].forEach((c) => { const on = c === b; c.classList.toggle("on", on); c.setAttribute("aria-pressed", String(on)); });
   applyLang();
 });

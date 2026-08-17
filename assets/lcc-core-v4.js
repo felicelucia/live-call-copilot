@@ -197,6 +197,13 @@
   }
   try { if (typeof document !== 'undefined') { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyBrand); else applyBrand(); } } catch (_) {}
 
-  window.LCC = { BRAND: BRAND, applyBrand: applyBrand, NAMESPACES: NAMESPACES, store: store, purgeAll: purgeAll, migrateLegacy: migrateLegacy, hasOptIn: hasOptIn, api: api, ApiError: ApiError, stream: stream, abortScope: abortScope, abortAll: abortAll };
+  /* Lingua UI condivisa: persiste tra le pagine (sessione; localStorage solo con opt-in). */
+  function getLang(allowed, fallback) {
+    var v = store.get('lcc_lang'); if (v && allowed.indexOf(v) >= 0) return v;
+    var n = ((typeof navigator !== 'undefined' && navigator.language) || 'en').toLowerCase().slice(0, 2);
+    return allowed.indexOf(n) >= 0 ? n : fallback;
+  }
+  function setLang(v) { store.set('lcc_lang', v); }
+  window.LCC = { BRAND: BRAND, getLang: getLang, setLang: setLang, applyBrand: applyBrand, NAMESPACES: NAMESPACES, store: store, purgeAll: purgeAll, migrateLegacy: migrateLegacy, hasOptIn: hasOptIn, api: api, ApiError: ApiError, stream: stream, abortScope: abortScope, abortAll: abortAll };
   migrateLegacy();
 })();

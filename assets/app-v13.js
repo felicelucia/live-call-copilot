@@ -634,7 +634,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     let apiErr=null;
     try{
       const r=await window.LCC.stream(BACKEND_URL+'/v1/complete',{signal:curReq&&curReq.signal,firstTokenMs:20000,totalMs:120000,
-        body:JSON.stringify({model:($('proModel').value||'auto'),sensitivity:'high',nonEuConsent:!!consented,mode:backendMode(),tier:'cloud',system:systemPrompt(),messages:[{role:'user',content:'Transcript:\n'+q}],maxTokens:800}),
+        body:JSON.stringify({model:($('proModel').value||'auto'),sensitivity:'high',nonEuConsent:!!consented,uiLang:(LANG==='it'?'it':'en'),mode:backendMode(),tier:'cloud',system:systemPrompt(),messages:[{role:'user',content:'Transcript:\n'+q}],maxTokens:800}),
         onEvent:j=>{if(j.type==='routing')showRouting(j);else if(j.type==='delta'&&j.text)onDelta(j.text);else if(j.type==='error')apiErr=j.message||'errore dal backend';}});
       if(apiErr)throw new Error(apiErr);
       if(r.partial) setS(liveStatus,t('partialKept')+' ('+r.reason+')','err');
@@ -713,7 +713,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     }catch(e){setS(liveStatus,'Float: '+e.message,'err');}
   });
 
-  $('langswitch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;LANG=b.getAttribute('data-lang');[...$('langswitch').children].forEach(c=>{const on=c===b;c.classList.toggle('on',on);c.setAttribute('aria-pressed',String(on));});applyLang();save();});
+  $('langswitch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;LANG=b.getAttribute('data-lang');window.LCC.setLang(LANG==='it'?'it':'en');[...$('langswitch').children].forEach(c=>{const on=c===b;c.classList.toggle('on',on);c.setAttribute('aria-pressed',String(on));});applyLang();save();});
   ['model','baseUrl','lang','ansLang','mode'].forEach(id=>$(id).addEventListener('change',save));
   $('apiKey').addEventListener('input',()=>{suggestBtn.disabled=!$('apiKey').value.trim();save();});
   $('remember').addEventListener('change',save);

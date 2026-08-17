@@ -58,9 +58,10 @@ const BRAND=window.LCC.BRAND;
       docTitle:""+BRAND+" — from job post to offer",docDesc:"From job post to offer: tailored CV, rehearsed interview, real stories. Plus where the work is for you, what it pays and where it's worth moving. Data safe in Europe.",
     }
   };
-  let LANG=(navigator.language||"en").toLowerCase().startsWith("it")?"it":"en";
+  let LANG=window.LCC.getLang(["it","en"],"en");
   const t=k=>T[LANG][k]||k;
-  function apply(){document.documentElement.lang=LANG;document.title=t("docTitle");const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute("content",t("docDesc"));document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.getAttribute("data-i")));}
-  document.getElementById("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...e.currentTarget.children].forEach(c=>{const on=c===b;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});apply();});
+  function apply(){document.documentElement.lang=LANG;
+  const __ls=document.getElementById("langSeg"); if(__ls){[...__ls.querySelectorAll("button")].forEach((c)=>{const on=c.getAttribute("data-lang")===LANG;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});}document.title=t("docTitle");const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute("content",t("docDesc"));document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.getAttribute("data-i")));}
+  document.getElementById("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");window.LCC.setLang(LANG);[...e.currentTarget.children].forEach(c=>{const on=c===b;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});apply();});
   apply();
 })();

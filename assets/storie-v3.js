@@ -59,17 +59,18 @@ const T = {
     lang: "english",
   },
 };
-let LANG = (navigator.language || "en").toLowerCase().startsWith("it") ? "it" : "en";
+let LANG = window.LCC.getLang(["it","en"], "en");
 const t = (k) => T[LANG][k] ?? k;
 function applyLang() {
   document.documentElement.lang = LANG;
+  const __ls=document.getElementById("langSeg"); if(__ls){[...__ls.querySelectorAll("button")].forEach((c)=>{const on=c.getAttribute("data-lang")===LANG;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});}
   document.title = t("docTitle");
   document.querySelectorAll("[data-i]").forEach((el) => (el.textContent = t(el.getAttribute("data-i"))));
   document.querySelectorAll("[data-i-ph]").forEach((el) => (el.placeholder = t(el.getAttribute("data-i-ph"))));
 }
 $("langSeg").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
-  LANG = b.getAttribute("data-lang");
+  LANG = b.getAttribute("data-lang"); window.LCC.setLang(LANG);
   [...$("langSeg").children].forEach((c) => { const on = c === b; c.classList.toggle("on", on); c.setAttribute("aria-pressed", String(on)); });
   applyLang(); renderList();
 });

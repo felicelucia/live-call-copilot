@@ -1,4 +1,4 @@
-/* Test del nucleo condiviso (assets/lcc-core-v3.js) — zero dipendenze:
+/* Test del nucleo condiviso (assets/lcc-core-v4.js) — zero dipendenze:
    `node --test tests/`. Simula localStorage/sessionStorage/fetch e verifica:
    registro storage + purge totale, migrazione legacy, opt-in reale,
    helper API su 204/401/500/timeout/offline. */
@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const src = readFileSync(path.join(here, "..", "assets", "lcc-core-v3.js"), "utf8");
+const src = readFileSync(path.join(here, "..", "assets", "lcc-core-v4.js"), "utf8");
 
 class MemStorage {
   #m = new Map();
