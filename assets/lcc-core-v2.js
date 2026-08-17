@@ -110,6 +110,78 @@
   }
   api.json = function (url, opts) { return api(url, opts).then(function (r) { return r.status === 204 ? null : r.json(); }); };
 
-  window.LCC = { NAMESPACES: NAMESPACES, store: store, purgeAll: purgeAll, migrateLegacy: migrateLegacy, hasOptIn: hasOptIn, api: api, ApiError: ApiError };
+  /* ── Scope di annullamento: una sola richiesta viva per scope. abortScope('kit')
+     annulla la precedente e ritorna un nuovo AbortController; pagehide annulla tutto. */
+  var scopes = {};
+  function abortScope(name) {
+    if (scopes[name]) { try { scopes[name].abort(new DOMException('superseded', 'AbortError')); } catch (_) {} }
+    var c = new AbortController(); scopes[name] = c; return c;
+  }
+  function abortAll() { Object.keys(scopes).forEach(function (k) { try { scopes[k].abort(); } catch (_) {} }); scopes = {}; }
+  try { window.addEventListener('pagehide', abortAll); } catch (_) {}
+
+  /* ── Stream SSE robusto. opts: {method, body, headers, signal, firstTokenMs (default
+     20s), totalMs (default 120s), onEvent(obj), onRaw(line)}. Ignora heartbeat
+     (righe ": ping" e vuote). Risolve {events, partial, reason}: partial=true se lo
+     stream si è interrotto DOPO aver ricevuto dati (rete, timeout, abort) — il
+     chiamante decide se tenere il risultato parziale. Lancia ApiError su non-2xx
+     PRIMA di qualunque dato (429 con retryAfter) e su timeout/rete senza dati. */
+  function stream(url, opts) {
+    opts = opts || {};
+    var firstTokenMs = opts.firstTokenMs === undefined ? 20000 : opts.firstTokenMs;
+    var totalMs = opts.totalMs === undefined ? 120000 : opts.totalMs;
+    var ctrl = new AbortController();
+    var reason = null;
+    if (opts.signal) opts.signal.addEventListener('abort', function () { reason = reason || 'aborted'; ctrl.abort(); });
+    var tFirst = null, tTotal = null;
+    function armFirst() { if (firstTokenMs > 0) tFirst = setTimeout(function () { reason = 'timeout_first_token'; ctrl.abort(); }, firstTokenMs); }
+    if (totalMs > 0) tTotal = setTimeout(function () { reason = 'timeout_total'; ctrl.abort(); }, totalMs);
+    armFirst();
+    var gotData = false, count = 0;
+    function cleanup() { if (tFirst) clearTimeout(tFirst); if (tTotal) clearTimeout(tTotal); }
+    return fetch(url, {
+      method: opts.method || 'POST', credentials: 'include',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {}),
+      body: opts.body, signal: ctrl.signal
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (b) {
+          var e = new ApiError((b && (b.detail || b.error)) || ('HTTP ' + res.status), res.status, b);
+          if (res.status === 429) { var ra = res.headers.get('retry-after'); if (ra) e.retryAfter = Number(ra); }
+          throw e;
+        });
+      }
+      var rd = res.body.getReader(), dec = new TextDecoder(), buf = '';
+      function pump() {
+        return rd.read().then(function (r) {
+          if (r.done) return;
+          buf += dec.decode(r.value, { stream: true });
+          var i;
+          while ((i = buf.indexOf('\n')) >= 0) {
+            var ln = buf.slice(0, i).replace(/\r$/, ''); buf = buf.slice(i + 1);
+            if (!ln || ln.charAt(0) === ':') continue; // heartbeat / commento SSE
+            if (opts.onRaw) opts.onRaw(ln);
+            if (ln.indexOf('data:') !== 0) continue;
+            var payload = ln.slice(5).trim();
+            if (!payload || payload === '[DONE]') continue;
+            if (!gotData) { gotData = true; if (tFirst) { clearTimeout(tFirst); tFirst = null; } }
+            count++;
+            var ev; try { ev = JSON.parse(payload); } catch (_) { continue; }
+            if (opts.onEvent) opts.onEvent(ev);
+          }
+          return pump();
+        });
+      }
+      return pump().then(function () { cleanup(); return { events: count, partial: false, reason: null }; });
+    }).catch(function (err) {
+      cleanup();
+      if (err instanceof ApiError) throw err;
+      var why = reason || (err && err.name === 'AbortError' ? 'aborted' : 'network');
+      if (gotData) return { events: count, partial: true, reason: why }; // risultato parziale: lo decide il chiamante
+      throw new ApiError(why === 'network' ? 'network' : why, 0, null);
+    });
+  }
+
+  window.LCC = { NAMESPACES: NAMESPACES, store: store, purgeAll: purgeAll, migrateLegacy: migrateLegacy, hasOptIn: hasOptIn, api: api, ApiError: ApiError, stream: stream, abortScope: abortScope, abortAll: abortAll };
   migrateLegacy();
 })();

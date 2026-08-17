@@ -7,14 +7,14 @@
       sub:"Trova l'annuncio giusto e genera in un click il Kit su misura: CV, mail e domande probabili.",
       qL:"Cosa cerchi",qPh:"Es: account executive, project manager…",lL:"Dove",lPh:"Es: Milano, remoto…",
       cL:"Paese",go:"🔎 Cerca",searching:"Cerco…",none:"Nessuna offerta trovata: prova con altre parole.",
-      kitBtn:"✨ Genera Kit",kitPrep:"Preparo il Kit…",
+      kitBtn:"✨ Genera Kit",kitPrep:"Preparo il Kit…",errNet:"Backend non raggiungibile.",errTimeout:"Tempo scaduto: riprova.",rateLimited:"Troppe richieste: riprova tra {s}s",
       notConf:"🔌 La ricerca offerte non è ancora attiva: stiamo completando l'accesso all'API ufficiale del provider. Nel frattempo puoi incollare qualunque annuncio direttamente nel Kit di candidatura.",
       openKit:"→ Apri il Kit",results:"offerte",attrib:"Ricerca offerte fornita da {p}. I link di candidatura portano a {p}."},
     en:{skipLink:"Skip to content",resultsH:"Search results",brandSub:"Job search · beta",h1:"Search real job ads",
       sub:"Find the right ad and generate the tailored Kit in one click: CV, email and likely questions.",
       qL:"What",qPh:"E.g. account executive, project manager…",lL:"Where",lPh:"E.g. Milan, remote…",
       cL:"Country",go:"🔎 Search",searching:"Searching…",none:"No jobs found: try different words.",
-      kitBtn:"✨ Generate Kit",kitPrep:"Preparing the Kit…",
+      kitBtn:"✨ Generate Kit",kitPrep:"Preparing the Kit…",errNet:"Backend unreachable.",errTimeout:"Timed out: please retry.",rateLimited:"Too many requests: retry in {s}s",
       notConf:"🔌 Job search is not active yet: we are completing access to the provider's official API. Meanwhile you can paste any job ad directly into the Application Kit.",
       openKit:"→ Open the Kit",results:"jobs",attrib:"Job search powered by {p}. Apply links go to {p}."}
   };
@@ -66,17 +66,24 @@
     try{
       const params=new URLSearchParams({search:q,country:$("country").value});
       if($("loc").value.trim()) params.set("location",$("loc").value.trim());
-      const r=await fetch(BACKEND+"/v1/jobs?"+params.toString());
-      if(r.status===503){ $("resultsCard").style.display="none";
-        $("notConf").innerHTML=esc(t("notConf"))+' <a href="kit.html">'+esc(t("openKit"))+"</a>";
-        $("notConf").style.display=""; setStatus("",""); return; }
-      if(!r.ok){ const d=await r.json().catch(()=>({})); throw new Error(d.detail||d.error||("HTTP "+r.status)); }
-      const d=await r.json();
+      const req=window.LCC.abortScope("jobs"); // nuova ricerca annulla la precedente
+      let d;
+      try{ d=await window.LCC.api.json(BACKEND+"/v1/jobs?"+params.toString(),{signal:req.signal,timeoutMs:20000}); }
+      catch(e){
+        if(e&&e.status===503){ $("resultsCard").style.display="none";
+          $("notConf").innerHTML=esc(t("notConf"))+' <a href="kit.html">'+esc(t("openKit"))+"</a>";
+          $("notConf").style.display=""; setStatus("",""); return; }
+        if(e&&e.status===429) throw new Error(t("rateLimited").replace("{s}",String(e.retryAfter||30)));
+        if(e&&e.message==="network") throw new Error(t("errNet"));
+        if(e&&e.message==="timeout") throw new Error(t("errTimeout"));
+        if(e&&e.message==="aborted") return;
+        throw e;
+      }
       if(d.provider){provider=d.provider;applyLang();}
       render(d.jobs||[]);
       setStatus((d.total||d.jobs.length)+" "+t("results"),"ok");
     }catch(e){ setStatus(e.message,"err"); }
-    $("goBtn").disabled=false;
+    finally{ $("goBtn").disabled=false; }
   }
   $("goBtn").addEventListener("click",search);
   [$("q"),$("loc")].forEach(el=>el.addEventListener("keydown",e=>{if(e.key==="Enter")search();}));
@@ -89,8 +96,8 @@
     b.disabled=true; b.textContent=t("kitPrep");
     let description=j.snippet||"";
     try{
-      const r=await fetch(BACKEND+"/v1/jobs/"+encodeURIComponent(j.id));
-      if(r.ok){ const d=await r.json(); if(d.description) description=d.description; }
+      const d=await window.LCC.api.json(BACKEND+"/v1/jobs/"+encodeURIComponent(j.id),{timeoutMs:15000});
+      if(d&&d.description) description=d.description;
     }catch(_){}
     const srcLabel=providerLabel(j.source)||"provider";
     const jobAd=j.title+"\n"+j.company+(j.location?" — "+j.location:"")+(j.salary?"\n"+j.salary:"")+"\n\n"+description

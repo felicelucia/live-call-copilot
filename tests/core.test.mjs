@@ -1,4 +1,4 @@
-/* Test del nucleo condiviso (assets/lcc-core-v1.js) — zero dipendenze:
+/* Test del nucleo condiviso (assets/lcc-core-v2.js) — zero dipendenze:
    `node --test tests/`. Simula localStorage/sessionStorage/fetch e verifica:
    registro storage + purge totale, migrazione legacy, opt-in reale,
    helper API su 204/401/500/timeout/offline. */
@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const src = readFileSync(path.join(here, "..", "assets", "lcc-core-v1.js"), "utf8");
+const src = readFileSync(path.join(here, "..", "assets", "lcc-core-v2.js"), "utf8");
 
 class MemStorage {
   #m = new Map();
@@ -27,7 +27,7 @@ function boot({ local = {}, session = {}, fetchImpl } = {}) {
   const localStorage = new MemStorage(), sessionStorage = new MemStorage();
   for (const [k, v] of Object.entries(local)) localStorage.setItem(k, v);
   for (const [k, v] of Object.entries(session)) sessionStorage.setItem(k, v);
-  const win = { localStorage, sessionStorage, fetch: fetchImpl, AbortController, DOMException, setTimeout, clearTimeout, Object, Error, Number, Promise };
+  const win = { localStorage, sessionStorage, fetch: fetchImpl, AbortController, DOMException, setTimeout, clearTimeout, Object, Error, Number, Promise, TextDecoder, TextEncoder, JSON };
   win.window = win;
   vm.createContext(win);
   vm.runInContext(src, win);
@@ -117,4 +117,44 @@ test("api: timeout → ApiError 'timeout' e la richiesta viene abortita", async 
   const { LCC } = boot({ fetchImpl });
   await assert.rejects(LCC.api("/v1/slow", { timeoutMs: 30 }), (e) => e.message === "timeout");
   assert.equal(aborted, true);
+});
+
+/* ── stream SSE ── */
+function sseBody(chunks) {
+  let i = 0;
+  return { getReader: () => ({ read: async () => i < chunks.length ? { done: false, value: new TextEncoder().encode(chunks[i++]) } : { done: true } }) };
+}
+const mkStream = (status, chunks, headers = {}) => ({ ok: status < 300, status, headers: { get: (h) => headers[h] ?? null }, json: async () => ({ error: "x" }), body: sseBody(chunks) });
+
+test("stream: heartbeat ': ping' e righe vuote ignorati, eventi consegnati", async () => {
+  const { LCC } = boot({ fetchImpl: async () => mkStream(200, [": ping\n\n", 'data: {"type":"delta","text":"ci"}\n\n', ": ping\n", 'data: {"type":"delta","text":"ao"}\ndata: [DONE]\n\n']) });
+  const got = [];
+  const r = await LCC.stream("/v1/x", { onEvent: (e) => got.push(e.text) });
+  assert.deepEqual(got, ["ci", "ao"]);
+  assert.equal(r.partial, false); assert.equal(r.events, 2);
+});
+
+test("stream: 429 prima dei dati → ApiError con retryAfter", async () => {
+  const { LCC } = boot({ fetchImpl: async () => mkStream(429, [], { "retry-after": "12" }) });
+  await assert.rejects(LCC.stream("/v1/x"), (e) => e.status === 429 && e.retryAfter === 12);
+});
+
+test("stream: interrotto DOPO dati → risultato parziale (non eccezione)", async () => {
+  let n = 0;
+  const body = { getReader: () => ({ read: async () => { n++; if (n === 1) return { done: false, value: new TextEncoder().encode('data: {"t":1}\n') }; const e = new Error("net"); e.name = "TypeError"; throw e; } }) };
+  const { LCC } = boot({ fetchImpl: async () => ({ ok: true, status: 200, headers: { get: () => null }, body }) });
+  const r = await LCC.stream("/v1/x", { onEvent: () => {} });
+  assert.equal(r.partial, true); assert.equal(r.reason, "network"); assert.equal(r.events, 1);
+});
+
+test("stream: timeout primo-token senza dati → ApiError timeout_first_token", async () => {
+  const fetchImpl = (_u, init) => new Promise((_res, rej) => init.signal.addEventListener("abort", () => { const e = new Error("a"); e.name = "AbortError"; rej(e); }));
+  const { LCC } = boot({ fetchImpl });
+  await assert.rejects(LCC.stream("/v1/x", { firstTokenMs: 20, totalMs: 0 }), (e) => e.message === "timeout_first_token");
+});
+
+test("abortScope: la nuova richiesta annulla la precedente", async () => {
+  const { LCC } = boot();
+  const a = LCC.abortScope("k"); const b = LCC.abortScope("k");
+  assert.equal(a.signal.aborted, true); assert.equal(b.signal.aborted, false);
 });

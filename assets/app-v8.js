@@ -81,10 +81,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
      modalità sovrana (Pro/Kit), non per BYOK. Queste stringhe SOVRASCRIVONO
      le precedenti. */
   const T6={
-    it:{opFailed:"Operazione NON riuscita:",retryHint:"i dati sono ancora lì, riprova.",errNet:"rete non raggiungibile",errTimeout:"tempo scaduto",errAuth:"sessione scaduta, accedi di nuovo"},
-    en:{opFailed:"Operation FAILED:",retryHint:"your data is still there, please retry.",errNet:"network unreachable",errTimeout:"timed out",errAuth:"session expired, sign in again"},
-    zh:{opFailed:"操作失败：",retryHint:"数据仍在，请重试。",errNet:"网络不可达",errTimeout:"超时",errAuth:"会话已过期，请重新登录"},
-    es:{opFailed:"Operación FALLIDA:",retryHint:"tus datos siguen ahí, reinténtalo.",errNet:"red no disponible",errTimeout:"tiempo agotado",errAuth:"sesión caducada, vuelve a entrar"}
+    it:{cancel:"⏹ Annulla",cancelled:"Annullato.",partialKept:"Risposta interrotta: tengo la parte ricevuta",rateLimited:"Troppe richieste: riprova tra {s}s",opFailed:"Operazione NON riuscita:",retryHint:"i dati sono ancora lì, riprova.",errNet:"rete non raggiungibile",errTimeout:"tempo scaduto",errAuth:"sessione scaduta, accedi di nuovo"},
+    en:{cancel:"⏹ Cancel",cancelled:"Cancelled.",partialKept:"Answer interrupted: keeping what arrived",rateLimited:"Too many requests: retry in {s}s",opFailed:"Operation FAILED:",retryHint:"your data is still there, please retry.",errNet:"network unreachable",errTimeout:"timed out",errAuth:"session expired, sign in again"},
+    zh:{cancel:"⏹ 取消",cancelled:"已取消。",partialKept:"回答被中断：保留已收到部分",rateLimited:"请求过多：{s} 秒后重试",opFailed:"操作失败：",retryHint:"数据仍在，请重试。",errNet:"网络不可达",errTimeout:"超时",errAuth:"会话已过期，请重新登录"},
+    es:{cancel:"⏹ Cancelar",cancelled:"Cancelado.",partialKept:"Respuesta interrumpida: conservo lo recibido",rateLimited:"Demasiadas solicitudes: reintenta en {s}s",opFailed:"Operación FALLIDA:",retryHint:"tus datos siguen ahí, reinténtalo.",errNet:"red no disponible",errTimeout:"tiempo agotado",errAuth:"sesión caducada, vuelve a entrar"}
   };
   Object.keys(T6).forEach(l=>Object.assign(T[l],T6[l]));
   const T5={
@@ -532,8 +532,9 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     recognition=new SR();recognition.lang=$('lang').value;recognition.continuous=true;recognition.interimResults=true;
     if(sttMode==='local'){ try{ recognition.processLocally=true; }catch(_){} }
     recognition.onresult=e=>{let itr='';for(let i=e.resultIndex;i<e.results.length;i++){const x=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=x+' ';else itr+=x;}render(itr);if(autoMode)sched();};
-    recognition.onerror=e=>setS(liveStatus,'Mic: '+e.error,'err');
-    recognition.onend=()=>{if(recognizing){try{recognition.start()}catch(_){}}};
+    const TERMINAL=['not-allowed','service-not-allowed','audio-capture','language-not-supported','bad-grammar'];
+    recognition.onerror=e=>{ setS(liveStatus,'Mic: '+e.error,'err'); if(TERMINAL.indexOf(e.error)>=0){ stopRec(); } };
+    recognition.onend=()=>{if(recognizing){try{recognition.start()}catch(_){ stopRec(); }}};
     try{recognition.start();recognizing=true;listenBtn.classList.add('on');listenBtn.setAttribute('aria-pressed','true');listenBtn.querySelector('span').textContent=t('stop');recDot.classList.add('live');setS(liveStatus,t('onair'),'ok');}catch(_){}
   }
   function stopRec(){recognizing=false;if(recognition)recognition.stop();if(pauseTimer)clearTimeout(pauseTimer);listenBtn.classList.remove('on');listenBtn.setAttribute('aria-pressed','false');listenBtn.querySelector('span').textContent=t('listen');recDot.classList.remove('live');setS(liveStatus,t('stopped'));}
@@ -565,7 +566,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   }
 
   async function errMsg(res){let m='HTTP '+res.status;try{const d=await res.json();m=(d.error&&(d.error.message||d.error))||JSON.stringify(d);}catch(_){}return m;}
-  async function readSSE(res,onLine){const rd=res.body.getReader(),dec=new TextDecoder();let buf='';while(true){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;while((i=buf.indexOf('\n'))>=0){let ln=buf.slice(0,i).trim();buf=buf.slice(i+1);if(!ln.startsWith('data:'))continue;ln=ln.slice(5).trim();if(!ln||ln==='[DONE]')continue;onLine(ln);}}}
+  async function readSSE(res,onLine){try{const rd=res.body.getReader(),dec=new TextDecoder();let buf='';while(true){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;while((i=buf.indexOf(String.fromCharCode(10)))>=0){let ln=buf.slice(0,i).trim();buf=buf.slice(i+1);if(!ln.startsWith('data:'))continue;ln=ln.slice(5).trim();if(!ln||ln==='[DONE]')continue;onLine(ln);}}}finally{if(res.__tTot)clearTimeout(res.__tTot);}}
   /* Modalità Pro: la richiesta va al NOSTRO backend (chiave universale lato
      server, cookie di sessione). Formato SSE: {type:"delta"|"done"|"error"}. */
   function backendMode(){ const m=modeEl.value; return (m==='interview'||m==='sales'||m==='meeting')?m:'general'; }
@@ -607,22 +608,36 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
      per coerenza, ma anche mandasse "low" il backend non declasserebbe.
      Modello extra-UE scelto a mano → il server risponde 409 finché non c'è
      consenso: si mostra il dialog informativo e si ritenta con nonEuConsent. */
+  /* Stream Pro via nucleo: AbortController (Annulla / nuova richiesta / pagehide),
+     timeout primo-token 20s e totale 120s, heartbeat ignorato, 429 con Retry-After,
+     stream interrotto → si tiene il parziale e lo si dice. */
+  let curReq=null;
   async function callProStream(onDelta,consented){
     const q=finalText.trim().slice(-2000);
-    const res=await fetch(BACKEND_URL+'/v1/complete',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:($('proModel').value||'auto'),sensitivity:'high',nonEuConsent:!!consented,mode:backendMode(),tier:'cloud',system:systemPrompt(),messages:[{role:'user',content:'Transcript:\n'+q}],maxTokens:800})});
-    if(res.status===409){
-      const d=await res.json().catch(()=>({}));
-      if(d.error==='non_eu_consent_required'&&!consented){
-        if(await askNonEuConsent(d)) return callProStream(onDelta,true);
+    let apiErr=null;
+    try{
+      const r=await window.LCC.stream(BACKEND_URL+'/v1/complete',{signal:curReq&&curReq.signal,firstTokenMs:20000,totalMs:120000,
+        body:JSON.stringify({model:($('proModel').value||'auto'),sensitivity:'high',nonEuConsent:!!consented,mode:backendMode(),tier:'cloud',system:systemPrompt(),messages:[{role:'user',content:'Transcript:\n'+q}],maxTokens:800}),
+        onEvent:j=>{if(j.type==='routing')showRouting(j);else if(j.type==='delta'&&j.text)onDelta(j.text);else if(j.type==='error')apiErr=j.message||'errore dal backend';}});
+      if(apiErr)throw new Error(apiErr);
+      if(r.partial) setS(liveStatus,t('partialKept')+' ('+r.reason+')','err');
+    }catch(e){
+      if(e&&e.status===409&&e.body&&e.body.error==='non_eu_consent_required'&&!consented){
+        if(await askNonEuConsent(e.body)) return callProStream(onDelta,true);
         throw new Error(t('nonEuNo'));
       }
-      throw new Error(d.detail||d.error||'HTTP 409');
+      if(e&&e.status===429) throw new Error(t('rateLimited').replace('{s}',String(e.retryAfter||30)));
+      throw new Error(errText(e));
     }
-    if(!res.ok){const d=await res.json().catch(()=>({}));throw new Error(d.detail||d.error||('HTTP '+res.status));}
-    let apiErr=null;
-    await readSSE(res,ln=>{try{const j=JSON.parse(ln);if(j.type==='routing')showRouting(j);else if(j.type==='delta'&&j.text)onDelta(j.text);else if(j.type==='error')apiErr=j.message||'errore dal backend';}catch(_){}});
-    if(apiErr)throw new Error(apiErr);
+  }
+  /* BYOK: stesso rigore (abort + timeout) anche verso i provider diretti. */
+  async function byokFetch(url,init){
+    const ctrl=new AbortController(); let why=null;
+    if(curReq) curReq.signal.addEventListener('abort',()=>{why='aborted';ctrl.abort();});
+    const tFirst=setTimeout(()=>{why='timeout';ctrl.abort();},20000);
+    const tTot=setTimeout(()=>{why='timeout';ctrl.abort();},120000);
+    try{ const res=await fetch(url,Object.assign({},init,{signal:ctrl.signal})); clearTimeout(tFirst); res.__tTot=tTot; return res; }
+    catch(e){ clearTimeout(tFirst); clearTimeout(tTot); throw new Error(why||('network')); }
   }
 
   async function callStream(onDelta){
@@ -630,35 +645,37 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     const p=curProv(),key=$('apiKey').value.trim(),model=$('model').value.trim(),q=finalText.trim().slice(-2000),sys=systemPrompt();
     try{
       if(p.kind==='gemini'){
-        const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':streamGenerateContent?alt=sse',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:'Transcript:\n'+q}]}],generationConfig:{temperature:0.6,maxOutputTokens:800}})});
+        const res=await byokFetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':streamGenerateContent?alt=sse',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:'Transcript:\n'+q}]}],generationConfig:{temperature:0.6,maxOutputTokens:800}})});
         if(!res.ok)throw new Error(await errMsg(res));
         await readSSE(res,ln=>{try{const j=JSON.parse(ln);const parts=(((j.candidates||[])[0]||{}).content||{}).parts||[];const tx=parts.map(x=>x.text||'').join('');if(tx)onDelta(tx);}catch(_){}});return;
       }
       if(p.kind==='anthropic'){
         const base=$('baseUrl').value.trim()||p.base;
-        const res=await fetch(base+'/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model,max_tokens:800,system:sys,messages:[{role:'user',content:'Transcript:\n'+q}],stream:true})});
+        const res=await byokFetch(base+'/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model,max_tokens:800,system:sys,messages:[{role:'user',content:'Transcript:\n'+q}],stream:true})});
         if(!res.ok)throw new Error(await errMsg(res));
         await readSSE(res,ln=>{try{const j=JSON.parse(ln);if(j.type==='content_block_delta'&&j.delta&&j.delta.text)onDelta(j.delta.text);}catch(_){}});return;
       }
       const base=$('baseUrl').value.trim()||p.base;
       const hd={'Content-Type':'application/json'}; if(key) hd['Authorization']='Bearer '+key;
-      const res=await fetch(base+'/chat/completions',{method:'POST',headers:hd,body:JSON.stringify({model,stream:true,temperature:0.6,max_tokens:800,messages:[{role:'system',content:sys},{role:'user',content:'Transcript:\n'+q}]})});
+      const res=await byokFetch(base+'/chat/completions',{method:'POST',headers:hd,body:JSON.stringify({model,stream:true,temperature:0.6,max_tokens:800,messages:[{role:'system',content:sys},{role:'user',content:'Transcript:\n'+q}]})});
       if(!res.ok)throw new Error(await errMsg(res));
       await readSSE(res,ln=>{try{const j=JSON.parse(ln);const d=((j.choices||[])[0]||{}).delta||{};if(d.content)onDelta(d.content);}catch(_){}});
-    }catch(e){ if(/Failed to fetch|NetworkError/i.test(e.message))throw new Error(e.message+' — questo provider può bloccare le chiamate dal browser (CORS). Prova Gemini, Claude, OpenAI o Groq.'); throw e; }
+    }catch(e){ if(e.message==='aborted')throw new Error(t('cancelled')); if(e.message==='timeout')throw new Error(t('errTimeout')); if(/network|Failed to fetch|NetworkError/i.test(e.message))throw new Error(t('errNet')+' — questo provider può bloccare le chiamate dal browser (CORS). Prova Gemini, Claude, OpenAI o Groq.'); throw e; }
   }
   async function suggest(qOverride){
     if(!canRun()){setS(liveStatus,cantRunMsg(),'err');showSettings();return;}
     if(qOverride){finalText=(finalText+' '+qOverride).trim();}
     if(!finalText.trim()){setS(liveStatus,t('noq'),'err');return;}
-    busy=true;suggestBtn.disabled=true;setS(liveStatus,t('thinking'),'work');let acc='';answerEl.textContent='';clearRouting();hideFeedback();
+    curReq=window.LCC.abortScope('suggest'); // una sola richiesta viva: la nuova annulla la precedente
+    busy=true;suggestBtn.disabled=true;$('cancelBtn').style.display='';setS(liveStatus,t('thinking'),'work');let acc='';answerEl.textContent='';clearRouting();hideFeedback();
     answerEl.setAttribute('data-ph',t('thinking')); // "sto pensando…" nel riquadro risposta
     try{await callStream(tx=>{acc+=tx;lastAnswer=acc;answerEl.innerHTML=acc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');answerEl.scrollTop=answerEl.scrollHeight;});setS(liveStatus,t('ready'),'ok');showFeedback();}
     catch(e){setS(liveStatus,'Error: '+e.message,'err');}
     answerEl.setAttribute('data-ph','—');
-    busy=false;suggestBtn.disabled=false;
+    busy=false;suggestBtn.disabled=false;$('cancelBtn').style.display='none';
   }
   suggestBtn.addEventListener('click',()=>suggest());
+  $('cancelBtn').addEventListener('click',()=>{ if(curReq){curReq.abort();} });
   $('manualQ').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.value.trim()){suggest(e.target.value.trim());e.target.value='';}});
   $('copyBtn').addEventListener('click',()=>{if(!lastAnswer)return;try{navigator.clipboard.writeText(lastAnswer);$('copyBtn').textContent=t('copied');setTimeout(()=>$('copyBtn').textContent=t('copy'),1500);}catch(_){}});
 

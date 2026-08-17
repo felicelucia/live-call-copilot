@@ -121,29 +121,37 @@
     return ms.find(n=>/flash/i.test(n)&&/latest/i.test(n))||ms.find(n=>/flash/i.test(n))||ms[0];
   }
   // msgs: [{role:'user'|'assistant', content}]
+  /* fetch BYOK con AbortController: timeout 45s, annullato a fine colloquio/pagehide */
+  function bfetch(url,init){
+    const req=window.LCC.abortScope('practice-'+Math.random().toString(36).slice(2)); // ogni turno un suo scope (si annullano con abortAll)
+    const t=setTimeout(()=>req.abort(new DOMException('timeout','TimeoutError')),45000);
+    return fetch(url,Object.assign({},init,{signal:req.signal})).catch(e=>{ throw new Error(req.signal.reason&&req.signal.reason.name==='TimeoutError'?'timeout':(e&&e.name==='AbortError'?'aborted':'network')); }).finally(()=>clearTimeout(t));
+  }
   async function chat(system, msgs, maxTokens){
     const p=P(), key=$('key').value.trim(), model=MODEL||curModel();
     try{
       if(p.kind==='gemini'){
         const contents=msgs.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
-        const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent',
+        const r=await bfetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent',
           {method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents,generationConfig:{temperature:0.85,maxOutputTokens:maxTokens||500}})});
         const d=await r.json(); if(!r.ok) throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
         return ((((d.candidates||[])[0]||{}).content||{}).parts||[]).map(x=>x.text||'').join('').trim();
       }
       if(p.kind==='anthropic'){
-        const r=await fetch(p.base+'/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        const r=await bfetch(p.base+'/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
           body:JSON.stringify({model,max_tokens:maxTokens||500,system,messages:msgs.map(m=>({role:m.role,content:m.content}))})});
         const d=await r.json(); if(!r.ok) throw new Error((d.error&&d.error.message)||('HTTP '+r.status));
         return (d.content||[]).map(c=>c.text||'').join('').trim();
       }
       // openai-compatible
-      const r=await fetch(p.base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      const r=await bfetch(p.base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
         body:JSON.stringify({model,temperature:0.85,max_tokens:maxTokens||500,messages:[{role:'system',content:system},...msgs]})});
       const d=await r.json(); if(!r.ok) throw new Error((d.error&&(d.error.message||d.error))||('HTTP '+r.status));
       return (((d.choices||[])[0]||{}).message||{}).content||'';
     }catch(e){
-      if(/Failed to fetch|NetworkError/i.test(e.message)) throw new Error((L()==='it'?'Questo motore blocca le chiamate dal browser (CORS). Prova Gemini, Groq o Claude.':'This engine blocks in-browser calls (CORS). Try Gemini, Groq or Claude.'));
+      if(e.message==='timeout') throw new Error(L()==='it'?'Tempo scaduto: il motore non ha risposto.':'Timed out: the engine did not answer.');
+      if(e.message==='aborted') throw new Error(L()==='it'?'Annullato.':'Cancelled.');
+      if(/network|Failed to fetch|NetworkError/i.test(e.message)) throw new Error((L()==='it'?'Questo motore blocca le chiamate dal browser (CORS) o la rete è giù. Prova Gemini, Groq o Claude.':'This engine blocks in-browser calls (CORS) or the network is down. Try Gemini, Groq or Claude.'));
       throw e;
     }
   }
@@ -315,7 +323,8 @@
     recognition=new SR(); recognition.lang=L()==='it'?'it-IT':'en-US'; recognition.continuous=true; recognition.interimResults=true;
     if(sttMode==='local'){ try{ recognition.processLocally=true; }catch(_){} }
     recognition.onresult=e=>{ let s=''; for(let i=0;i<e.results.length;i++) s+=e.results[i][0].transcript; $('youtext').textContent=s; armSilence(); };
-    recognition.onerror=e=>{ if(e.error==='not-allowed'||e.error==='service-not-allowed') setSt('liveStatus',(L()==='it'?'Permesso microfono negato. Usa "Scrivi".':'Mic permission denied. Use "Type instead".'),'err'); };
+    const TERMINAL=['not-allowed','service-not-allowed','audio-capture','language-not-supported'];
+    recognition.onerror=e=>{ if(TERMINAL.indexOf(e.error)>=0){ recognizing=false; setState('ready'); setSt('liveStatus',(L()==='it'?'Microfono non disponibile ('+e.error+'). Usa "Scrivi".':'Mic unavailable ('+e.error+'). Use "Type instead".'),'err'); } };
     recognition.onend=()=>{ if(state==='listening'&&recognizing){ try{recognition.start()}catch(_){} } };
     try{ recognition.start(); recognizing=true; }catch(_){}
   }

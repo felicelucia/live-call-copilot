@@ -54,6 +54,7 @@ const T = {
     plan: "piano",
     adShort: "Incolla l'annuncio (almeno 50 caratteri).",
     netErr: "Backend non raggiungibile: controlla che sia acceso.",
+    cancel: "⏹ Annulla", cancelled: "Annullato.", errTimeout: "Tempo scaduto: il modello non ha risposto in tempo.", partialKept: "Generazione interrotta: mostro ciò che è arrivato", rateLimited: "Troppe richieste: riprova tra {s}s",
     labels: { queued:"in coda", working:"al lavoro", done:"fatto", error:"errore", recapTitle:"Chi ha fatto cosa", agents:"agenti", models:"modelli", euData:"dati in UE", seconds:"s totali", chars:"caratteri" },
     lang: "italiano",
   },
@@ -105,6 +106,7 @@ const T = {
     plan: "plan",
     adShort: "Paste the job ad (at least 50 characters).",
     netErr: "Backend unreachable: make sure it is running.",
+    cancel: "⏹ Cancel", cancelled: "Cancelled.", errTimeout: "Timed out: the model did not answer in time.", partialKept: "Generation interrupted: showing what arrived", rateLimited: "Too many requests: retry in {s}s",
     labels: { queued:"queued", working:"working", done:"done", error:"error", recapTitle:"Who did what", agents:"agents", models:"models", euData:"data in EU", seconds:"s total", chars:"chars" },
     lang: "english",
   },
@@ -324,11 +326,10 @@ async function runAgent(agentId) {
   setStatus(t("agentWorking"), "");
   results[agentId] = "";
   const tabBtn = document.querySelector('[data-tab="' + agentId + '"]');
+  const req = window.LCC.abortScope("kit"); // annulla stream precedente
   try {
-    const res = await fetch(BACKEND + "/v1/kit/agent", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+    const r = await window.LCC.stream(BACKEND + "/v1/kit/agent", {
+      signal: req.signal, firstTokenMs: 30000, totalMs: 180000,
       body: JSON.stringify({
         agent: agentId,
         jobAd: lastJobAd,
@@ -336,24 +337,7 @@ async function runAgent(agentId) {
         ...(lastPastedCv ? { cv: lastPastedCv } : {}),
         language: t("lang"),
       }),
-    });
-    if (!res.ok) {
-      const d = await res.json().catch(() => ({}));
-      throw new Error(d.detail || d.error || "HTTP " + res.status);
-    }
-    const rd = res.body.getReader(), dec = new TextDecoder();
-    let buf = "";
-    while (true) {
-      const { done, value } = await rd.read();
-      if (done) break;
-      buf += dec.decode(value, { stream: true });
-      let i;
-      while ((i = buf.indexOf("\n")) >= 0) {
-        let ln = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
-        if (!ln.startsWith("data:")) continue;
-        ln = ln.slice(5).trim();
-        if (!ln || ln === "[DONE]") continue;
-        let ev; try { ev = JSON.parse(ln); } catch (_) { continue; }
+      onEvent: (ev) => {
         plancia.handleEvent(ev);
         if (ev.type === "task-start") { tabBtn.style.display = ""; showTab(agentId); }
         if (ev.type === "task-delta") {
@@ -362,11 +346,12 @@ async function runAgent(agentId) {
         }
         if (ev.type === "task-done") setStatus("", "");
         if (ev.type === "task-error") setStatus(ev.message || "errore", "err");
-      }
-    }
+      },
+    });
     if (activeTab === agentId) showTab(agentId);
+    if (r.partial) setStatus(t("partialKept") + " (" + r.reason + ")", "err");
   } catch (e) {
-    setStatus(e.message, "err");
+    setStatus(friendlyErr(e), "err");
   }
   $("coachBtn").disabled = false; $("criticoBtn").disabled = false;
 }
@@ -394,30 +379,13 @@ async function generate() {
   plancia.reset();
   $("planciaWrap").scrollIntoView({ behavior: "smooth", block: "start" });
 
+  const req = window.LCC.abortScope("kit"); // nuova generazione = annulla la precedente
+  $("cancelBtn").style.display = "";
   try {
-    const res = await fetch(BACKEND + "/v1/kit", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+    const r = await window.LCC.stream(BACKEND + "/v1/kit", {
+      signal: req.signal, firstTokenMs: 30000, totalMs: 240000,
       body: JSON.stringify(body),
-    });
-    if (!res.ok) {
-      const d = await res.json().catch(() => ({}));
-      throw new Error(d.detail || d.error || "HTTP " + res.status);
-    }
-    const rd = res.body.getReader(), dec = new TextDecoder();
-    let buf = "";
-    while (true) {
-      const { done, value } = await rd.read();
-      if (done) break;
-      buf += dec.decode(value, { stream: true });
-      let i;
-      while ((i = buf.indexOf("\n")) >= 0) {
-        let ln = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
-        if (!ln.startsWith("data:")) continue;
-        ln = ln.slice(5).trim();
-        if (!ln || ln === "[DONE]") continue;
-        let ev; try { ev = JSON.parse(ln); } catch (_) { continue; }
+      onEvent: (ev) => {
         plancia.handleEvent(ev);
         if (ev.type === "task-delta" && ev.task in results) results[ev.task] += ev.text || "";
         if (ev.type === "kit-done") {
@@ -443,14 +411,30 @@ async function generate() {
             setStatus(t("savedFull"), "err");
           }
         }
-      }
+      },
+    });
+    if (r.partial) {
+      // stream interrotto dopo dati: mostro ciò che è arrivato, dicendolo
+      if (results.sarto || results.analista) { $("outCard").style.display = ""; showTab(results.sarto ? "sarto" : "intervistatore"); }
+      setStatus(t("partialKept") + " (" + r.reason + ")", "err");
     }
   } catch (e) {
-    setStatus(/Failed to fetch|NetworkError/i.test(e.message) ? t("netErr") : e.message, "err");
+    setStatus(friendlyErr(e), "err");
   }
+  $("cancelBtn").style.display = "none";
   $("goBtn").disabled = false;
 }
 $("goBtn").addEventListener("click", generate);
+$("cancelBtn").addEventListener("click", () => window.LCC.abortAll());
+/* errori umani: rete/timeout/429/annullato */
+function friendlyErr(e) {
+  if (!e) return "?";
+  if (e.status === 429) return t("rateLimited").replace("{s}", String(e.retryAfter || 30));
+  if (e.message === "network") return t("netErr");
+  if (e.message === "aborted") return t("cancelled");
+  if (/^timeout/.test(e.message)) return t("errTimeout");
+  return e.message || "?";
+}
 
 applyLang();
 loadMe();
