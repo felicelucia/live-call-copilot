@@ -1,3 +1,4 @@
+const BRAND=window.LCC.BRAND;
 /* Story Bank — UI (M3). Regole: nessun innerHTML con dati (solo nodi), dialog
    nativi accessibili, helper API del nucleo (lancia su non-2xx), i suggerimenti
    dell'agente NON si salvano mai da soli: l'utente li rivede uno a uno. */
@@ -9,7 +10,7 @@ const apiJson = (p, o = {}) => window.LCC.api.json(BACKEND + p, o);
 const T = {
   it: {
     skipLink: "Salta al contenuto", brandSub: "Le tue storie · Story Bank", toKit: "✨ Kit", toHist: "🗂 Storico",
-    docTitle: "Le tue storie — Live Call Copilot",
+    docTitle: "Le tue storie — "+BRAND+"",
     heroH: "Le tue storie: la memoria vera su cui tutto si basa",
     heroP: "Esperienze reali in formato STAR (Situazione, Compito, Azione, Risultato). Il Kit, il Critico e il copilota attingono SOLO da qui e dal tuo CV — con la fonte indicata. Se una prova manca, lo dicono: mai inventare.",
     needLogin: "La Story Bank vive sul tuo account, cifrata su server UE: accedi per vederla.", openApp: "Apri l'app per accedere",
@@ -34,7 +35,7 @@ const T = {
   },
   en: {
     skipLink: "Skip to content", brandSub: "Your stories · Story Bank", toKit: "✨ Kit", toHist: "🗂 History",
-    docTitle: "Your stories — Live Call Copilot",
+    docTitle: "Your stories — "+BRAND+"",
     heroH: "Your stories: the real memory everything is grounded on",
     heroP: "Real experiences in STAR format (Situation, Task, Action, Result). The Kit, the Critic and the copilot draw ONLY from here and your CV — with the source shown. If a proof is missing, they say so: never invent.",
     needLogin: "Your Story Bank lives on your account, encrypted on EU servers: sign in to see it.", openApp: "Open the app to sign in",

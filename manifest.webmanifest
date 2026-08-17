@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Live Call Copilot",
-  "short_name": "Copilot",
-  "description": "Il copilota AI europeo per la tua carriera: CV su misura, colloqui allenati e suggerimenti dal vivo — con i dati al sicuro in UE.",
+  "name": "Kandra",
+  "short_name": "Kandra",
+  "description": "Dal job post all'offerta: CV su misura, colloquio allenato, storie vere. E ti diciamo dove sta il lavoro per te, quanto rende e dove conviene spostarti. Dati al sicuro in Europa.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

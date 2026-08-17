@@ -1,4 +1,5 @@
 import { renderMd } from "./md.js";
+const BRAND=window.LCC.BRAND;
 
 const $ = (id) => document.getElementById(id);
 const BACKEND = location.protocol.startsWith("http") ? location.origin : "http://127.0.0.1:8787";
@@ -9,7 +10,7 @@ const errText = (e) => (e && e.message === "network" ? t("errNet") : e && e.mess
 
 const T = {
   it: {
-    docTitle: "Storico e prontezza — Live Call Copilot", docDesc: "Il tuo punteggio di prontezza spiegabile e lo storico dei kit di candidatura — cifrati, esportabili, cancellabili.",
+    docTitle: "Storico e prontezza — "+BRAND+"", docDesc: "Il tuo punteggio di prontezza spiegabile e lo storico dei kit di candidatura — cifrati, esportabili, cancellabili.",
     brandSub: "Storico e prontezza", toKit: "✨ Kit", toStories: "📚 Storie", openApp: "Apri l'app per accedere",
     needLogin: "Lo storico e il punteggio di prontezza vivono sul tuo account: accedi per vederli.",
     readyH: "La tua prontezza",
@@ -30,7 +31,7 @@ const T = {
     of: "su", err: "Errore: ",
   },
   en: {
-    docTitle: "History & readiness — Live Call Copilot", docDesc: "Your explainable readiness score and your application-kit history — encrypted, exportable, deletable.",
+    docTitle: "History & readiness — "+BRAND+"", docDesc: "Your explainable readiness score and your application-kit history — encrypted, exportable, deletable.",
     brandSub: "History & readiness", toKit: "✨ Kit", toStories: "📚 Stories", openApp: "Open the app to sign in",
     needLogin: "Your history and readiness score live on your account: sign in to see them.",
     readyH: "Your readiness",

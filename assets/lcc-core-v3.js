@@ -10,6 +10,9 @@
    Caricato PRIMA degli script di pagina (classic e module). */
 (function () {
   'use strict';
+  /* ═══ BRAND: cambiare QUI (una riga). Il backend legge BRAND_NAME (config). ═══ */
+  var BRAND = 'Kandra';
+  var LEGACY_BRAND = 'Live Call Copilot';
   var OPT_IN_KEY = 'v5_remember';
   var MIGRATION_KEY = 'lcc_store_v'; // in sessionStorage: versione migrazione già applicata
   var MIGRATION_VERSION = '2';
@@ -182,6 +185,18 @@
     });
   }
 
-  window.LCC = { NAMESPACES: NAMESPACES, store: store, purgeAll: purgeAll, migrateLegacy: migrateLegacy, hasOptIn: hasOptIn, api: api, ApiError: ApiError, stream: stream, abortScope: abortScope, abortAll: abortAll };
+  /* Rimpiazzo del nome legacy nell'HTML statico (title, meta description, testo visibile). */
+  function applyBrand() {
+    try {
+      if (document.title.indexOf(LEGACY_BRAND) >= 0) document.title = document.title.split(LEGACY_BRAND).join(BRAND);
+      var md = document.querySelector('meta[name="description"]'); if (md && md.content.indexOf(LEGACY_BRAND) >= 0) md.content = md.content.split(LEGACY_BRAND).join(BRAND);
+      var w = document.createTreeWalker(document.body, 4); var n; var todo = [];
+      while ((n = w.nextNode())) if (n.nodeValue && n.nodeValue.indexOf(LEGACY_BRAND) >= 0) todo.push(n);
+      todo.forEach(function (tn) { tn.nodeValue = tn.nodeValue.split(LEGACY_BRAND).join(BRAND); });
+    } catch (_) {}
+  }
+  try { if (typeof document !== 'undefined') { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyBrand); else applyBrand(); } } catch (_) {}
+
+  window.LCC = { BRAND: BRAND, applyBrand: applyBrand, NAMESPACES: NAMESPACES, store: store, purgeAll: purgeAll, migrateLegacy: migrateLegacy, hasOptIn: hasOptIn, api: api, ApiError: ApiError, stream: stream, abortScope: abortScope, abortAll: abortAll };
   migrateLegacy();
 })();
