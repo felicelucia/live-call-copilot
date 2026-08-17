@@ -81,10 +81,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
      modalità sovrana (Pro/Kit), non per BYOK. Queste stringhe SOVRASCRIVONO
      le precedenti. */
   const T6={
-    it:{docTitle:"Live Call Copilot — il tuo assistente per le videochiamate",docDesc:"Il copilota AI open e privato per le tue chiamate: ascolta e suggerisce cosa dire, in tempo reale.",cancel:"⏹ Annulla",cancelled:"Annullato.",partialKept:"Risposta interrotta: tengo la parte ricevuta",rateLimited:"Troppe richieste: riprova tra {s}s",opFailed:"Operazione NON riuscita:",retryHint:"i dati sono ancora lì, riprova.",errNet:"rete non raggiungibile",errTimeout:"tempo scaduto",errAuth:"sessione scaduta, accedi di nuovo"},
-    en:{docTitle:"Live Call Copilot — your live-call assistant",docDesc:"The open, private AI copilot for your calls: it listens and suggests what to say, in real time.",cancel:"⏹ Cancel",cancelled:"Cancelled.",partialKept:"Answer interrupted: keeping what arrived",rateLimited:"Too many requests: retry in {s}s",opFailed:"Operation FAILED:",retryHint:"your data is still there, please retry.",errNet:"network unreachable",errTimeout:"timed out",errAuth:"session expired, sign in again"},
-    zh:{docTitle:"Live Call Copilot — 你的视频通话助手",docDesc:"开放、私密的通话 AI 副驾驶：实时聆听并建议你该说什么。",cancel:"⏹ 取消",cancelled:"已取消。",partialKept:"回答被中断：保留已收到部分",rateLimited:"请求过多：{s} 秒后重试",opFailed:"操作失败：",retryHint:"数据仍在，请重试。",errNet:"网络不可达",errTimeout:"超时",errAuth:"会话已过期，请重新登录"},
-    es:{docTitle:"Live Call Copilot — tu asistente para videollamadas",docDesc:"El copiloto de IA abierto y privado para tus llamadas: escucha y sugiere qué decir, en tiempo real.",cancel:"⏹ Cancelar",cancelled:"Cancelado.",partialKept:"Respuesta interrumpida: conservo lo recibido",rateLimited:"Demasiadas solicitudes: reintenta en {s}s",opFailed:"Operación FALLIDA:",retryHint:"tus datos siguen ahí, reinténtalo.",errNet:"red no disponible",errTimeout:"tiempo agotado",errAuth:"sesión caducada, vuelve a entrar"}
+    it:{storiesOpen:"📚 Apri le mie storie",storiesExport:"⬇ Esporta le storie",storiesDelete:"🗑 Cancella le storie",storiesConfirm:"Cancellare TUTTE le storie della Story Bank? L'operazione è definitiva.",storiesDeleted:"Story Bank cancellata.",docTitle:"Live Call Copilot — il tuo assistente per le videochiamate",docDesc:"Il copilota AI open e privato per le tue chiamate: ascolta e suggerisce cosa dire, in tempo reale.",cancel:"⏹ Annulla",cancelled:"Annullato.",partialKept:"Risposta interrotta: tengo la parte ricevuta",rateLimited:"Troppe richieste: riprova tra {s}s",opFailed:"Operazione NON riuscita:",retryHint:"i dati sono ancora lì, riprova.",errNet:"rete non raggiungibile",errTimeout:"tempo scaduto",errAuth:"sessione scaduta, accedi di nuovo"},
+    en:{storiesOpen:"📚 Open my stories",storiesExport:"⬇ Export stories",storiesDelete:"🗑 Delete stories",storiesConfirm:"Delete ALL Story Bank stories? This cannot be undone.",storiesDeleted:"Story Bank deleted.",docTitle:"Live Call Copilot — your live-call assistant",docDesc:"The open, private AI copilot for your calls: it listens and suggests what to say, in real time.",cancel:"⏹ Cancel",cancelled:"Cancelled.",partialKept:"Answer interrupted: keeping what arrived",rateLimited:"Too many requests: retry in {s}s",opFailed:"Operation FAILED:",retryHint:"your data is still there, please retry.",errNet:"network unreachable",errTimeout:"timed out",errAuth:"session expired, sign in again"},
+    zh:{storiesOpen:"📚 打开我的故事",storiesExport:"⬇ 导出故事",storiesDelete:"🗑 删除故事",storiesConfirm:"删除故事库中的全部故事？此操作不可撤销。",storiesDeleted:"故事库已删除。",docTitle:"Live Call Copilot — 你的视频通话助手",docDesc:"开放、私密的通话 AI 副驾驶：实时聆听并建议你该说什么。",cancel:"⏹ 取消",cancelled:"已取消。",partialKept:"回答被中断：保留已收到部分",rateLimited:"请求过多：{s} 秒后重试",opFailed:"操作失败：",retryHint:"数据仍在，请重试。",errNet:"网络不可达",errTimeout:"超时",errAuth:"会话已过期，请重新登录"},
+    es:{storiesOpen:"📚 Abrir mis historias",storiesExport:"⬇ Exportar historias",storiesDelete:"🗑 Borrar historias",storiesConfirm:"¿Borrar TODAS las historias del Story Bank? No se puede deshacer.",storiesDeleted:"Story Bank borrado.",docTitle:"Live Call Copilot — tu asistente para videollamadas",docDesc:"El copiloto de IA abierto y privado para tus llamadas: escucha y sugiere qué decir, en tiempo real.",cancel:"⏹ Cancelar",cancelled:"Cancelado.",partialKept:"Respuesta interrumpida: conservo lo recibido",rateLimited:"Demasiadas solicitudes: reintenta en {s}s",opFailed:"Operación FALLIDA:",retryHint:"tus datos siguen ahí, reinténtalo.",errNet:"red no disponible",errTimeout:"tiempo agotado",errAuth:"sesión caducada, vuelve a entrar"}
   };
   Object.keys(T6).forEach(l=>Object.assign(T[l],T6[l]));
   const T5={
@@ -431,7 +431,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     }
     renderProfileWhere();
   });
-  $('profExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/profile/export','_blank'));
+  $('profExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/profile/export','_blank','noopener,noreferrer'));
   $('profDeleteBtn').addEventListener('click',async()=>{
     if(!(await askConfirm(t('profDeleteConfirm'))))return;
     setPf(t('acWorking'),'work');
@@ -456,7 +456,19 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     try{ await api('/v1/me/preferences',{method:'PATCH',body:JSON.stringify({autoSaveKits:want})}); setPf('✔','ok'); }
     catch(e){ $('autoSaveKits').checked=!want; setPf(t('opFailed')+' '+errText(e)+' — '+t('retryHint'),'err'); }
   });
-  $('histExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/kits/export','_blank'));
+  $('histExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/kits/export','_blank','noopener,noreferrer'));
+  /* Story Bank: export e cancellazione con la stessa disciplina (solo dopo 2xx + verifica) */
+  $('storiesExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/stories/export','_blank','noopener,noreferrer'));
+  $('storiesDeleteBtn').addEventListener('click',async()=>{
+    if(!(await askConfirm(t('storiesConfirm'))))return;
+    setPf(t('acWorking'),'work');
+    try{
+      await api('/v1/stories',{method:'DELETE',body:'{}'});
+      const d=await window.LCC.api.json(BACKEND_URL+'/v1/stories');
+      if(d&&d.used) throw new Error('verify');
+      setPf(t('storiesDeleted'),'ok');
+    }catch(e){ setPf(t('opFailed')+' '+errText(e)+' — '+t('retryHint'),'err'); }
+  });
   $('histDeleteBtn').addEventListener('click',async()=>{
     if(!(await askConfirm(t('histConfirm'))))return;
     setPf(t('acWorking'),'work');

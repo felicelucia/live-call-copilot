@@ -13,7 +13,7 @@ const T = {
     brandSub: "Storico e prontezza", toKit: "✨ Kit", toStories: "📚 Storie", openApp: "Apri l'app per accedere",
     needLogin: "Lo storico e il punteggio di prontezza vivono sul tuo account: accedi per vederli.",
     readyH: "La tua prontezza",
-    comp: { training: "Allenamento", profile: "Profilo", kits: "Kit generati", recency: "Attività recente" },
+    comp: { training: "Allenamento", profile: "Profilo", stories: "Storie (Story Bank)", kits: "Kit generati", recency: "Attività recente" },
     kitsH: "Kit salvati", exportAll: "⬇ Esporta tutto", deleteAll: "🗑 Cancella tutto",
     back: "← Torna allo storico", tabCv: "CV su misura", tabMail: "Mail", tabQ: "Domande",
     open: "Apri", regen: "↻", regenTitle: "Rigenera il kit per questo annuncio", exportOne: "⬇", deleteOne: "🗑",
@@ -34,7 +34,7 @@ const T = {
     brandSub: "History & readiness", toKit: "✨ Kit", toStories: "📚 Stories", openApp: "Open the app to sign in",
     needLogin: "Your history and readiness score live on your account: sign in to see them.",
     readyH: "Your readiness",
-    comp: { training: "Training", profile: "Profile", kits: "Kits generated", recency: "Recent activity" },
+    comp: { training: "Training", profile: "Profile", stories: "Stories (Story Bank)", kits: "Kits generated", recency: "Recent activity" },
     kitsH: "Saved kits", exportAll: "⬇ Export all", deleteAll: "🗑 Delete all",
     back: "← Back to history", tabCv: "Tailored CV", tabMail: "Email", tabQ: "Questions",
     open: "Open", regen: "↻", regenTitle: "Regenerate the kit for this ad", exportOne: "⬇", deleteOne: "🗑",
@@ -156,7 +156,7 @@ $("kitList").addEventListener("click", async (e) => {
     location.href = "kit.html";
     return;
   }
-  if (exp) { const k = kits[Number(exp.getAttribute("data-exp"))]; window.open(BACKEND + "/v1/kits/" + k.id + "/export", "_blank"); return; }
+  if (exp) { const k = kits[Number(exp.getAttribute("data-exp"))]; window.open(BACKEND + "/v1/kits/" + k.id + "/export", "_blank", "noopener,noreferrer"); return; }
   if (del) {
     const k = kits[Number(del.getAttribute("data-del"))];
     if (!(await askConfirm(t("confirmOne")))) return;
@@ -166,7 +166,7 @@ $("kitList").addEventListener("click", async (e) => {
     setK(t("deleted"), "ok"); loadKits(); loadReadiness(); // ricarica dal server = verifica
   }
 });
-$("exportAllBtn").addEventListener("click", () => window.open(BACKEND + "/v1/kits/export", "_blank"));
+$("exportAllBtn").addEventListener("click", () => window.open(BACKEND + "/v1/kits/export", "_blank", "noopener,noreferrer"));
 $("deleteAllBtn").addEventListener("click", async () => {
   if (!(await askConfirm(t("confirmAll")))) return;
   try {
