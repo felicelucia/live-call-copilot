@@ -10,7 +10,7 @@ const errText = (e) => (e && e.message === "network" ? t("errNet") : e && e.mess
 const T = {
   it: {
     docTitle: "Storico e prontezza — Live Call Copilot", docDesc: "Il tuo punteggio di prontezza spiegabile e lo storico dei kit di candidatura — cifrati, esportabili, cancellabili.",
-    brandSub: "Storico e prontezza", toKit: "✨ Kit", openApp: "Apri l'app per accedere",
+    brandSub: "Storico e prontezza", toKit: "✨ Kit", toStories: "📚 Storie", openApp: "Apri l'app per accedere",
     needLogin: "Lo storico e il punteggio di prontezza vivono sul tuo account: accedi per vederli.",
     readyH: "La tua prontezza",
     comp: { training: "Allenamento", profile: "Profilo", kits: "Kit generati", recency: "Attività recente" },
@@ -31,7 +31,7 @@ const T = {
   },
   en: {
     docTitle: "History & readiness — Live Call Copilot", docDesc: "Your explainable readiness score and your application-kit history — encrypted, exportable, deletable.",
-    brandSub: "History & readiness", toKit: "✨ Kit", openApp: "Open the app to sign in",
+    brandSub: "History & readiness", toKit: "✨ Kit", toStories: "📚 Stories", openApp: "Open the app to sign in",
     needLogin: "Your history and readiness score live on your account: sign in to see them.",
     readyH: "Your readiness",
     comp: { training: "Training", profile: "Profile", kits: "Kits generated", recency: "Recent activity" },

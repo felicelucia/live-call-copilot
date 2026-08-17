@@ -1,4 +1,4 @@
-/* Live Call Copilot — service worker (v30)
+/* Live Call Copilot — service worker (v31)
    Scopo: app installabile e shell disponibile offline. Regole:
    - intercetta SOLO ciò che è in allowlist esplicita (precache + pagine
      /app/*.html + icone + manifest): API, pagine SEO e tutto il resto
@@ -7,7 +7,7 @@
    - pagine HTML: network-first, cache SOTTO IL PROPRIO URL, fallback per
      rotta (kit.html offline → kit.html in cache, non index.html);
    - la PRECACHE è generata da tools/gen-sw-precache.mjs (allowlist da build). */
-const CACHE = 'lcc-v30';
+const CACHE = 'lcc-v31';
 
 /* @generated-precache-start */
 const PRECACHE = [
@@ -18,12 +18,13 @@ const PRECACHE = [
   "./landing.html",
   "./practice.html",
   "./storico.html",
+  "./storie.html",
   "./icons/apple-touch-icon.png",
   "./icons/favicon-32.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
-  "./assets/app-v9.js",
+  "./assets/app-v10.js",
   "./assets/design-system-v3.css",
   "./assets/jobs-v6.js",
   "./assets/kit-v6.js",
@@ -36,9 +37,11 @@ const PRECACHE = [
   "./assets/page-landing-v1.css",
   "./assets/page-practice-v1.css",
   "./assets/page-storico-v1.css",
+  "./assets/page-storie-v1.css",
   "./assets/plancia.js",
   "./assets/practice-v8.js",
-  "./assets/storico-v5.js"
+  "./assets/storico-v6.js",
+  "./assets/storie-v1.js"
 ];
 /* @generated-precache-end */
 

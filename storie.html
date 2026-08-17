@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le tue storie — Live Call Copilot</title>
+<meta name="theme-color" content="#3b5bdb">
+<meta name="description" content="La tua Story Bank: le esperienze reali in formato STAR su cui il Kit, il Critico e il copilota si basano — mai inventate, sempre tue.">
+<meta name="robots" content="noindex,follow">
+<!-- SITE-BASE: aggiornare al cambio dominio -->
+<link rel="canonical" href="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/storie.html">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="stylesheet" href="assets/design-system-v3.css">
+<link rel="stylesheet" href="assets/page-storie-v1.css">
+</head>
+<body class="ds-page">
+<a href="#main" class="skip-link" data-i="skipLink">Salta al contenuto</a>
+<div class="ds-wrap">
+
+  <header class="topbar">
+    <div class="logo" aria-hidden="true">📚</div>
+    <div class="brand">Live Call Copilot<small data-i="brandSub"></small></div>
+    <nav aria-label="Sezioni del sito" class="topnav">
+      <a class="ds-btn ds-btn-ghost ds-btn-sm" href="kit.html" data-i="toKit"></a>
+      <a class="ds-btn ds-btn-ghost ds-btn-sm" href="storico.html" data-i="toHist"></a>
+    </nav>
+    <div class="ds-seg" id="langSeg" role="group" aria-label="Lingua / Language">
+      <button data-lang="it" class="on" aria-pressed="true">IT</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main id="main">
+  <div class="hero">
+    <h1 class="ds-h1" data-i="heroH"></h1>
+    <p class="ds-muted" data-i="heroP"></p>
+  </div>
+
+  <!-- login richiesto -->
+  <div class="ds-card" id="loginCard" style="display:none;text-align:center">
+    <p class="ds-muted" style="margin:0" data-i="needLogin"></p>
+    <div style="margin-top:var(--ds-s3)"><a class="ds-btn ds-btn-primary" href="index.html?return_to=storie" data-i="openApp"></a></div>
+  </div>
+
+  <!-- azioni -->
+  <div class="ds-card" id="actionsCard" style="display:none">
+    <div class="acts">
+      <button class="ds-btn ds-btn-primary" id="addBtn" data-i="add"></button>
+      <button class="ds-btn ds-btn-ghost" id="suggestBtn" data-i="suggest"></button>
+      <span class="quota" id="quota"></span>
+      <span style="flex:1"></span>
+      <button class="ds-btn ds-btn-ghost ds-btn-sm" id="exportBtn" data-i="exportAll"></button>
+      <button class="ds-btn ds-btn-ghost ds-btn-sm" id="deleteAllBtn" data-i="deleteAll"></button>
+    </div>
+    <p class="ds-muted" style="margin:var(--ds-s3) 0 0" data-i="privacyNote"></p>
+    <div class="ds-status" id="status" role="status"></div>
+    <div class="visually-hidden" id="a11yAlert" role="alert"></div>
+  </div>
+
+  <!-- suggerimenti da rivedere (mai salvati in automatico) -->
+  <div class="ds-card" id="suggestCard" style="display:none">
+    <h2 class="ds-h2" data-i="suggestH"></h2>
+    <p class="ds-muted" data-i="suggestSub"></p>
+    <label class="ds-label" for="cvPaste" data-i="cvPasteL"></label>
+    <textarea class="ds-textarea" id="cvPaste" rows="5" maxlength="8000" data-i-ph="cvPastePh"></textarea>
+    <div style="margin-top:var(--ds-s3);display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="ds-btn ds-btn-primary ds-btn-sm" id="suggestGo" data-i="suggestGo"></button>
+      <button class="ds-btn ds-btn-ghost ds-btn-sm" id="suggestClose" data-i="close"></button>
+      <span class="ds-muted" id="suggestModel" style="font-size:var(--ds-t-xs)"></span>
+    </div>
+    <div id="candList" style="margin-top:var(--ds-s4)"></div>
+  </div>
+
+  <!-- elenco storie -->
+  <div class="ds-card" id="listCard" style="display:none">
+    <h2 class="ds-h2" data-i="listH"></h2>
+    <div id="storyList" style="margin-top:var(--ds-s2)"></div>
+  </div>
+  </main>
+
+  <footer style="text-align:center" class="ds-muted" data-i="foot"></footer>
+</div>
+
+<!-- editor STAR (dialog accessibile: focus trap ed Esc nativi) -->
+<dialog class="ds-dialog story-dlg" id="editDlg" aria-labelledby="editDlgT">
+  <form id="editForm" method="dialog" novalidate>
+    <h2 id="editDlgT"></h2>
+    <label class="ds-label" for="fTitle" data-i="fTitle"></label>
+    <input class="ds-input" id="fTitle" name="title" maxlength="120" required aria-required="true">
+    <div class="two">
+      <div><label class="ds-label" for="fRole" data-i="fRole"></label><input class="ds-input" id="fRole" name="role" maxlength="120"></div>
+      <div><label class="ds-label" for="fSkills" data-i="fSkills"></label><input class="ds-input" id="fSkills" name="skills" maxlength="200" data-i-ph="fSkillsPh"></div>
+    </div>
+    <label class="ds-label" for="fSit" data-i="fSit"></label>
+    <textarea class="ds-textarea" id="fSit" name="situation" rows="2" maxlength="1500" required aria-required="true"></textarea>
+    <label class="ds-label" for="fTask" data-i="fTask"></label>
+    <textarea class="ds-textarea" id="fTask" name="task" rows="2" maxlength="1000" required aria-required="true"></textarea>
+    <label class="ds-label" for="fAct" data-i="fAct"></label>
+    <textarea class="ds-textarea" id="fAct" name="action" rows="3" maxlength="2500" required aria-required="true"></textarea>
+    <label class="ds-label" for="fRes" data-i="fRes"></label>
+    <textarea class="ds-textarea" id="fRes" name="result" rows="2" maxlength="1500" required aria-required="true"></textarea>
+    <div class="two">
+      <div><label class="ds-label" for="fMetric" data-i="fMetric"></label><input class="ds-input" id="fMetric" name="metric" maxlength="200" data-i-ph="fMetricPh"></div>
+      <div><label class="ds-label" for="fEvidence" data-i="fEvidence"></label><input class="ds-input" id="fEvidence" name="evidence" maxlength="500" data-i-ph="fEvidencePh"></div>
+    </div>
+    <div class="ds-status" id="editStatus" role="status"></div>
+    <div class="ds-dialog-btns" style="margin-top:var(--ds-s3)">
+      <button type="button" class="ds-btn ds-btn-ghost ds-btn-sm" id="editCancel" data-i="cancel"></button>
+      <button type="submit" class="ds-btn ds-btn-primary ds-btn-sm" id="editSave" data-i="save"></button>
+    </div>
+  </form>
+</dialog>
+
+<!-- conferma accessibile -->
+<dialog class="ds-dialog" id="confirmDlg" aria-labelledby="confirmDlgT">
+  <h2 id="confirmDlgT"></h2>
+  <p id="confirmDlgP"></p>
+  <div class="ds-dialog-btns">
+    <button class="ds-btn ds-btn-ghost ds-btn-sm" id="confirmDlgNo"></button>
+    <button class="ds-btn ds-btn-primary ds-btn-sm" id="confirmDlgYes"></button>
+  </div>
+</dialog>
+
+<script src="assets/lcc-core-v2.js"></script>
+<script type="module" src="assets/storie-v1.js"></script>
+</body>
+</html>
