@@ -10,7 +10,7 @@
 <!-- SITE-BASE: aggiornare al cambio dominio -->
 <link rel="canonical" href="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/jobs.html">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="stylesheet" href="assets/design-system-v2.css">
+<link rel="stylesheet" href="assets/design-system-v3.css">
 <link rel="stylesheet" href="assets/page-jobs-v1.css">
 </head>
 <body class="ds-page">
@@ -30,7 +30,7 @@
   <div class="ds-card">
     <h1 class="ds-h2" data-i="h1" style="margin-bottom:var(--ds-s2)"></h1>
     <p class="ds-muted" data-i="sub" style="margin:0 0 var(--ds-s3)"></p>
-    <div class="searchrow">
+    <form class="searchrow" id="searchForm" role="search" novalidate>
       <div><label class="ds-label" for="q" data-i="qL"></label><input class="ds-input" id="q" data-i-ph="qPh"></div>
       <div><label class="ds-label" for="loc" data-i="lL"></label><input class="ds-input" id="loc" data-i-ph="lPh"></div>
       <div><label class="ds-label" for="country" data-i="cL"></label><select class="ds-select" id="country">
@@ -40,8 +40,8 @@
         <option value="at">Österreich</option><option value="pt">Portugal</option>
         <option value="gb">United Kingdom</option>
       </select></div>
-      <div><button class="ds-btn ds-btn-primary" id="goBtn" data-i="go"></button></div>
-    </div>
+      <div><button type="submit" class="ds-btn ds-btn-primary" id="goBtn" data-i="go"></button></div>
+    </form>
     <div class="ds-status" id="status" role="status" style="margin-top:var(--ds-s2)"></div>
     <div class="visually-hidden" id="a11yAlert" role="alert"></div>
   </div>
@@ -58,6 +58,6 @@
 </div>
 
 <script src="assets/lcc-core-v2.js"></script>
-<script src="assets/jobs-v5.js"></script>
+<script src="assets/jobs-v6.js"></script>
 </body>
 </html>

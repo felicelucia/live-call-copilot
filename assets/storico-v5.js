@@ -9,6 +9,7 @@ const errText = (e) => (e && e.message === "network" ? t("errNet") : e && e.mess
 
 const T = {
   it: {
+    docTitle: "Storico e prontezza — Live Call Copilot", docDesc: "Il tuo punteggio di prontezza spiegabile e lo storico dei kit di candidatura — cifrati, esportabili, cancellabili.",
     brandSub: "Storico e prontezza", toKit: "✨ Kit", openApp: "Apri l'app per accedere",
     needLogin: "Lo storico e il punteggio di prontezza vivono sul tuo account: accedi per vederli.",
     readyH: "La tua prontezza",
@@ -29,6 +30,7 @@ const T = {
     of: "su", err: "Errore: ",
   },
   en: {
+    docTitle: "History & readiness — Live Call Copilot", docDesc: "Your explainable readiness score and your application-kit history — encrypted, exportable, deletable.",
     brandSub: "History & readiness", toKit: "✨ Kit", openApp: "Open the app to sign in",
     needLogin: "Your history and readiness score live on your account: sign in to see them.",
     readyH: "Your readiness",
@@ -53,6 +55,7 @@ let LANG = (navigator.language || "en").toLowerCase().startsWith("it") ? "it" : 
 const t = (k) => T[LANG][k] ?? k;
 function applyLang() {
   document.documentElement.lang = LANG;
+  document.title = t("docTitle"); const md = document.querySelector('meta[name="description"]'); if (md) md.setAttribute("content", t("docDesc"));
   document.querySelectorAll("[data-i]").forEach((el) => (el.textContent = t(el.getAttribute("data-i"))));
 }
 $("langSeg").addEventListener("click", (e) => {

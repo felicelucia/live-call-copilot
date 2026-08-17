@@ -81,10 +81,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
      modalità sovrana (Pro/Kit), non per BYOK. Queste stringhe SOVRASCRIVONO
      le precedenti. */
   const T6={
-    it:{cancel:"⏹ Annulla",cancelled:"Annullato.",partialKept:"Risposta interrotta: tengo la parte ricevuta",rateLimited:"Troppe richieste: riprova tra {s}s",opFailed:"Operazione NON riuscita:",retryHint:"i dati sono ancora lì, riprova.",errNet:"rete non raggiungibile",errTimeout:"tempo scaduto",errAuth:"sessione scaduta, accedi di nuovo"},
-    en:{cancel:"⏹ Cancel",cancelled:"Cancelled.",partialKept:"Answer interrupted: keeping what arrived",rateLimited:"Too many requests: retry in {s}s",opFailed:"Operation FAILED:",retryHint:"your data is still there, please retry.",errNet:"network unreachable",errTimeout:"timed out",errAuth:"session expired, sign in again"},
-    zh:{cancel:"⏹ 取消",cancelled:"已取消。",partialKept:"回答被中断：保留已收到部分",rateLimited:"请求过多：{s} 秒后重试",opFailed:"操作失败：",retryHint:"数据仍在，请重试。",errNet:"网络不可达",errTimeout:"超时",errAuth:"会话已过期，请重新登录"},
-    es:{cancel:"⏹ Cancelar",cancelled:"Cancelado.",partialKept:"Respuesta interrumpida: conservo lo recibido",rateLimited:"Demasiadas solicitudes: reintenta en {s}s",opFailed:"Operación FALLIDA:",retryHint:"tus datos siguen ahí, reinténtalo.",errNet:"red no disponible",errTimeout:"tiempo agotado",errAuth:"sesión caducada, vuelve a entrar"}
+    it:{docTitle:"Live Call Copilot — il tuo assistente per le videochiamate",docDesc:"Il copilota AI open e privato per le tue chiamate: ascolta e suggerisce cosa dire, in tempo reale.",cancel:"⏹ Annulla",cancelled:"Annullato.",partialKept:"Risposta interrotta: tengo la parte ricevuta",rateLimited:"Troppe richieste: riprova tra {s}s",opFailed:"Operazione NON riuscita:",retryHint:"i dati sono ancora lì, riprova.",errNet:"rete non raggiungibile",errTimeout:"tempo scaduto",errAuth:"sessione scaduta, accedi di nuovo"},
+    en:{docTitle:"Live Call Copilot — your live-call assistant",docDesc:"The open, private AI copilot for your calls: it listens and suggests what to say, in real time.",cancel:"⏹ Cancel",cancelled:"Cancelled.",partialKept:"Answer interrupted: keeping what arrived",rateLimited:"Too many requests: retry in {s}s",opFailed:"Operation FAILED:",retryHint:"your data is still there, please retry.",errNet:"network unreachable",errTimeout:"timed out",errAuth:"session expired, sign in again"},
+    zh:{docTitle:"Live Call Copilot — 你的视频通话助手",docDesc:"开放、私密的通话 AI 副驾驶：实时聆听并建议你该说什么。",cancel:"⏹ 取消",cancelled:"已取消。",partialKept:"回答被中断：保留已收到部分",rateLimited:"请求过多：{s} 秒后重试",opFailed:"操作失败：",retryHint:"数据仍在，请重试。",errNet:"网络不可达",errTimeout:"超时",errAuth:"会话已过期，请重新登录"},
+    es:{docTitle:"Live Call Copilot — tu asistente para videollamadas",docDesc:"El copiloto de IA abierto y privado para tus llamadas: escucha y sugiere qué decir, en tiempo real.",cancel:"⏹ Cancelar",cancelled:"Cancelado.",partialKept:"Respuesta interrumpida: conservo lo recibido",rateLimited:"Demasiadas solicitudes: reintenta en {s}s",opFailed:"Operación FALLIDA:",retryHint:"tus datos siguen ahí, reinténtalo.",errNet:"red no disponible",errTimeout:"tiempo agotado",errAuth:"sesión caducada, vuelve a entrar"}
   };
   Object.keys(T6).forEach(l=>Object.assign(T[l],T6[l]));
   const T5={
@@ -165,6 +165,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   function t(k){ return (T[LANG]&&T[LANG][k])||T.it[k]||k; }
   function applyLang(){
     document.documentElement.lang=LANG;
+    document.title=t('docTitle'); const md=document.querySelector('meta[name="description"]'); if(md&&t('docDesc')!=='docDesc') md.setAttribute('content',t('docDesc'));
     document.querySelectorAll('[data-i18n]').forEach(el=>el.innerHTML=t(el.getAttribute('data-i18n')));
     // il placeholder diventa nome accessibile SOLO per i campi senza label associata
     document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.getAttribute('data-i18n-ph'));if(!(el.labels&&el.labels.length))el.setAttribute('aria-label',el.placeholder);});
@@ -354,7 +355,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       if(RETURN_TO){location.href=RETURN_TO;return;}
     }catch(e){setAc((e&&e.body&&e.body.message)||errText(e),'err');}
   }
-  $('loginBtn').addEventListener('click',()=>authCall('/api/auth/sign-in/email'));
+  $('proLoggedOut').addEventListener('submit',e=>{e.preventDefault();authCall('/api/auth/sign-in/email');});
   $('signupBtn').addEventListener('click',()=>authCall('/api/auth/sign-up/email'));
   $('logoutBtn').addEventListener('click',async()=>{
     try{await api('/api/auth/sign-out',{method:'POST',body:'{}'});}catch(_){}
@@ -531,7 +532,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     autoMode=true; autoBtn.classList.add('on');
     recognition=new SR();recognition.lang=$('lang').value;recognition.continuous=true;recognition.interimResults=true;
     if(sttMode==='local'){ try{ recognition.processLocally=true; }catch(_){} }
-    recognition.onresult=e=>{let itr='';for(let i=e.resultIndex;i<e.results.length;i++){const x=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=x+' ';else itr+=x;}render(itr);if(autoMode)sched();};
+    recognition.onresult=e=>{let itr='',fin='';for(let i=e.resultIndex;i<e.results.length;i++){const x=e.results[i][0].transcript;if(e.results[i].isFinal){finalText+=x+' ';fin+=x+' ';}else itr+=x;}render(itr);if(fin.trim()){const lv=$('transcriptLive');lv.textContent='';lv.textContent=fin.trim();}if(autoMode)sched();};
     const TERMINAL=['not-allowed','service-not-allowed','audio-capture','language-not-supported','bad-grammar'];
     recognition.onerror=e=>{ setS(liveStatus,'Mic: '+e.error,'err'); if(TERMINAL.indexOf(e.error)>=0){ stopRec(); } };
     recognition.onend=()=>{if(recognizing){try{recognition.start()}catch(_){ stopRec(); }}};
@@ -572,7 +573,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   function backendMode(){ const m=modeEl.value; return (m==='interview'||m==='sales'||m==='meeting')?m:'general'; }
   function showRouting(j){
     lastRoutedModel=j.model||null;
-    $('routingText').innerHTML=t('routedBy')+' <b>'+(j.label||j.model)+'</b> — '+String(j.reason||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    // XSS: label/model/reason arrivano dal server → SOLO nodi di testo
+    const rt=$('routingText'); rt.textContent=''; rt.appendChild(document.createTextNode(t('routedBy')+' '));
+    const b=document.createElement('b'); b.textContent=String(j.label||j.model||''); rt.appendChild(b);
+    rt.appendChild(document.createTextNode(' — '+String(j.reason||'')));
     $('routingInfo').classList.add('show');
   }
   function clearRouting(){ $('routingInfo').classList.remove('show'); $('routingText').textContent=''; }
@@ -662,6 +666,12 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       await readSSE(res,ln=>{try{const j=JSON.parse(ln);const d=((j.choices||[])[0]||{}).delta||{};if(d.content)onDelta(d.content);}catch(_){}});
     }catch(e){ if(e.message==='aborted')throw new Error(t('cancelled')); if(e.message==='timeout')throw new Error(t('errTimeout')); if(/network|Failed to fetch|NetworkError/i.test(e.message))throw new Error(t('errNet')+' — questo provider può bloccare le chiamate dal browser (CORS). Prova Gemini, Claude, OpenAI o Groq.'); throw e; }
   }
+  /* risposta del modello: testo non fidato → nodi (grassetto **x** come <b> vero, mai innerHTML) */
+  function renderAnswer(txt){
+    answerEl.textContent='';
+    const parts=String(txt).split(/\*\*/);
+    parts.forEach((p,i)=>{ if(!p)return; if(i%2===1){const b=document.createElement('b');b.textContent=p;answerEl.appendChild(b);} else answerEl.appendChild(document.createTextNode(p)); });
+  }
   async function suggest(qOverride){
     if(!canRun()){setS(liveStatus,cantRunMsg(),'err');showSettings();return;}
     if(qOverride){finalText=(finalText+' '+qOverride).trim();}
@@ -669,7 +679,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     curReq=window.LCC.abortScope('suggest'); // una sola richiesta viva: la nuova annulla la precedente
     busy=true;suggestBtn.disabled=true;$('cancelBtn').style.display='';setS(liveStatus,t('thinking'),'work');let acc='';answerEl.textContent='';clearRouting();hideFeedback();
     answerEl.setAttribute('data-ph',t('thinking')); // "sto pensando…" nel riquadro risposta
-    try{await callStream(tx=>{acc+=tx;lastAnswer=acc;answerEl.innerHTML=acc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');answerEl.scrollTop=answerEl.scrollHeight;});setS(liveStatus,t('ready'),'ok');showFeedback();}
+    try{await callStream(tx=>{acc+=tx;lastAnswer=acc;renderAnswer(acc);answerEl.scrollTop=answerEl.scrollHeight;});setS(liveStatus,t('ready'),'ok');showFeedback();const al=$('answerLive');al.textContent='';al.textContent=acc;}
     catch(e){setS(liveStatus,'Error: '+e.message,'err');}
     answerEl.setAttribute('data-ph','—');
     busy=false;suggestBtn.disabled=false;$('cancelBtn').style.display='none';

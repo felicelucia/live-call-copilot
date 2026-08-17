@@ -10,7 +10,7 @@
 <!-- SITE-BASE: aggiornare al cambio dominio -->
 <link rel="canonical" href="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/kit.html">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="stylesheet" href="assets/design-system-v2.css">
+<link rel="stylesheet" href="assets/design-system-v3.css">
 <link rel="stylesheet" href="assets/page-kit-v1.css">
 </head>
 <body class="ds-page">
@@ -40,12 +40,12 @@
     <div id="authWrap" style="display:none;margin:var(--ds-s3) 0;padding:var(--ds-s4);border:1.5px solid #d5defb;border-radius:var(--ds-r-m);background:var(--ds-accent-soft)">
       <strong data-i="authT"></strong>
       <div class="ds-muted" style="font-size:var(--ds-t-xs);margin:4px 0 10px" data-i="authSub"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input class="ds-input" id="authEmail" type="email" autocomplete="email" placeholder="nome@email.it" aria-label="Email" aria-required="true" style="flex:2;min-width:180px">
-        <input class="ds-input" id="authPass" type="password" autocomplete="current-password" placeholder="········" aria-label="Password" aria-required="true" style="flex:1;min-width:140px">
-        <button class="ds-btn ds-btn-primary ds-btn-sm" id="authLogin" data-i="authLogin"></button>
-        <button class="ds-btn ds-btn-ghost ds-btn-sm" id="authSignup" data-i="authSignup"></button>
-      </div>
+      <form id="authForm" novalidate style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="ds-input" id="authEmail" name="email" type="email" autocomplete="username" placeholder="nome@email.it" aria-label="Email" aria-required="true" style="flex:2;min-width:180px">
+        <input class="ds-input" id="authPass" name="password" type="password" autocomplete="current-password" placeholder="········" aria-label="Password" aria-required="true" style="flex:1;min-width:140px">
+        <button type="submit" class="ds-btn ds-btn-primary ds-btn-sm" id="authLogin" data-i="authLogin"></button>
+        <button type="button" class="ds-btn ds-btn-ghost ds-btn-sm" id="authSignup" data-i="authSignup"></button>
+      </form>
       <div class="ds-status" id="authStatus" role="status"></div>
     </div>
 
@@ -118,6 +118,6 @@
 </div>
 
 <script src="assets/lcc-core-v2.js"></script>
-<script type="module" src="assets/kit-v5.js"></script>
+<script type="module" src="assets/kit-v6.js"></script>
 </body>
 </html>

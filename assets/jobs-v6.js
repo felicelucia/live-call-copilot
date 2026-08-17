@@ -3,14 +3,14 @@
   const BACKEND=location.protocol.startsWith("http")?location.origin:"http://127.0.0.1:8787";
 
   const T={
-    it:{skipLink:"Salta al contenuto",resultsH:"Risultati della ricerca",brandSub:"Cerca offerte · beta",h1:"Cerca offerte reali",
+    it:{docTitle:"Cerca offerte — Live Call Copilot",docDesc:"Cerca offerte di lavoro reali e genera in un click il Kit di candidatura su misura: CV, mail e domande probabili.",skipLink:"Salta al contenuto",resultsH:"Risultati della ricerca",brandSub:"Cerca offerte · beta",h1:"Cerca offerte reali",
       sub:"Trova l'annuncio giusto e genera in un click il Kit su misura: CV, mail e domande probabili.",
       qL:"Cosa cerchi",qPh:"Es: account executive, project manager…",lL:"Dove",lPh:"Es: Milano, remoto…",
       cL:"Paese",go:"🔎 Cerca",searching:"Cerco…",none:"Nessuna offerta trovata: prova con altre parole.",
       kitBtn:"✨ Genera Kit",kitPrep:"Preparo il Kit…",errNet:"Backend non raggiungibile.",errTimeout:"Tempo scaduto: riprova.",rateLimited:"Troppe richieste: riprova tra {s}s",
       notConf:"🔌 La ricerca offerte non è ancora attiva: stiamo completando l'accesso all'API ufficiale del provider. Nel frattempo puoi incollare qualunque annuncio direttamente nel Kit di candidatura.",
       openKit:"→ Apri il Kit",results:"offerte",attrib:"Ricerca offerte fornita da {p}. I link di candidatura portano a {p}."},
-    en:{skipLink:"Skip to content",resultsH:"Search results",brandSub:"Job search · beta",h1:"Search real job ads",
+    en:{docTitle:"Job search — Live Call Copilot",docDesc:"Search real job ads and generate the tailored Application Kit in one click: CV, email and likely questions.",skipLink:"Skip to content",resultsH:"Search results",brandSub:"Job search · beta",h1:"Search real job ads",
       sub:"Find the right ad and generate the tailored Kit in one click: CV, email and likely questions.",
       qL:"What",qPh:"E.g. account executive, project manager…",lL:"Where",lPh:"E.g. Milan, remote…",
       cL:"Country",go:"🔎 Search",searching:"Searching…",none:"No jobs found: try different words.",
@@ -27,7 +27,7 @@
   const PROVIDER_LABELS={adzuna:"Adzuna",indeed:"Indeed"};
   const providerLabel=p=>PROVIDER_LABELS[p]||(p?p.charAt(0).toUpperCase()+p.slice(1):null);
   function attribText(){const p=providerLabel(provider);return p?t("attrib").split("{p}").join(p):"";}
-  function applyLang(){document.documentElement.lang=LANG;
+  function applyLang(){document.documentElement.lang=LANG;document.title=t("docTitle");const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute("content",t("docDesc"));
     document.querySelectorAll("[data-i]").forEach(el=>{const k=el.getAttribute("data-i");el.textContent=k==="attrib"?attribText():t(k);});
     document.querySelectorAll("[data-i-ph]").forEach(el=>{el.placeholder=t(el.getAttribute("data-i-ph"));});}
   // provider noto fin dal caricamento (non solo dopo la prima ricerca)
@@ -85,8 +85,7 @@
     }catch(e){ setStatus(e.message,"err"); }
     finally{ $("goBtn").disabled=false; }
   }
-  $("goBtn").addEventListener("click",search);
-  [$("q"),$("loc")].forEach(el=>el.addEventListener("keydown",e=>{if(e.key==="Enter")search();}));
+  $("searchForm").addEventListener("submit",e=>{e.preventDefault();search();});
 
   /* "Genera Kit": prende la descrizione (dettaglio, o snippet come riserva)
      e passa l'annuncio a kit.html via sessionStorage — effimero, zero server. */

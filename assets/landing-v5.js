@@ -26,6 +26,7 @@
       footBeta:"open-core · beta",
       skipLink:"Salta al contenuto",
       pillarsH:"Perché Live Call Copilot",
+      docTitle:"Live Call Copilot — il career-AI europeo",docDesc:"Il copilota AI europeo per la tua carriera: un'orchestra di agenti multi-LLM prepara CV su misura, mail e colloqui — con i tuoi dati al sicuro in UE.",
     },
     en:{
       openApp:"Open the app",
@@ -53,11 +54,12 @@
       footBeta:"open-core · beta",
       skipLink:"Skip to content",
       pillarsH:"Why Live Call Copilot",
+      docTitle:"Live Call Copilot — the European career-AI",docDesc:"The European career-AI copilot: an orchestra of multi-LLM agents prepares tailored CVs, emails and interviews — with your data safe in the EU.",
     }
   };
   let LANG=(navigator.language||"en").toLowerCase().startsWith("it")?"it":"en";
   const t=k=>T[LANG][k]||k;
-  function apply(){document.documentElement.lang=LANG;document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.getAttribute("data-i")));}
+  function apply(){document.documentElement.lang=LANG;document.title=t("docTitle");const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute("content",t("docDesc"));document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.getAttribute("data-i")));}
   document.getElementById("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");[...e.currentTarget.children].forEach(c=>{const on=c===b;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});apply();});
   apply();
 })();

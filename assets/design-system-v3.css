@@ -134,3 +134,8 @@
 .pl-recap-row{display:flex;align-items:center;gap:10px;font-size:var(--ds-t-sm);padding:5px 0;border-bottom:1px dashed var(--ds-line);}
 .pl-recap-row:last-of-type{border-bottom:none;}
 .pl-recap-foot{margin-top:var(--ds-s2);font-size:var(--ds-t-sm);font-weight:700;color:var(--ds-ink);display:flex;gap:14px;flex-wrap:wrap;}
+
+/* accessibilità: chi chiede meno movimento non riceve animazioni/transizioni (v3) */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
+}

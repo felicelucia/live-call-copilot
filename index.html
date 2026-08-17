@@ -11,7 +11,7 @@
 <!-- SITE-BASE: aggiornare al cambio dominio -->
 <link rel="canonical" href="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/index.html">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="assets/design-system-v2.css">
+<link rel="stylesheet" href="assets/design-system-v3.css">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -71,13 +71,15 @@
   <div class="live-grid" id="liveHome">
     <div class="box">
       <div class="bh"><h2><span class="dot" id="recDot" aria-hidden="true"></span><span data-i18n="listening"></span></h2></div>
-      <div class="transcript" id="transcript" data-ph="—" aria-live="polite"></div>
+      <div class="transcript" id="transcript" data-ph="—"></div>
+      <div class="visually-hidden" id="transcriptLive" aria-live="polite"></div>
       <div style="margin-top:9px"><input type="text" id="manualQ" data-i18n-ph="manualph"></div>
     </div>
     <div class="box" id="answerBox">
       <div class="bh"><h2>💬 <span data-i18n="answer"></span></h2><button class="mini" id="copyBtn" data-i18n="copy"></button></div>
       <div class="routing" id="routingInfo" role="status"><span class="rx" aria-hidden="true">⚡</span><span id="routingText"></span></div>
-      <div class="answer" id="answer" data-ph="—" aria-live="polite"></div>
+      <div class="answer" id="answer" data-ph="—"></div>
+      <div class="visually-hidden" id="answerLive" aria-live="polite"></div>
       <!-- Flywheel (M2-d): solo il segnale — azione + metadati, mai il testo. -->
       <div class="fbrow" id="fbRow">
         <span data-i18n="fbQ"></span>
@@ -86,7 +88,7 @@
         <button class="mini" id="fbIgnored" data-i18n="fbIgnored"></button>
       </div>
       <div id="fbEditWrap" style="display:none;margin-top:8px">
-        <textarea id="fbEditText" rows="3"></textarea>
+        <textarea id="fbEditText" rows="3" aria-label="La tua versione della risposta"></textarea>
         <div style="margin-top:6px"><button class="mini" id="fbEditSend" data-i18n="fbSend"></button></div>
       </div>
     </div>
@@ -127,16 +129,16 @@
 
     <!-- Account / piano Pro (nostro cloud) -->
     <div id="proWrap" style="display:none">
-      <div id="proLoggedOut">
+      <form id="proLoggedOut" novalidate>
         <div class="row">
-          <div><label for="acEmail" data-i18n="acEmailL"></label><input type="email" id="acEmail" autocomplete="email" placeholder="nome@email.it" aria-required="true"></div>
-          <div><label for="acPass" data-i18n="acPassL"></label><input type="password" id="acPass" autocomplete="current-password" placeholder="········" aria-required="true"></div>
+          <div><label for="acEmail" data-i18n="acEmailL"></label><input type="email" id="acEmail" name="email" autocomplete="username" placeholder="nome@email.it" aria-required="true"></div>
+          <div><label for="acPass" data-i18n="acPassL"></label><input type="password" id="acPass" name="password" autocomplete="current-password" placeholder="········" aria-required="true"></div>
         </div>
         <div class="row" style="margin-top:10px">
-          <div><button class="btn btn-primary" id="loginBtn" style="width:100%" data-i18n="acLogin"></button></div>
-          <div><button class="btn btn-ghost" id="signupBtn" style="width:100%" data-i18n="acSignup"></button></div>
+          <div><button type="submit" class="btn btn-primary" id="loginBtn" style="width:100%" data-i18n="acLogin"></button></div>
+          <div><button type="button" class="btn btn-ghost" id="signupBtn" style="width:100%" data-i18n="acSignup"></button></div>
         </div>
-      </div>
+      </form>
       <div id="proLoggedIn" style="display:none">
         <div class="paidnote" id="proPlanNote"></div>
         <div class="row" id="proUpgradeRow" style="display:none;margin-top:8px">
@@ -297,6 +299,6 @@
 </dialog>
 
 <script src="assets/lcc-core-v2.js"></script>
-<script src="assets/app-v8.js"></script>
+<script src="assets/app-v9.js"></script>
 </body>
 </html>

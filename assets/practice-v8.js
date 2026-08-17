@@ -241,8 +241,8 @@
     $('coachbox').style.display=''; $('coachbox').innerHTML=(L()==='it'?'💡 Penso a un suggerimento…':'💡 Thinking of a suggestion…');
     try{
       const txt=await chat(suggestSystem(),[{role:'user',content:'The interviewer just asked: '+lastQ}],320);
-      $('coachbox').innerHTML='<b>💡 '+(L()==='it'?'Potresti dire:':'You could say:')+'</b><br>'+esc(txt);
-    }catch(e){ $('coachbox').innerHTML='Error: '+e.message; }
+      coachBox('💡 '+(L()==='it'?'Potresti dire:':'You could say:'),txt);
+    }catch(e){ $('coachbox').textContent='Error: '+e.message; }
   }
   async function coachLast(){
     if(!lastAnswer){ return; }
@@ -250,8 +250,8 @@
     $('coachbox').style.display=''; $('coachbox').innerHTML=(L()==='it'?'✍️ Miglioro la tua risposta…':'✍️ Improving your answer…');
     try{
       const txt=await chat(coachAnswerSystem(),[{role:'user',content:'Question: '+lastQ+'\n\nMy answer: '+lastAnswer}],420);
-      $('coachbox').innerHTML='<b>✍️ '+(L()==='it'?'Versione migliorata:':'Stronger version:')+'</b><br>'+esc(txt);
-    }catch(e){ $('coachbox').innerHTML='Error: '+e.message; }
+      coachBox('✍️ '+(L()==='it'?'Versione migliorata:':'Stronger version:'),txt);
+    }catch(e){ $('coachbox').textContent='Error: '+e.message; }
   }
   async function endInterview(){
     if(window.speechSynthesis) window.speechSynthesis.cancel(); stopListening();
@@ -269,6 +269,8 @@
     const m=s.match(/\{[\s\S]*\}/); if(m){ try{return JSON.parse(m[0]);}catch(_){}}
     return null;
   }
+  /* XSS: testo del modello → nodi, mai innerHTML */
+  function coachBox(title,txt){ const c=$('coachbox'); c.textContent=''; const b=document.createElement('b'); b.textContent=title; c.appendChild(b); c.appendChild(document.createElement('br')); c.appendChild(document.createTextNode(String(txt||''))); }
   function renderReport(raw){
     const d=parseJSON(raw);
     if(!d){ $('scoreNum').textContent='—'; $('scoreWhy').textContent=''; $('rawFb').style.display=''; $('rawFb').textContent=raw; return; }
