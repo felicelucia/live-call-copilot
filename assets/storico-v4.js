@@ -2,7 +2,10 @@ import { renderMd } from "./md.js";
 
 const $ = (id) => document.getElementById(id);
 const BACKEND = location.protocol.startsWith("http") ? location.origin : "http://127.0.0.1:8787";
-const api = (p, o = {}) => fetch(BACKEND + p, Object.assign({ credentials: "include" }, o));
+/* helper unico (lcc-core): lancia su non-2xx / rete / timeout — mai "successo" finto */
+const api = (p, o = {}) => window.LCC.api(BACKEND + p, o);
+const apiJson = (p, o = {}) => window.LCC.api.json(BACKEND + p, o);
+const errText = (e) => (e && e.message === "network" ? t("errNet") : e && e.message === "timeout" ? t("errTimeout") : (e && e.message) || "?");
 
 const T = {
   it: {
@@ -21,6 +24,7 @@ const T = {
     skipLink: "Salta al contenuto",
     exportTitle: "Esporta questo kit", deleteTitle: "Elimina questo kit",
     deleted: "Eliminato.", deletedAll: "Storico cancellato.",
+    opFailed: "Operazione NON riuscita:", retryHint: "il kit è ancora lì, riprova.", errNet: "rete non raggiungibile", errTimeout: "tempo scaduto",
     foot: "Contenuti cifrati a riposo su server UE · esportabili e cancellabili in ogni momento · rimossi dopo 24 mesi.",
     of: "su", err: "Errore: ",
   },
@@ -40,6 +44,7 @@ const T = {
     skipLink: "Skip to content",
     exportTitle: "Export this kit", deleteTitle: "Delete this kit",
     deleted: "Deleted.", deletedAll: "History deleted.",
+    opFailed: "Operation FAILED:", retryHint: "the kit is still there, please retry.", errNet: "network unreachable", errTimeout: "timed out",
     foot: "Content encrypted at rest on EU servers · exportable and deletable anytime · removed after 24 months.",
     of: "of", err: "Error: ",
   },
@@ -83,9 +88,7 @@ function askConfirm(msg) {
 
 /* ── prontezza (stat-tile + barre per componente, una tinta, testo = identità) ── */
 async function loadReadiness() {
-  const r = await api("/v1/readiness");
-  if (!r.ok) return false;
-  const d = await r.json();
+  let d; try { d = await apiJson("/v1/readiness"); } catch (_) { return false; }
   $("readyNum").textContent = d.score;
   $("readyRole").textContent = d.role || "";
   const box = $("readyBreak"); box.innerHTML = "";
@@ -106,9 +109,7 @@ async function loadReadiness() {
 /* ── lista kit ── */
 let kits = [];
 async function loadKits() {
-  const r = await api("/v1/kits");
-  if (!r.ok) return false;
-  const d = await r.json();
+  let d; try { d = await apiJson("/v1/kits"); } catch (_) { return false; }
   kits = d.kits || [];
   $("quota").textContent = `${d.used} / ${d.limit}`;
   const box = $("kitList"); box.innerHTML = "";
@@ -146,9 +147,7 @@ $("kitList").addEventListener("click", async (e) => {
     // e passa al Kit via sessionStorage — effimero, mai in URL né in log.
     const k = kits[Number(regen.getAttribute("data-regen"))];
     regen.disabled = true;
-    const r = await api("/v1/kits/" + k.id);
-    if (!r.ok) { setK(t("err") + r.status, "err"); regen.disabled = false; return; }
-    const full = await r.json();
+    let full; try { full = await apiJson("/v1/kits/" + k.id); } catch (e) { setK(t("err") + errText(e), "err"); regen.disabled = false; return; }
     if (!full.jobAd) { setK(t("err") + "no jobAd", "err"); regen.disabled = false; return; }
     try { sessionStorage.setItem("lcc_kit_prefill", JSON.stringify({ jobAd: String(full.jobAd).slice(0, 12000), autostart: true })); } catch (_) {}
     location.href = "kit.html";
@@ -158,23 +157,27 @@ $("kitList").addEventListener("click", async (e) => {
   if (del) {
     const k = kits[Number(del.getAttribute("data-del"))];
     if (!(await askConfirm(t("confirmOne")))) return;
-    await api("/v1/kits/" + k.id, { method: "DELETE" });
-    setK(t("deleted"), "ok"); loadKits(); loadReadiness();
+    del.disabled = true;
+    try { await api("/v1/kits/" + k.id, { method: "DELETE" }); }
+    catch (e) { del.disabled = false; setK(t("opFailed") + " " + errText(e) + " — " + t("retryHint"), "err"); return; }
+    setK(t("deleted"), "ok"); loadKits(); loadReadiness(); // ricarica dal server = verifica
   }
 });
 $("exportAllBtn").addEventListener("click", () => window.open(BACKEND + "/v1/kits/export", "_blank"));
 $("deleteAllBtn").addEventListener("click", async () => {
   if (!(await askConfirm(t("confirmAll")))) return;
-  await api("/v1/kits", { method: "DELETE" });
+  try {
+    await api("/v1/kits", { method: "DELETE" });
+    const d = await apiJson("/v1/kits"); // verifica post-cancellazione
+    if (d && Array.isArray(d.kits) && d.kits.length) throw new Error("verify");
+  } catch (e) { setK(t("opFailed") + " " + errText(e) + " — " + t("retryHint"), "err"); loadKits(); return; }
   setK(t("deletedAll"), "ok"); loadKits(); loadReadiness();
 });
 
 /* ── dettaglio in sola lettura ── */
 let detail = null, activeTab = "cv";
 async function openKit(k) {
-  const r = await api("/v1/kits/" + k.id);
-  if (!r.ok) { setK(t("err") + r.status, "err"); return; }
-  detail = await r.json();
+  try { detail = await apiJson("/v1/kits/" + k.id); } catch (e) { setK(t("err") + errText(e), "err"); return; }
   $("detailTitle").textContent = (detail.role || "—") + (detail.company ? " @ " + detail.company : "");
   showTab("cv");
   $("kitsCard").style.display = "none"; $("readyCard").style.display = "none";
@@ -212,8 +215,9 @@ $("backBtn").addEventListener("click", () => {
 
 /* ── avvio ── */
 async function loadAll() {
-  const me = await api("/v1/me");
-  if (me.status === 401) {
+  let me401 = false;
+  try { await api("/v1/me"); } catch (e) { if (e && e.status === 401) me401 = true; else { setK(t("err") + errText(e), "err"); return; } }
+  if (me401) {
     $("loginCard").style.display = ""; $("readyCard").style.display = "none"; $("kitsCard").style.display = "none";
     // dopo il login si torna qui (return_to)
     const a = $("loginCard").querySelector("a"); if (a) a.href = "index.html?return_to=storico";

@@ -2,11 +2,7 @@
   const $=id=>document.getElementById(id);
   /* Storage OPT-IN agganciato all'interruttore "Ricorda" dell'app (v5_remember):
      senza opt-in tutto vive in sessionStorage (chiavi e CV muoiono con la scheda). */
-  const persist=()=>{try{return localStorage.getItem('v5_remember')==='1'}catch(_){return false}};
-  const store={
-    get(k){try{const s=sessionStorage.getItem(k);return s!==null?s:localStorage.getItem(k)}catch(_){return null}},
-    set(k,v){try{(persist()?localStorage:sessionStorage).setItem(k,v)}catch(_){}}
-  };
+  const store=window.LCC.store; // facciata condivisa (assets/lcc-core-v1.js): opt-in reale, registro prac_*
 
   /* ---------- providers ---------- */
   const PROV={

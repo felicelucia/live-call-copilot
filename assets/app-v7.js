@@ -80,6 +80,13 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
      e il riconoscimento vocale dipende dal browser. La promessa UE vale per la
      modalità sovrana (Pro/Kit), non per BYOK. Queste stringhe SOVRASCRIVONO
      le precedenti. */
+  const T6={
+    it:{opFailed:"Operazione NON riuscita:",retryHint:"i dati sono ancora lì, riprova.",errNet:"rete non raggiungibile",errTimeout:"tempo scaduto",errAuth:"sessione scaduta, accedi di nuovo"},
+    en:{opFailed:"Operation FAILED:",retryHint:"your data is still there, please retry.",errNet:"network unreachable",errTimeout:"timed out",errAuth:"session expired, sign in again"},
+    zh:{opFailed:"操作失败：",retryHint:"数据仍在，请重试。",errNet:"网络不可达",errTimeout:"超时",errAuth:"会话已过期，请重新登录"},
+    es:{opFailed:"Operación FALLIDA:",retryHint:"tus datos siguen ahí, reinténtalo.",errNet:"red no disponible",errTimeout:"tiempo agotado",errAuth:"sesión caducada, vuelve a entrar"}
+  };
+  Object.keys(T6).forEach(l=>Object.assign(T[l],T6[l]));
   const T5={
     it:{
       localT:"LLM locale (Ollama)",localD:"Solo dal client desktop o aprendo il file in locale: la pagina web non può parlare con Ollama. Lì nessun testo lascia il PC.",
@@ -201,23 +208,17 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   /* Storage OPT-IN (P0 sicurezza): di default tutto vive in sessionStorage
      (muore con la scheda). Solo con "Ricorda" spuntato si scrive su
      localStorage. La cancellazione pulisce SEMPRE entrambi. */
-  const persist=()=>{const el=document.getElementById('remember');return !!(el&&el.checked);};
-  const store={
-    get(k){try{const s=sessionStorage.getItem(k);return s!==null?s:localStorage.getItem(k)}catch(_){return null}},
-    set(k,v){try{(persist()?localStorage:sessionStorage).setItem(k,v)}catch(_){}},
-    del(k){try{localStorage.removeItem(k)}catch(_){};try{sessionStorage.removeItem(k)}catch(_){}}
-  };
+  /* Facciata dal nucleo condiviso (assets/lcc-core-v1.js): localStorage si
+     legge SOLO con opt-in valido; le copie legacy sono già state migrate. */
+  const store=window.LCC.store;
   const KEYS=['v5_lang','v5_prov','v5_mode','v5_heard','v5_ans','v5_ctx','v5_auto','v5_remember','v6_pro','v6_promodel','v7_role','v7_company','v7_cv','v7_style','v7_obj'];
   // Profilo strutturato: id campo → chiave localStorage (v5_ctx resta solo per migrare il vecchio campo libero)
   const PF_KEYS={pfRole:'v7_role',pfCompany:'v7_company',pfCv:'v7_cv',pfStyle:'v7_style',pfObj:'v7_obj'};
   const PF_IDS=Object.keys(PF_KEYS);
   const keyName=()=>'v5_key_'+providerEl.value;
   function save(){
-    if(!$('remember').checked){
-      // opt-out (default): via le copie persistenti; la sessione vive in sessionStorage
-      KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(_){}});
-      PKEYS.forEach(p=>{['v5_key_'+p,'v5_model_'+p,'v5_base_'+p].forEach(k=>{try{localStorage.removeItem(k)}catch(_){}});});
-    } else { store.set('v5_remember','1'); }
+    // opt-in/opt-out: lo decide il nucleo (opt-out = via OGNI copia persistente dei nostri namespace)
+    window.LCC.store.setOptIn($('remember').checked);
     store.set('v5_lang',LANG);store.set('v5_prov',providerEl.value);store.set('v5_mode',modeEl.value);store.set('v6_pro',proMode?'1':'0');
     store.set('v5_heard',$('lang').value);store.set('v5_ans',$('ansLang').value);store.set('v5_auto',autoMode?'1':'0');
     PF_IDS.forEach(id=>store.set(PF_KEYS[id],$(id).value));
@@ -288,7 +289,8 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
 
   /* ---- Account & piano Pro (nostro backend) ---- */
   let meUser=null, mePlan=null;
-  const api=(path,opts={})=>fetch(BACKEND_URL+path,Object.assign({credentials:'include',headers:{'Content-Type':'application/json'}},opts));
+  // helper unico: lancia SEMPRE su risposta non-2xx, rete giù, timeout
+  const api=(path,opts={})=>window.LCC.api(BACKEND_URL+path,opts);
   function setAc(msg,cls){const el=$('acStatus');el.textContent=msg;el.className='status '+(cls||'');}
   function renderAccount(d){
     const inEl=$('proLoggedIn'),outEl=$('proLoggedOut');
@@ -301,16 +303,13 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   }
   async function refreshMe(){
     try{
-      const r=await api('/v1/me');
-      if(r.status===401){meUser=null;mePlan=null;renderAccount(null);renderProfileWhere();return;}
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      const d=await r.json(); meUser=d.user; mePlan=d.plan; renderAccount(d); loadProModels(); pullProfile();
+      const d=await window.LCC.api.json(BACKEND_URL+'/v1/me'); meUser=d.user; mePlan=d.plan; renderAccount(d); loadProModels(); pullProfile();
       $('autoSaveKits').checked=!!(d.preferences&&d.preferences.autoSaveKits);
-    }catch(_){ meUser=null;mePlan=null;renderAccount(null); renderProfileWhere(); if(proMode)setAc(t('acBackendDown'),'err'); }
+    }catch(e){ meUser=null;mePlan=null;renderAccount(null); renderProfileWhere(); if(proMode&&!(e&&e.status===401))setAc(t('acBackendDown'),'err'); }
   }
   async function loadProModels(){
     try{
-      const r=await api('/v1/models'); const d=await r.json();
+      const d=await window.LCC.api.json(BACKEND_URL+'/v1/models');
       const sel=$('proModel'); const saved=store.get('v6_promodel'); sel.innerHTML='';
       // Prima scelta: routing automatico (M2) — il backend sceglie e spiega perché.
       const auto=document.createElement('option'); auto.value='auto'; auto.textContent=t('autoOpt'); sel.appendChild(auto);
@@ -350,11 +349,10 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     setAc(t('acWorking'),'work');
     try{
       const body=path.indexOf('sign-up')>=0? {name:email.split('@')[0],email,password} : {email,password};
-      const r=await api(path,{method:'POST',body:JSON.stringify(body)});
-      if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.message||('HTTP '+r.status));}
+      await api(path,{method:'POST',body:JSON.stringify(body)});
       setAc('✔','ok'); $('acPass').value=''; await refreshMe();
       if(RETURN_TO){location.href=RETURN_TO;return;}
-    }catch(e){setAc(e.message,'err');}
+    }catch(e){setAc((e&&e.body&&e.body.message)||errText(e),'err');}
   }
   $('loginBtn').addEventListener('click',()=>authCall('/api/auth/sign-in/email'));
   $('signupBtn').addEventListener('click',()=>authCall('/api/auth/sign-up/email'));
@@ -365,9 +363,12 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   $('upgradeBtn').addEventListener('click',async()=>{
     setAc(t('acWorking'),'work');
     try{
-      const r=await api('/v1/billing/checkout',{method:'POST',body:'{}'});
-      const d=await r.json(); if(!r.ok||!d.url)throw new Error(d.error||'checkout');
-      window.open(d.url,'_blank'); setAc(t('acPaid'),'work');
+      const d=await window.LCC.api.json(BACKEND_URL+'/v1/billing/checkout',{method:'POST',body:'{}'});
+      if(!d||!d.url)throw new Error('checkout');
+      // (Modulo I) solo URL https di Stripe, stessa scheda: niente window.open nudo
+      let u; try{ u=new URL(d.url); }catch(_){ throw new Error('checkout url'); }
+      if(u.protocol!=='https:'||!/(^|\.)stripe\.com$/.test(u.hostname)) throw new Error('checkout origin');
+      setAc(t('acPaid'),'work'); location.assign(u.href);
     }catch(e){setAc(e.message,'err');}
   });
   $('syncBtn').addEventListener('click',async()=>{
@@ -390,6 +391,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     if(v('pfObj'))parts.push('Recurring objections/questions to be ready for: '+v('pfObj'));
     return parts.join('\n');
   }
+  function errText(e){ const m=(e&&e.message)||''; if(m==='network')return t('errNet'); if(m==='timeout')return t('errTimeout'); if(e&&e.status===401)return t('errAuth'); return m||'?'; }
   function setPf(msg,cls){const el=$('profStatus');el.textContent=msg;el.className='status '+(cls||'');}
   function renderProfileWhere(){
     const synced=!!meUser&&$('profConsent').checked;
@@ -403,14 +405,13 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
       const r=await api('/v1/profile',{method:'PUT',body:JSON.stringify(body)});
       if(!r.ok)throw new Error('HTTP '+r.status);
       setPf(t('profSynced'),'ok');
-    }catch(e){setPf('Sync: '+e.message,'err');}
+    }catch(e){setPf(t('opFailed')+' '+errText(e)+' — '+t('retryHint'),'err');}
   }
   async function pullProfile(){
     if(!meUser){renderProfileWhere();return;}
     try{
-      const r=await api('/v1/profile');
-      if(r.ok){
-        const d=await r.json();
+      const d=await window.LCC.api.json(BACKEND_URL+'/v1/profile');
+      {
         if(d.exists){ // il server vince: è la copia condivisa tra i dispositivi
           const p=d.profile;
           $('pfRole').value=p.role||'';$('pfCompany').value=p.company||'';$('pfCv').value=p.cv||'';$('pfStyle').value=p.style||'';$('pfObj').value=p.objections||'';
@@ -425,14 +426,23 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     if($('profConsent').checked){ await pushProfile(); }
     else{
       try{ await api('/v1/profile',{method:'DELETE',body:'{}'}); setPf(t('profServerOff'),'ok'); }
-      catch(e){ setPf(e.message,'err'); }
+      catch(e){ $('profConsent').checked=true; setPf(t('opFailed')+' '+errText(e)+' — '+t('retryHint'),'err'); }
     }
     renderProfileWhere();
   });
   $('profExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/profile/export','_blank'));
   $('profDeleteBtn').addEventListener('click',async()=>{
     if(!(await askConfirm(t('profDeleteConfirm'))))return;
-    try{ await api('/v1/profile',{method:'DELETE',body:'{}'}); }catch(_){}
+    setPf(t('acWorking'),'work');
+    try{
+      if(meUser){
+        await api('/v1/profile',{method:'DELETE',body:'{}'});
+        // verifica post-cancellazione: il server non deve più avere un profilo
+        const d=await window.LCC.api.json(BACKEND_URL+'/v1/profile');
+        if(d&&d.exists) throw new Error('verify');
+      }
+    }catch(e){ setPf(t('opFailed')+' '+errText(e)+' — '+t('retryHint'),'err'); return; }
+    // solo ORA si pulisce la UI e il locale
     PF_IDS.forEach(id=>{$(id).value='';store.del(PF_KEYS[id]);});
     $('profConsent').checked=false; renderProfileWhere(); setPf(t('profDeleted'),'ok');
   });
@@ -441,14 +451,20 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   /* ---- Storico kit: preferenza account + diritti GDPR (M2 loop) ---- */
   $('autoSaveKits').addEventListener('change',async()=>{
     if(!meUser)return;
-    try{ await api('/v1/me/preferences',{method:'PATCH',body:JSON.stringify({autoSaveKits:$('autoSaveKits').checked})}); setPf('✔','ok'); }
-    catch(e){ setPf(e.message,'err'); }
+    const want=$('autoSaveKits').checked;
+    try{ await api('/v1/me/preferences',{method:'PATCH',body:JSON.stringify({autoSaveKits:want})}); setPf('✔','ok'); }
+    catch(e){ $('autoSaveKits').checked=!want; setPf(t('opFailed')+' '+errText(e)+' — '+t('retryHint'),'err'); }
   });
   $('histExportBtn').addEventListener('click',()=>window.open(BACKEND_URL+'/v1/kits/export','_blank'));
   $('histDeleteBtn').addEventListener('click',async()=>{
     if(!(await askConfirm(t('histConfirm'))))return;
-    try{ await api('/v1/kits',{method:'DELETE',body:'{}'}); setPf(t('histDeleted'),'ok'); }
-    catch(e){ setPf(e.message,'err'); }
+    setPf(t('acWorking'),'work');
+    try{
+      await api('/v1/kits',{method:'DELETE',body:'{}'});
+      const d=await window.LCC.api.json(BACKEND_URL+'/v1/kits'); // verifica post-cancellazione
+      if(d&&Array.isArray(d.kits)&&d.kits.length) throw new Error('verify');
+      setPf(t('histDeleted'),'ok');
+    }catch(e){ setPf(t('opFailed')+' '+errText(e)+' — '+t('retryHint'),'err'); }
   });
 
   $('verifyBtn').addEventListener('click',async()=>{
@@ -661,7 +677,7 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
   ['model','baseUrl','lang','ansLang','mode'].forEach(id=>$(id).addEventListener('change',save));
   $('apiKey').addEventListener('input',()=>{suggestBtn.disabled=!$('apiKey').value.trim();save();});
   $('remember').addEventListener('change',save);
-  $('forget').addEventListener('click',e=>{e.preventDefault();KEYS.forEach(store.del);PKEYS.forEach(p=>{store.del('v5_key_'+p);store.del('v5_model_'+p);store.del('v5_base_'+p);});$('apiKey').value='';PF_IDS.forEach(id=>$(id).value='');$('remember').checked=false;setS(setupStatus,t('valid'),'ok');});
+  $('forget').addEventListener('click',e=>{e.preventDefault();const n=window.LCC.purgeAll();$('apiKey').value='';PF_IDS.forEach(id=>$(id).value='');$('remember').checked=false;setS(setupStatus,t('valid')+' ('+n+')','ok');});
 
   (function init(){
     // opt-in: spuntato SOLO se l'utente l'ha scelto in passato (persistito)
