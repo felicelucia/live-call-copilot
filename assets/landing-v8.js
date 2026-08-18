@@ -4,6 +4,7 @@ const BRAND=window.LCC.BRAND;
     it:{
       openApp:"Apri l'app",
       navJobs:"🔎 Offerte",
+      navHunt:"🧭 Dove sta il lavoro",
       navSal:"📊 Stipendi",
       heroH:"Dal job post all'offerta — e ti diciamo anche dove sta il lavoro per te",
       heroP:"Incolla un annuncio: fit motivato, gap onesti, CV su misura, domande probabili e allenamento al colloquio — basati solo su ciò che hai fatto davvero. E poi: dove sta il lavoro per te, quanto rende e dove conviene spostarti. Dati al sicuro in Europa.",
@@ -32,6 +33,7 @@ const BRAND=window.LCC.BRAND;
     en:{
       openApp:"Open the app",
       navJobs:"🔎 Jobs",
+      navHunt:"🧭 Where the work is",
       navSal:"📊 Salaries",
       heroH:"From job post to offer — and we tell you where the work is for you",
       heroP:"Paste a job ad: reasoned fit, honest gaps, tailored CV, likely questions and interview training — based only on what you actually did. Then: where the work is for you, what it pays and where it's worth moving. Data safe in Europe.",

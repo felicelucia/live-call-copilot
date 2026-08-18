@@ -4,14 +4,14 @@ const BRAND=window.LCC.BRAND;
   const BACKEND=location.protocol.startsWith("http")?location.origin:"http://127.0.0.1:8787";
 
   const T={
-    it:{docTitle:"Cerca offerte — "+BRAND+"",docDesc:"Cerca offerte di lavoro reali e genera in un click il Kit di candidatura su misura: CV, mail e domande probabili.",skipLink:"Salta al contenuto",resultsH:"Risultati della ricerca",brandSub:"Cerca offerte · beta",h1:"Cerca offerte reali",
+    it:{toHunt:"🧭 Dove sta il lavoro",docTitle:"Cerca offerte — "+BRAND+"",docDesc:"Cerca offerte di lavoro reali e genera in un click il Kit di candidatura su misura: CV, mail e domande probabili.",skipLink:"Salta al contenuto",resultsH:"Risultati della ricerca",brandSub:"Cerca offerte · beta",h1:"Cerca offerte reali",
       sub:"Trova l'annuncio giusto e genera in un click il Kit su misura: CV, mail e domande probabili.",
       qL:"Cosa cerchi",qPh:"Es: account executive, project manager…",lL:"Dove",lPh:"Es: Milano, remoto…",
       cL:"Paese",go:"🔎 Cerca",searching:"Cerco…",none:"Nessuna offerta trovata: prova con altre parole.",
       kitBtn:"✨ Genera Kit",kitPrep:"Preparo il Kit…",errNet:"Backend non raggiungibile.",errTimeout:"Tempo scaduto: riprova.",rateLimited:"Troppe richieste: riprova tra {s}s",providerDown:"fonte non raggiungibile: {p}",
       notConf:"🔌 La ricerca offerte non è ancora attiva: stiamo completando l'accesso all'API ufficiale del provider. Nel frattempo puoi incollare qualunque annuncio direttamente nel Kit di candidatura.",
       openKit:"→ Apri il Kit",results:"offerte",attrib:"Ricerca offerte fornita da {p}. I link di candidatura portano a {p}."},
-    en:{docTitle:"Job search — "+BRAND+"",docDesc:"Search real job ads and generate the tailored Application Kit in one click: CV, email and likely questions.",skipLink:"Skip to content",resultsH:"Search results",brandSub:"Job search · beta",h1:"Search real job ads",
+    en:{toHunt:"🧭 Where the work is",docTitle:"Job search — "+BRAND+"",docDesc:"Search real job ads and generate the tailored Application Kit in one click: CV, email and likely questions.",skipLink:"Skip to content",resultsH:"Search results",brandSub:"Job search · beta",h1:"Search real job ads",
       sub:"Find the right ad and generate the tailored Kit in one click: CV, email and likely questions.",
       qL:"What",qPh:"E.g. account executive, project manager…",lL:"Where",lPh:"E.g. Milan, remote…",
       cL:"Country",go:"🔎 Search",searching:"Searching…",none:"No jobs found: try different words.",

@@ -1,0 +1,38 @@
+/* Cacciatore — layout locale */
+.topbar{display:flex;align-items:center;gap:12px;padding-top:var(--ds-s2);flex-wrap:wrap;}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--ds-accent),#7048e8);display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 5px 14px rgba(59,91,219,.3);}
+.brand{font-weight:800;font-size:var(--ds-t-base);letter-spacing:-.01em;}
+.brand small{display:block;font-weight:600;color:var(--ds-muted);font-size:var(--ds-t-xs);}
+.topnav{display:contents;}
+#langSeg{margin-left:auto;}
+.hero{text-align:center;padding:var(--ds-s4) 0 0;}
+.hero p{max-width:640px;margin:8px auto 0;}
+.grid3{display:grid;grid-template-columns:2fr 1.4fr 1fr;gap:10px;}
+@media(max-width:720px){.grid3{grid-template-columns:1fr;}}
+.guard{font-size:var(--ds-t-xs);margin:var(--ds-s3) 0 0;}
+#results{display:flex;flex-direction:column;gap:var(--ds-s4);}
+/* aziende */
+.co{display:flex;gap:12px;align-items:flex-start;padding:var(--ds-s3) 0;border-bottom:1px solid var(--ds-line);flex-wrap:wrap;}
+.co:last-child{border-bottom:none;}
+.co .who{flex:1;min-width:220px;}
+.co .who b{font-size:var(--ds-t-base);}
+.co .meta{color:var(--ds-muted);font-size:var(--ds-t-xs);margin-top:2px;}
+.co .fit{font-size:var(--ds-t-sm);margin-top:6px;}
+.co .fit .ev{color:var(--ds-muted);font-style:italic;}
+.sig{display:inline-block;font-size:var(--ds-t-xs);font-weight:800;border-radius:999px;padding:2px 9px;background:var(--ds-bg);color:var(--ds-muted);border:1px solid var(--ds-line);}
+.sig.hiring_now{background:var(--ds-ok-soft);color:#087f5b;border-color:#b3e6d4;}
+.sig.growing{background:var(--ds-accent-soft);color:var(--ds-accent-deep);border-color:#d5defb;}
+.co .links{display:flex;gap:6px;flex-wrap:wrap;}
+.co .links a{font-size:var(--ds-t-xs);}
+/* stipendio */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--ds-s3);margin-top:var(--ds-s3);}
+.stat{background:var(--ds-bg);border:1px solid var(--ds-line);border-radius:var(--ds-r-m);padding:var(--ds-s3);}
+.stat .n{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;}
+.stat .l{color:var(--ds-muted);font-size:var(--ds-t-xs);margin-top:2px;}
+/* spostarsi */
+table.mv{width:100%;border-collapse:collapse;font-size:var(--ds-t-sm);margin-top:var(--ds-s3);}
+table.mv th,table.mv td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--ds-line);}
+table.mv th{font-size:var(--ds-t-xs);text-transform:uppercase;letter-spacing:.03em;color:var(--ds-muted);}
+table.mv td:last-child,table.mv th:last-child{text-align:right;}
+.delta.up{color:#087f5b;font-weight:800;}
+.delta.down{color:var(--ds-muted);}

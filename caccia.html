@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dove sta il lavoro per te — Kandra</title>
+<meta name="theme-color" content="#3b5bdb">
+<meta name="description" content="Aziende che assumono nel tuo mestiere e nella tua zona, quanto puoi guadagnare e dove conviene spostarti. Solo dati pubblici, contatti tu di persona.">
+<meta name="robots" content="noindex,follow">
+<!-- SITE-BASE: aggiornare al cambio dominio -->
+<link rel="canonical" href="https://livecallcopilot459adf1e-api-prod.functions.fnc.fr-par.scw.cloud/app/caccia.html">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="stylesheet" href="assets/design-system-v3.css">
+<link rel="stylesheet" href="assets/page-caccia-v1.css">
+</head>
+<body class="ds-page">
+<a href="#main" class="skip-link" data-i="skipLink">Salta al contenuto</a>
+<div class="ds-wrap">
+  <header class="topbar">
+    <div class="logo" aria-hidden="true">🧭</div>
+    <div class="brand">Kandra<small data-i="brandSub"></small></div>
+    <nav aria-label="Sezioni del sito" class="topnav">
+      <a class="ds-btn ds-btn-ghost ds-btn-sm" href="jobs.html" data-i="toJobs"></a>
+      <a class="ds-btn ds-btn-ghost ds-btn-sm" href="kit.html" data-i="toKit"></a>
+    </nav>
+    <div class="ds-seg" id="langSeg" role="group" aria-label="Lingua / Language">
+      <button data-lang="it" class="on" aria-pressed="true">IT</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main id="main">
+  <div class="hero">
+    <h1 class="ds-h1" data-i="heroH"></h1>
+    <p class="ds-muted" data-i="heroP"></p>
+  </div>
+
+  <div class="ds-card">
+    <form id="huntForm" novalidate>
+      <div class="grid3">
+        <div><label class="ds-label" for="what" data-i="whatL"></label><input class="ds-input" id="what" required aria-required="true" data-i-ph="whatPh"></div>
+        <div><label class="ds-label" for="where" data-i="whereL"></label><input class="ds-input" id="where" required aria-required="true" data-i-ph="wherePh"></div>
+        <div><label class="ds-label" for="country" data-i="countryL"></label><select class="ds-select" id="country">
+          <option value="it" selected>Italia</option><option value="fr">France</option><option value="de">Deutschland</option><option value="es">España</option>
+          <option value="nl">Nederland</option><option value="be">Belgique</option><option value="at">Österreich</option><option value="pt">Portugal</option><option value="gb">United Kingdom</option>
+        </select></div>
+      </div>
+      <label class="ds-label" for="cv" data-i="cvL"></label>
+      <textarea class="ds-textarea" id="cv" rows="4" maxlength="8000" data-i-ph="cvPh"></textarea>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:var(--ds-s4)">
+        <button type="submit" class="ds-btn ds-btn-primary" id="goBtn" data-i="go"></button>
+        <button type="button" class="ds-btn ds-btn-ghost ds-btn-sm" id="cancelBtn" style="display:none" data-i="cancel"></button>
+        <span class="ds-status" id="status" role="status"></span>
+      </div>
+      <div class="visually-hidden" id="a11yAlert" role="alert"></div>
+    </form>
+    <p class="ds-muted guard" data-i="guard"></p>
+  </div>
+
+  <!-- risultati: costruiti SOLO con nodi -->
+  <div id="results" style="display:none">
+    <div class="ds-card"><h2 class="ds-h2" data-i="compH"></h2><p class="ds-muted" data-i="compSub"></p><div id="companies"></div></div>
+    <div class="ds-card"><h2 class="ds-h2" data-i="earnH"></h2><div id="earn"></div></div>
+    <div class="ds-card"><h2 class="ds-h2" data-i="moveH"></h2><p class="ds-muted" id="moveNote"></p><div id="move"></div></div>
+  </div>
+  </main>
+
+  <footer class="ds-muted" style="text-align:center" data-i="foot"></footer>
+</div>
+<script src="assets/lcc-core-v4.js"></script>
+<script src="assets/caccia-v1.js"></script>
+</body>
+</html>
