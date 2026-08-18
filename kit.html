@@ -62,6 +62,11 @@
       <textarea class="ds-textarea" id="cvText" rows="6" maxlength="8000" data-i-ph="cvPh"></textarea>
     </div>
 
+    <!-- data del colloquio: facoltativa, con consenso; usata SOLO per il piano del Brief, non salvata -->
+    <div class="two-cols" style="display:grid;grid-template-columns:1fr 2fr;gap:12px;align-items:end;margin-top:var(--ds-s3)">
+      <div><label class="ds-label" for="interviewDate" data-i="dateL"></label><input class="ds-input" type="date" id="interviewDate"></div>
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:var(--ds-t-xs);color:var(--ds-muted);cursor:pointer;margin-bottom:6px"><input type="checkbox" id="dateConsent" style="margin-top:2px"><span data-i="dateConsent"></span></label>
+    </div>
     <!-- consenso per-kit al salvataggio: spento a ogni sessione; pre-spuntato
          solo se la preferenza account autoSaveKits è attiva (sempre togglabile) -->
     <div id="saveWrap" style="display:none;margin-top:var(--ds-s4)">
@@ -88,7 +93,8 @@
   <div class="ds-card" id="outCard" style="display:none">
     <div class="outhead">
       <div class="ds-tabs" role="tablist" aria-label="Contenuti del kit">
-        <button class="ds-tab on" data-tab="sarto" id="tab-sarto" role="tab" aria-selected="true" aria-controls="outBody" data-i="tabCv"></button>
+        <button class="ds-tab on" data-tab="brief" id="tab-brief" role="tab" aria-selected="true" aria-controls="outBody" data-i="tabBrief"></button>
+        <button class="ds-tab" data-tab="sarto" id="tab-sarto" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabCv"></button>
         <button class="ds-tab" data-tab="mail" id="tab-mail" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabMail"></button>
         <button class="ds-tab" data-tab="intervistatore" id="tab-intervistatore" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabQ"></button>
         <button class="ds-tab" data-tab="coach" id="tab-coach" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabCoach" style="display:none"></button>
@@ -118,6 +124,6 @@
 </div>
 
 <script src="assets/lcc-core-v4.js"></script>
-<script type="module" src="assets/kit-v8.js"></script>
+<script type="module" src="assets/kit-v9.js"></script>
 </body>
 </html>

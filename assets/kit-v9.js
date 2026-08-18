@@ -41,8 +41,10 @@ const T = {
     authSignup: "Crea account gratis",
     authFields: "Inserisci email e password.",
     authDone: "Account attivo ✔ — premi di nuovo Genera per il Kit completo.",
-    pvT: "🔒 Questa è solo l'analisi dell'annuncio.",
-    pvSub: "CV su misura, mail di accompagnamento e domande probabili si sbloccano con l'account gratuito.",
+    pvT: "Questo è il tuo Interview Brief — gratis, senza account.",
+    pvSub: "Con l'account gratuito puoi salvarlo, scaricare il CV su misura, avere mail e domande probabili e simulare il colloquio. Il valore lo vedi già qui.",
+    tabBrief: "Brief", dateL: "Data del colloquio (facoltativa)", dateConsent: "Usa la data solo per costruire il piano giorno per giorno. Non viene salvata.",
+    cvNeeded: "Per l'anteprima serve il tuo CV: scegli «Incollo un CV» e incollalo (almeno 80 caratteri).",
     pvGo: "Crea l'account gratis →",
     saveL: "Salva questo kit nel mio storico",
     saveNote: "Salvato cifrato su server UE · cancellabile in ogni momento · rimosso dopo 24 mesi.",
@@ -94,8 +96,10 @@ const T = {
     authSignup: "Create free account",
     authFields: "Enter email and password.",
     authDone: "Account active ✔ — press Generate again for the full Kit.",
-    pvT: "🔒 This is the job-ad analysis only.",
-    pvSub: "Tailored CV, cover email and likely questions unlock with the free account.",
+    pvT: "This is your Interview Brief — free, no account.",
+    pvSub: "With the free account you can save it, download the tailored CV, get the email and likely questions, and rehearse. You already see the value here.",
+    tabBrief: "Brief", dateL: "Interview date (optional)", dateConsent: "Use the date only to build the day-by-day plan. It is not stored.",
+    cvNeeded: "The preview needs your CV: pick “Paste a CV” and paste it (at least 80 characters).",
     pvGo: "Create the free account →",
     saveL: "Save this kit to my history",
     saveNote: "Stored encrypted on EU servers · deletable anytime · removed after 24 months.",
@@ -202,7 +206,7 @@ $("jobAd").addEventListener("input", () => {
 
 /* ── tabs + copia ─────────────────────────────────────────────────── */
 const results = {}; // task → markdown grezzo
-let activeTab = "sarto";
+let activeTab = "brief";
 function showTab(tab) {
   activeTab = tab;
   document.querySelectorAll(".ds-tab").forEach((b) => {
@@ -368,11 +372,14 @@ async function generate() {
   if (jobAd.length < 50) { setStatus(t("adShort"), "err"); return; }
   const body = { jobAd, language: t("lang") };
   if (source === "cv" && $("cvText").value.trim()) body.cv = $("cvText").value.trim().slice(0, 8000);
+  // anonimo: il Brief è centrato sull'utente → serve il CV (fail-closed lato server, ma lo diciamo prima)
+  if (!me && !body.cv) { source = "cv"; document.querySelector('#srcSeg [data-src="cv"]').click(); setStatus(t("cvNeeded"), "err"); $("cvText").focus(); return; }
+  if ($("interviewDate").value && $("dateConsent").checked) body.interviewDate = $("interviewDate").value;
   if (me && $("saveKit").checked) body.save = true;
 
   $("goBtn").disabled = true;
   setStatus(t("working"), "");
-  results.sarto = ""; results.mail = ""; results.intervistatore = ""; results.analista = "";
+  results.sarto = ""; results.mail = ""; results.intervistatore = ""; results.analista = ""; results.brief = "";
   results.coach = ""; results.critico = "";
   lastJobAd = jobAd; lastPastedCv = body.cv || null;
   $("agentBtns").style.display = "none";
@@ -395,15 +402,17 @@ async function generate() {
         if (ev.type === "task-delta" && ev.task in results) results[ev.task] += ev.text || "";
         if (ev.type === "kit-done") {
           if (ev.preview) {
-            // anteprima anonima: solo l'analisi, con lo sblocco in evidenza
+            // anteprima anonima: il Brief (fit, gap, aree, storia, piano) — niente spazi vuoti
             $("outCard").style.display = "";
             document.querySelector(".outhead").style.display = "none";
-            $("outBody").innerHTML = renderMd(results.analista || "");
+            $("outBody").style.marginTop = "0";
+            $("outBody").innerHTML = renderMd(results.brief || results.analista || "");
             $("previewCta").style.display = "";
             setStatus("", "");
           } else {
             $("outCard").style.display = "";
-            showTab(results.sarto ? "sarto" : "intervistatore");
+            $("outBody").style.marginTop = "";
+            showTab(results.brief ? "brief" : results.sarto ? "sarto" : "intervistatore");
             setStatus("", "");
             if (me && results.sarto) $("agentBtns").style.display = "flex";
           }
