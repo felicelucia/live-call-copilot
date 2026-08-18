@@ -30,6 +30,7 @@
   <div class="hero">
     <h1 class="ds-h1" data-i="heroH"></h1>
     <p data-i="heroP"></p>
+    <p class="ds-muted" role="note" style="font-size:var(--ds-t-xs)" data-i="aiNotice"></p>
   </div>
 
   <!-- INPUT -->
@@ -107,6 +108,7 @@
         <button class="ds-tab" data-tab="coach" id="tab-coach" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabCoach" style="display:none"></button>
         <button class="ds-tab" data-tab="critico" id="tab-critico" role="tab" aria-selected="false" tabindex="-1" aria-controls="outBody" data-i="tabCritico" style="display:none"></button>
       </div>
+      <label id="truthWrap" style="display:none;font-size:var(--ds-t-xs);color:var(--ds-muted);align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="truthChk"><span data-i="truthL"></span></label>
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="pdfBtn" data-i="pdf" style="display:none"></button>
       <button class="ds-btn ds-btn-ghost ds-btn-sm" id="copyBtn" data-i="copy"></button>
     </div>
@@ -132,6 +134,6 @@
 </div>
 
 <script src="assets/lcc-core-v4.js"></script>
-<script type="module" src="assets/kit-v10.js"></script>
+<script type="module" src="assets/kit-v11.js"></script>
 </body>
 </html>

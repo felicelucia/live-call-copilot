@@ -9,6 +9,9 @@ const BACKEND = location.protocol.startsWith("http") ? location.origin : "http:/
 const T = {
   it: {
     skipLink: "Salta al contenuto",
+    aiNotice: "🤖 Stai interagendo con un sistema di IA. Verifica sempre fatti, date, qualifiche ed esperienze prima di usarli. Le proposte sono bozze assistite da IA, basate solo sul tuo CV e sulle tue storie.",
+    truthL: "Bozza assistita da IA — confermo che esperienze, competenze, qualifiche e date sono veritiere",
+    truthNeeded: "Per scaricare il PDF conferma prima la veridicità dei contenuti (casella accanto).",
     docTitle: "Kit di candidatura — "+BRAND+"", docDesc: "Da un annuncio + il tuo CV: fit motivato, gap onesti, domande probabili e CV su misura — basati solo su ciò che hai fatto davvero. Modelli e server in Europa.",
     brandSub: "Kit di candidatura · beta",
     heroH: "Dal job post all'offerta, senza inventare nulla.",
@@ -65,6 +68,9 @@ const T = {
   },
   en: {
     skipLink: "Skip to content",
+    aiNotice: "🤖 You are interacting with an AI system. Always verify facts, dates, qualifications and experiences before using them. The outputs are AI-assisted drafts based only on your CV and your stories.",
+    truthL: "AI-assisted draft — I confirm that experiences, skills, qualifications and dates are truthful",
+    truthNeeded: "To download the PDF, first confirm the truthfulness of the content (checkbox next to it).",
     docTitle: "Application Kit — "+BRAND+"", docDesc: "From a job ad + your CV: reasoned fit, honest gaps, likely questions and a tailored CV — based only on what you actually did. Models and servers in Europe.",
     brandSub: "Application Kit · beta",
     heroH: "From job post to offer, without making anything up.",
@@ -238,6 +244,7 @@ function showTab(tab) {
   $("outBody").innerHTML = renderMd(results[tab] || "");
   // il PDF esiste solo per il CV su misura
   $("pdfBtn").style.display = tab === "sarto" && results.sarto ? "" : "none";
+  $("truthWrap").style.display = tab === "sarto" && results.sarto ? "inline-flex" : "none";
   // sottotitolo di conferma (textContent: ruolo/azienda vengono dal modello)
   const sub = $("cvSub");
   const role = keyLine(results.analista, "RUOLO");
@@ -303,12 +310,15 @@ function pdfFileName() {
 function downloadPdf() {
   const md = results.sarto;
   if (!md) return;
+  // AI Act: prima dell'export l'utente conferma la veridicità della bozza assistita
+  if (!$("truthChk").checked) { setStatus(t("truthNeeded"), "err"); $("truthChk").focus(); return; }
   const iframe = document.createElement("iframe");
   iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
   document.body.appendChild(iframe);
   const doc = iframe.contentDocument;
   doc.open();
-  doc.write(`<!DOCTYPE html><html lang="${LANG}"><head><meta charset="utf-8"><title>${pdfFileName()}</title><style>
+  const aiMark = LANG === "it" ? "Bozza assistita da IA (" + BRAND + ") — contenuti confermati veritieri dal candidato" : "AI-assisted draft (" + BRAND + ") — content confirmed truthful by the candidate";
+  doc.write(`<!DOCTYPE html><html lang="${LANG}" data-ai-generated="true" data-generator="${BRAND} AI-assisted"><head><meta charset="utf-8"><meta name="generator" content="${BRAND} — AI-assisted draft"><meta name="ai-generated" content="true"><title>${pdfFileName()}</title><style>
     @page{size:A4;margin:18mm 16mm;}
     body{font-family:'Inter',-apple-system,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;color:#111;background:#fff;font-size:10.5pt;line-height:1.5;margin:0;}
     h1{font-size:16pt;margin:0 0 4pt;letter-spacing:-.01em;}
@@ -318,7 +328,7 @@ function downloadPdf() {
     hr{border:none;border-top:.75pt solid #bbb;margin:10pt 0;}
     code{font-family:inherit;background:none;border:none;padding:0;}
     h1,h2,h3,h4{page-break-after:avoid;} li,p{page-break-inside:avoid;}
-  </style></head><body>${renderMd(md)}</body></html>`);
+  </style></head><body>${renderMd(md)}<p style="margin-top:14pt;font-size:8pt;color:#666" data-ai-mark="true">${aiMark}</p></body></html>`);
   doc.close();
   setTimeout(() => {
     iframe.contentWindow.focus();

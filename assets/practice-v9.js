@@ -364,6 +364,7 @@
     const it=L()==='it';
     document.documentElement.lang=it?'it':'en';
     $('skipLink').textContent=it?'Salta al contenuto':'Skip to content';
+    $('aiNotice').textContent=it?'🤖 L\'intervistatore è una simulazione IA. Stai interagendo con un sistema di IA: verifica fatti, date e qualifiche prima di farci affidamento.':'🤖 The interviewer is an AI simulation. You are interacting with an AI system: verify facts, dates and qualifications before relying on them.';
     $('privacyNote').textContent=it
       ?'🎧 Usa le cuffie, così la voce dell\'intervistatore non entra nel microfono. 🔑 Modalità BYOK: il testo va al provider che scegli tu, con la tua chiave e le sue condizioni (Google, Anthropic, Groq sono extra-UE; Mistral è UE). Nulla viene salvato sui nostri server. 🎙 Il riconoscimento vocale dipende dal browser (vedi nota sotto).'
       :'🎧 Use headphones so the interviewer\'s voice isn\'t picked up by your mic. 🔑 BYOK mode: text goes to the provider you choose, with your key and its terms (Google, Anthropic, Groq are non-EU; Mistral is EU). Nothing is saved on our servers. 🎙 Speech recognition depends on the browser (see note below).';

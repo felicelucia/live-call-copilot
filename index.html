@@ -64,6 +64,7 @@
     <button class="btn btn-soft" id="installBtn" style="display:none" data-i18n="install"></button>
   </div>
   <div class="consent" data-i18n="consentLine"></div>
+  <div class="consent" id="aiNotice" role="note" data-i18n="aiNotice"></div>
   <!-- onestà sul riconoscimento vocale: on-device se il browser lo garantisce, altrimenti detto -->
   <div class="stt-note" id="sttNote"></div>
   <div class="status" id="liveStatus" role="status" style="text-align:center"></div>
@@ -147,6 +148,7 @@
       </form>
       <div id="proLoggedIn" style="display:none">
         <div class="paidnote" id="proPlanNote"></div>
+        <div class="paidnote" id="nextSteps"><b data-i18n="nextH"></b><br><a href="kit.html" data-i18n="next1"></a> · <a href="storie.html" data-i18n="next2"></a> · <a href="practice.html" data-i18n="next3"></a></div>
         <div class="row" id="proUpgradeRow" style="display:none;margin-top:8px">
           <div><button class="btn btn-primary" id="upgradeBtn" style="width:100%" data-i18n="acUpgrade"></button></div>
           <div><button class="btn btn-soft" id="syncBtn" style="width:100%" data-i18n="acSync"></button></div>
@@ -215,6 +217,7 @@
     <div style="margin-top:14px;border-top:1px dashed var(--line);padding-top:8px">
       <label style="font-size:.92rem;color:var(--ink)" data-i18n="profH"></label>
       <p class="sub" data-i18n="profSub"></p>
+      <p class="sub" data-i18n="sensitiveNote" style="color:var(--ds-warn-text)"></p>
       <div class="row">
         <div><label for="pfRole" data-i18n="profRoleL"></label><input id="pfRole" data-i18n-ph="profRolePh"></div>
         <div><label for="pfCompany" data-i18n="profCompanyL"></label><input id="pfCompany" data-i18n-ph="profCompanyPh"></div>
@@ -312,6 +315,6 @@
 </dialog>
 
 <script src="assets/lcc-core-v4.js"></script>
-<script src="assets/app-v14.js"></script>
+<script src="assets/app-v15.js"></script>
 </body>
 </html>
