@@ -139,6 +139,11 @@
           <div><button type="submit" class="btn btn-primary" id="loginBtn" style="width:100%" data-i18n="acLogin"></button></div>
           <div><button type="button" class="btn btn-ghost" id="signupBtn" style="width:100%" data-i18n="acSignup"></button></div>
         </div>
+        <!-- §8 stato onesto delle email transazionali (reset/verifica) -->
+        <div style="margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <a href="#" class="hintlink" id="forgotLink" data-i18n="acForgot"></a>
+          <span class="status" id="emailNote" role="status" style="margin:0"></span>
+        </div>
       </form>
       <div id="proLoggedIn" style="display:none">
         <div class="paidnote" id="proPlanNote"></div>
@@ -306,6 +311,6 @@
 </dialog>
 
 <script src="assets/lcc-core-v4.js"></script>
-<script src="assets/app-v13.js"></script>
+<script src="assets/app-v14.js"></script>
 </body>
 </html>

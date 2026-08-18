@@ -81,6 +81,13 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
      e il riconoscimento vocale dipende dal browser. La promessa UE vale per la
      modalità sovrana (Pro/Kit), non per BYOK. Queste stringhe SOVRASCRIVONO
      le precedenti. */
+  const T7={
+    it:{acForgot:"Password dimenticata?",emailOff:"Email di conferma e recupero password non ancora attive su questo ambiente: l'account funziona, ma per ora la password non si può reimpostare da soli.",emailSent:"Se l'email esiste, ti abbiamo inviato il link per reimpostare la password.",emailNeed:"Scrivi prima la tua email qui sopra."},
+    en:{acForgot:"Forgot password?",emailOff:"Confirmation and password-reset emails are not enabled on this environment yet: the account works, but you cannot reset the password by yourself for now.",emailSent:"If the email exists, we sent you the reset link.",emailNeed:"Type your email above first."},
+    zh:{acForgot:"忘记密码？",emailOff:"此环境尚未启用确认与找回密码邮件：账户可用，但暂时无法自行重设密码。",emailSent:"如果该邮箱存在，我们已发送重设链接。",emailNeed:"请先在上方填写邮箱。"},
+    es:{acForgot:"¿Olvidaste la contraseña?",emailOff:"Los correos de confirmación y recuperación aún no están activos en este entorno: la cuenta funciona, pero por ahora no puedes restablecer la contraseña por tu cuenta.",emailSent:"Si el correo existe, te enviamos el enlace para restablecerla.",emailNeed:"Escribe antes tu correo arriba."}
+  };
+  Object.keys(T7).forEach(l=>Object.assign(T[l],T7[l]));
   const T6={
     it:{storiesOpen:"📚 Apri le mie storie",storiesExport:"⬇ Esporta le storie",storiesDelete:"🗑 Cancella le storie",storiesConfirm:"Cancellare TUTTE le storie della Story Bank? L'operazione è definitiva.",storiesDeleted:"Story Bank cancellata.",docTitle:""+BRAND+" — il tuo assistente per le videochiamate",docDesc:"Il copilota AI open e privato per le tue chiamate: ascolta e suggerisce cosa dire, in tempo reale.",cancel:"⏹ Annulla",cancelled:"Annullato.",partialKept:"Risposta interrotta: tengo la parte ricevuta",rateLimited:"Troppe richieste: riprova tra {s}s",opFailed:"Operazione NON riuscita:",retryHint:"i dati sono ancora lì, riprova.",errNet:"rete non raggiungibile",errTimeout:"tempo scaduto",errAuth:"sessione scaduta, accedi di nuovo"},
     en:{storiesOpen:"📚 Open my stories",storiesExport:"⬇ Export stories",storiesDelete:"🗑 Delete stories",storiesConfirm:"Delete ALL Story Bank stories? This cannot be undone.",storiesDeleted:"Story Bank deleted.",docTitle:""+BRAND+" — your live-call assistant",docDesc:"The open, private AI copilot for your calls: it listens and suggests what to say, in real time.",cancel:"⏹ Cancel",cancelled:"Cancelled.",partialKept:"Answer interrupted: keeping what arrived",rateLimited:"Too many requests: retry in {s}s",opFailed:"Operation FAILED:",retryHint:"your data is still there, please retry.",errNet:"network unreachable",errTimeout:"timed out",errAuth:"session expired, sign in again"},
@@ -357,6 +364,16 @@ const BACKEND_URL = location.protocol.startsWith('http') ? location.origin : 'ht
     }catch(e){setAc((e&&e.body&&e.body.message)||errText(e),'err');}
   }
   $('proLoggedOut').addEventListener('submit',e=>{e.preventDefault();authCall('/api/auth/sign-in/email');});
+  /* §8: stato email onesto + reset password solo se attivo lato server */
+  let emailEnabled=false;
+  (async()=>{try{const c=await window.LCC.api.json(BACKEND_URL+'/v1/config-public');emailEnabled=!!(c&&c.emailEnabled);}catch(_){emailEnabled=false;} $('emailNote').textContent=emailEnabled?'':t('emailOff'); $('emailNote').className='status '+(emailEnabled?'':'work');})();
+  $('forgotLink').addEventListener('click',async e=>{
+    e.preventDefault();
+    if(!emailEnabled){setAc(t('emailOff'),'err');return;}
+    const email=$('acEmail').value.trim(); if(!email){setAc(t('emailNeed'),'err');return;}
+    try{ await api('/api/auth/forget-password',{method:'POST',body:JSON.stringify({email,redirectTo:location.origin+'/app/index.html'})}); setAc(t('emailSent'),'ok'); }
+    catch(err){ setAc(errText(err),'err'); }
+  });
   $('signupBtn').addEventListener('click',()=>authCall('/api/auth/sign-up/email'));
   $('logoutBtn').addEventListener('click',async()=>{
     try{await api('/api/auth/sign-out',{method:'POST',body:'{}'});}catch(_){}

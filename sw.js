@@ -1,4 +1,4 @@
-/* Live Call Copilot — service worker (v38)
+/* Live Call Copilot — service worker (v39)
    Scopo: app installabile e shell disponibile offline. Regole:
    - intercetta SOLO ciò che è in allowlist esplicita (precache + pagine
      /app/*.html + icone + manifest): API, pagine SEO e tutto il resto
@@ -7,7 +7,7 @@
    - pagine HTML: network-first, cache SOTTO IL PROPRIO URL, fallback per
      rotta (kit.html offline → kit.html in cache, non index.html);
    - la PRECACHE è generata da tools/gen-sw-precache.mjs (allowlist da build). */
-const CACHE = 'lcc-v38';
+const CACHE = 'lcc-v39';
 
 /* @generated-precache-start */
 const PRECACHE = [
@@ -25,7 +25,7 @@ const PRECACHE = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
-  "./assets/app-v13.js",
+  "./assets/app-v14.js",
   "./assets/caccia-v1.js",
   "./assets/design-system-v3.css",
   "./assets/jobs-v10.js",
