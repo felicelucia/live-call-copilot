@@ -60,6 +60,13 @@
     </div>
     <div class="srcwrap" id="cvWrap" style="display:none">
       <textarea class="ds-textarea" id="cvText" rows="6" maxlength="8000" data-i-ph="cvPh"></textarea>
+      <!-- §5 upload PDF/DOCX: parsing sul server, effimero (niente salvataggio), fail-closed -->
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px">
+        <label class="ds-btn ds-btn-ghost ds-btn-sm" for="cvFile" style="cursor:pointer" data-i="cvUpload"></label>
+        <input type="file" id="cvFile" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="visually-hidden">
+        <span class="ds-muted" id="cvFileStatus" role="status" style="font-size:var(--ds-t-xs)"></span>
+      </div>
+      <p class="ds-muted" style="font-size:var(--ds-t-xs);margin:6px 0 0" data-i="cvUploadNote"></p>
     </div>
 
     <!-- data del colloquio: facoltativa, con consenso; usata SOLO per il piano del Brief, non salvata -->
@@ -124,6 +131,6 @@
 </div>
 
 <script src="assets/lcc-core-v4.js"></script>
-<script type="module" src="assets/kit-v9.js"></script>
+<script type="module" src="assets/kit-v10.js"></script>
 </body>
 </html>

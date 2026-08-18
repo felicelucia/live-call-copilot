@@ -45,6 +45,7 @@ const T = {
     pvSub: "Con l'account gratuito puoi salvarlo, scaricare il CV su misura, avere mail e domande probabili e simulare il colloquio. Il valore lo vedi già qui.",
     tabBrief: "Brief", dateL: "Data del colloquio (facoltativa)", dateConsent: "Usa la data solo per costruire il piano giorno per giorno. Non viene salvata.",
     cvNeeded: "Per l'anteprima serve il tuo CV: scegli «Incollo un CV» e incollalo (almeno 80 caratteri).",
+    cvUpload: "⬆ Carica CV (PDF/DOCX)", cvUploadNote: "Il file viene letto sul server europeo solo per estrarne il testo e non viene salvato. Se non è leggibile (es. scansione), te lo diciamo: incolla il testo.", cvParsing: "Leggo il file…", cvParsed: "Testo estratto: {n} caratteri — controllalo qui sopra.", cvParseFail: "Non riesco a leggere il file:",
     pvGo: "Crea l'account gratis →",
     saveL: "Salva questo kit nel mio storico",
     saveNote: "Salvato cifrato su server UE · cancellabile in ogni momento · rimosso dopo 24 mesi.",
@@ -100,6 +101,7 @@ const T = {
     pvSub: "With the free account you can save it, download the tailored CV, get the email and likely questions, and rehearse. You already see the value here.",
     tabBrief: "Brief", dateL: "Interview date (optional)", dateConsent: "Use the date only to build the day-by-day plan. It is not stored.",
     cvNeeded: "The preview needs your CV: pick “Paste a CV” and paste it (at least 80 characters).",
+    cvUpload: "⬆ Upload CV (PDF/DOCX)", cvUploadNote: "The file is read on the European server only to extract text and is not stored. If it is not readable (e.g. a scan) we tell you: paste the text.", cvParsing: "Reading the file…", cvParsed: "Extracted text: {n} characters — check it above.", cvParseFail: "Cannot read the file:",
     pvGo: "Create the free account →",
     saveL: "Save this kit to my history",
     saveNote: "Stored encrypted on EU servers · deletable anytime · removed after 24 months.",
@@ -195,6 +197,23 @@ $("srcSeg").addEventListener("click", (e) => {
   source = b.getAttribute("data-src");
   [...$("srcSeg").children].forEach((c) => { const on = c === b; c.classList.toggle("on", on); c.setAttribute("aria-pressed", String(on)); });
   $("cvWrap").style.display = source === "cv" ? "" : "none";
+});
+/* §5 upload CV: multipart → /v1/cv/parse → testo nel textarea (l'utente lo vede e lo controlla) */
+$("cvFile").addEventListener("change", async () => {
+  const f = $("cvFile").files && $("cvFile").files[0]; if (!f) return;
+  const st = $("cvFileStatus"); st.textContent = t("cvParsing");
+  const fd = new FormData(); fd.append("file", f, f.name);
+  try {
+    const res = await fetch(BACKEND + "/v1/cv/parse", { method: "POST", body: fd, credentials: "include", signal: window.LCC.abortScope("cvparse").signal });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(d.detail || d.error || ("HTTP " + res.status));
+    $("cvText").value = String(d.text || "").slice(0, 8000);
+    st.textContent = t("cvParsed").replace("{n}", String($("cvText").value.length));
+    $("cvText").focus();
+  } catch (e) {
+    st.textContent = t("cvParseFail") + " " + (e && e.message ? e.message : "?");
+    announceAlert(st.textContent);
+  } finally { $("cvFile").value = ""; }
 });
 $("jobAd").addEventListener("input", () => {
   $("adCount").textContent = $("jobAd").value.length;
