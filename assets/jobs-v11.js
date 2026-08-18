@@ -28,10 +28,21 @@ const BRAND=window.LCC.BRAND;
   const PROVIDER_LABELS={adzuna:"Adzuna",indeed:"Indeed",jooble:"Jooble",jsearch:"Google for Jobs (JSearch)"};
   let providers=[];
   const providerLabel=p=>PROVIDER_LABELS[p]||(p?p.charAt(0).toUpperCase()+p.slice(1):null);
+  function renderAttrib(el){
+    el.textContent="";
+    const names=(providers.length?providers:[provider]).filter(Boolean);
+    if(names.includes("adzuna")){ // attribuzione richiesta dai termini Adzuna: badge con link
+      const a=document.createElement("a");a.href="https://www.adzuna.it";a.target="_blank";a.rel="noopener noreferrer";a.title="Jobs by Adzuna";
+      const img=document.createElement("img");img.src="assets/jobs-by-adzuna-116x23.svg";img.width=116;img.height=23;img.alt="Jobs by Adzuna";img.style.verticalAlign="middle";a.appendChild(img);el.appendChild(a);
+    }
+    const others=names.filter(n=>n!=="adzuna").map(providerLabel).filter(Boolean);
+    if(others.length){el.appendChild(document.createTextNode((names.includes("adzuna")?" · ":"")+t("attrib").split("{p}").join(others.join(", "))));}
+    else if(!names.includes("adzuna")&&attribText()){el.appendChild(document.createTextNode(attribText()));}
+  }
   function attribText(){const names=(providers.length?providers:[provider]).filter(Boolean).map(providerLabel).filter(Boolean);return names.length?t("attrib").split("{p}").join(names.join(", ")):"";}
   function applyLang(){document.documentElement.lang=LANG;
   const __ls=document.getElementById("langSeg"); if(__ls){[...__ls.querySelectorAll("button")].forEach((c)=>{const on=c.getAttribute("data-lang")===LANG;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});}document.title=t("docTitle");const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute("content",t("docDesc"));
-    document.querySelectorAll("[data-i]").forEach(el=>{const k=el.getAttribute("data-i");el.textContent=k==="attrib"?attribText():t(k);});
+    document.querySelectorAll("[data-i]").forEach(el=>{const k=el.getAttribute("data-i");if(k==="attrib"){renderAttrib(el);}else el.textContent=t(k);});
     document.querySelectorAll("[data-i-ph]").forEach(el=>{el.placeholder=t(el.getAttribute("data-i-ph"));});}
   // provider noto fin dal caricamento (non solo dopo la prima ricerca)
   (async()=>{try{const r=await fetch(BACKEND+"/v1/jobs/meta");if(r.ok){const m=await r.json();if(m.provider){provider=m.provider;providers=m.providers||[];applyLang();}}}catch(_){}})();

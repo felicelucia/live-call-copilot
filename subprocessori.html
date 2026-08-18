@@ -18,17 +18,21 @@
   <header class="topbar"><div class="logo" aria-hidden="true">⚖️</div><a class="brand" href="landing.html">Kandra</a></header>
   <main id="main">
     <div class="ds-card">
-      <p class="draft" role="note"><strong>BOZZA — da revisione legale.</strong> Testo provvisorio: i campi tra parentesi quadre vanno compilati; il documento definitivo sarà pubblicato prima del lancio.</p>
+      <p class="draft" role="note"><strong>BOZZA — in revisione legale (stato pre-avvocato).</strong> I campi [DA COMPILARE] sono dati del titolare; il testo definitivo sarà pubblicato prima del lancio.</p>
       <h1 class="ds-h1">Subprocessori</h1>
       <p class="ds-muted" lang="en">Sub-processors</p>
-      <p>Hosting API e client: Scaleway (Parigi, FR) — UE.</p>
-      <p>Database: Neon (regione eu-central-1, Francoforte, DE) — UE.</p>
-      <p>Modelli AI per dati sensibili: Mistral AI (Parigi, FR) — UE.</p>
-      <p>Modelli extra-UE (SOLO su scelta esplicita dell'utente / chiave propria): Google, OpenAI, Anthropic, Groq, DeepSeek, Alibaba, Moonshot.</p>
-      <p>Ricerca offerte (dati pubblici sugli annunci): Adzuna; Indeed, Jooble, JSearch/RapidAPI se attivati.</p>
-      <p>Pagamenti: Stripe. Email transazionali: [Resend/Postmark — da attivare]. Redis (contatori, nessun contenuto): [provider da definire].</p>
-      <p>L'elenco viene aggiornato prima di attivare qualunque nuovo fornitore.</p>
-      <p class="ds-muted" style="margin-top:var(--ds-s5)">Ultimo aggiornamento della bozza: 2026-08-18.</p>
+      <p>Elenco dei fornitori che trattano dati per nostro conto (stato pre-avvocato; da confermare con i DPA firmati):</p>
+      <p>Scaleway (Parigi, FR) — hosting API e client — UE.</p>
+      <p>Neon (eu-central-1, Francoforte, DE) — database cifrato — UE.</p>
+      <p>Mistral AI (Parigi, FR) — modelli linguistici per TUTTI i dati sensibili (CV, profilo, storie, trascrizioni) — UE; clausola no-training (Terms of Use).</p>
+      <p>Google Gemini — modello linguistico SOLO per dati non sensibili e SOLO su scelta esplicita dell'utente (BYOK/consenso sul gate); nessun dato sensibile.</p>
+      <p>Provider extra-UE in BYOK (OpenAI, Anthropic, Groq, DeepSeek, Alibaba, Moonshot) — solo con chiave dell'utente e consenso esplicito; mai per default.</p>
+      <p>Adzuna (UK) — dati pubblici sugli annunci di lavoro (offerte live con attribuzione; aggregati solo con licenza scritta).</p>
+      <p>[Resend/Postmark — DA CONFERMARE] — email transazionali (conferma iscrizione, reset password) — solo verso l'utente stesso.</p>
+      <p>[Provider Redis UE — DA CONFERMARE] — contatori di quota/rate-limit; nessun contenuto utente.</p>
+      <p>Stripe — pagamenti (prezzo fisso, mai success fee).</p>
+      <p>L'elenco viene aggiornato prima di attivare qualunque nuovo fornitore; ogni riga [DA CONFERMARE] va chiusa con il DPA firmato.</p>
+      <p class="ds-muted" style="margin-top:var(--ds-s5)">Ultimo aggiornamento della bozza: 2026-08-19 (pre-avvocato).</p>
     </div>
     <nav class="legalnav" aria-label="Pagine legali"><a href="privacy.html">Informativa privacy</a> · <a href="termini.html">Termini di servizio</a> · <a href="cookie.html">Cookie</a> · <a href="subprocessori.html">Subprocessori</a> · <a href="contatto.html">Contatto</a></nav>
   </main>
