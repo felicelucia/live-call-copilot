@@ -1,0 +1,8 @@
+/* pagine legali (bozza) */
+.topbar{display:flex;align-items:center;gap:12px;padding-top:var(--ds-s2);}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--ds-accent),#7048e8);display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+.brand{font-weight:800;color:inherit;text-decoration:none;}
+.draft{background:var(--ds-warn-soft);border:1.5px solid #f2dcb0;color:var(--ds-warn-text);border-radius:var(--ds-r-m);padding:var(--ds-s3) var(--ds-s4);font-size:var(--ds-t-sm);}
+.ds-card p{line-height:1.7;}
+.legalnav{margin-top:var(--ds-s4);font-size:var(--ds-t-sm);text-align:center;}
+.legalnav a{color:var(--ds-accent);margin:0 4px;}
