@@ -8,14 +8,14 @@ const BRAND=window.LCC.BRAND;
       sub:"Trova l'annuncio giusto e genera in un click il Kit su misura: CV, mail e domande probabili.",
       qL:"Cosa cerchi",qPh:"Es: account executive, project manager…",lL:"Dove",lPh:"Es: Milano, remoto…",
       cL:"Paese",go:"🔎 Cerca",searching:"Cerco…",none:"Nessuna offerta trovata: prova con altre parole.",
-      kitBtn:"✨ Genera Kit",kitPrep:"Preparo il Kit…",errNet:"Backend non raggiungibile.",errTimeout:"Tempo scaduto: riprova.",rateLimited:"Troppe richieste: riprova tra {s}s",
+      kitBtn:"✨ Genera Kit",kitPrep:"Preparo il Kit…",errNet:"Backend non raggiungibile.",errTimeout:"Tempo scaduto: riprova.",rateLimited:"Troppe richieste: riprova tra {s}s",providerDown:"fonte non raggiungibile: {p}",
       notConf:"🔌 La ricerca offerte non è ancora attiva: stiamo completando l'accesso all'API ufficiale del provider. Nel frattempo puoi incollare qualunque annuncio direttamente nel Kit di candidatura.",
       openKit:"→ Apri il Kit",results:"offerte",attrib:"Ricerca offerte fornita da {p}. I link di candidatura portano a {p}."},
     en:{docTitle:"Job search — "+BRAND+"",docDesc:"Search real job ads and generate the tailored Application Kit in one click: CV, email and likely questions.",skipLink:"Skip to content",resultsH:"Search results",brandSub:"Job search · beta",h1:"Search real job ads",
       sub:"Find the right ad and generate the tailored Kit in one click: CV, email and likely questions.",
       qL:"What",qPh:"E.g. account executive, project manager…",lL:"Where",lPh:"E.g. Milan, remote…",
       cL:"Country",go:"🔎 Search",searching:"Searching…",none:"No jobs found: try different words.",
-      kitBtn:"✨ Generate Kit",kitPrep:"Preparing the Kit…",errNet:"Backend unreachable.",errTimeout:"Timed out: please retry.",rateLimited:"Too many requests: retry in {s}s",
+      kitBtn:"✨ Generate Kit",kitPrep:"Preparing the Kit…",errNet:"Backend unreachable.",errTimeout:"Timed out: please retry.",rateLimited:"Too many requests: retry in {s}s",providerDown:"source unreachable: {p}",
       notConf:"🔌 Job search is not active yet: we are completing access to the provider's official API. Meanwhile you can paste any job ad directly into the Application Kit.",
       openKit:"→ Open the Kit",results:"jobs",attrib:"Job search powered by {p}. Apply links go to {p}."}
   };
@@ -25,15 +25,16 @@ const BRAND=window.LCC.BRAND;
   // mai una stringa fissa — footer dal provider attivo, riga per riga dal
   // source del singolo annuncio. Fallback: nome del provider capitalizzato.
   let provider=null;
-  const PROVIDER_LABELS={adzuna:"Adzuna",indeed:"Indeed"};
+  const PROVIDER_LABELS={adzuna:"Adzuna",indeed:"Indeed",jooble:"Jooble",jsearch:"Google for Jobs (JSearch)"};
+  let providers=[];
   const providerLabel=p=>PROVIDER_LABELS[p]||(p?p.charAt(0).toUpperCase()+p.slice(1):null);
-  function attribText(){const p=providerLabel(provider);return p?t("attrib").split("{p}").join(p):"";}
+  function attribText(){const names=(providers.length?providers:[provider]).filter(Boolean).map(providerLabel).filter(Boolean);return names.length?t("attrib").split("{p}").join(names.join(", ")):"";}
   function applyLang(){document.documentElement.lang=LANG;
   const __ls=document.getElementById("langSeg"); if(__ls){[...__ls.querySelectorAll("button")].forEach((c)=>{const on=c.getAttribute("data-lang")===LANG;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});}document.title=t("docTitle");const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute("content",t("docDesc"));
     document.querySelectorAll("[data-i]").forEach(el=>{const k=el.getAttribute("data-i");el.textContent=k==="attrib"?attribText():t(k);});
     document.querySelectorAll("[data-i-ph]").forEach(el=>{el.placeholder=t(el.getAttribute("data-i-ph"));});}
   // provider noto fin dal caricamento (non solo dopo la prima ricerca)
-  (async()=>{try{const r=await fetch(BACKEND+"/v1/jobs/meta");if(r.ok){const m=await r.json();if(m.provider){provider=m.provider;applyLang();}}}catch(_){}})();
+  (async()=>{try{const r=await fetch(BACKEND+"/v1/jobs/meta");if(r.ok){const m=await r.json();if(m.provider){provider=m.provider;providers=m.providers||[];applyLang();}}}catch(_){}})();
   $("langSeg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;LANG=b.getAttribute("data-lang");window.LCC.setLang(LANG);[...$("langSeg").children].forEach(c=>{const on=c===b;c.classList.toggle("on",on);c.setAttribute("aria-pressed",String(on));});applyLang();});
 
   const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -81,7 +82,8 @@ const BRAND=window.LCC.BRAND;
         if(e&&e.message==="aborted") return;
         throw e;
       }
-      if(d.provider){provider=d.provider;applyLang();}
+      if(d.provider){provider=d.provider;providers=(d.providers||[]).filter(p=>p.ok).map(p=>p.name);applyLang();}
+      const down=(d.providers||[]).filter(p=>!p.ok).map(p=>providerLabel(p.name)); if(down.length){ /* degradazione graziosa: lo diciamo */ $("status").textContent+= " · "+t("providerDown").replace("{p}",down.join(", ")); }
       render(d.jobs||[]);
       setStatus((d.total||d.jobs.length)+" "+t("results"),"ok");
     }catch(e){ setStatus(e.message,"err"); }
